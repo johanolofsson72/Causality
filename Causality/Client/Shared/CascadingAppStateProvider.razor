@@ -1,0 +1,66 @@
+﻿@inject ISyncLocalStorageService localStorage
+@inject IndexedDBManager dbManager
+
+@if (hasLoaded)
+{
+    <CascadingValue Value="@this">
+        @ChildContent
+    </CascadingValue>
+}
+
+@code
+{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public ApplicationState AppState { get; set; }
+
+    bool hasLoaded;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var json = localStorage.GetItemAsString("Causality_AppState");
+
+        if (json != null && json != "")
+        {
+            var Data = JsonConvert.DeserializeObject<ApplicationState>(json);
+            if (DateTime.Now <= Data.LastAccessed.AddSeconds(Data.TimeToLiveInSeconds))
+            {
+                AppState = Data;
+                AppState.UpdateWarmedUp(this, false);
+                Console.WriteLine("Access AppState from cache");
+            }
+            else
+            {
+                AppState = new ApplicationState();
+                await dbManager.OpenDb();
+                await dbManager.ClearStore("Blobs");
+                Console.WriteLine("Access AppState from new and clear indexedDB");
+            }
+        }
+        else
+        {
+            AppState = new ApplicationState();
+            await dbManager.OpenDb();
+            await dbManager.ClearStore("Blobs");
+            Console.WriteLine("Access AppState from new and clear indexedDB");
+        }
+        hasLoaded = true;
+    }
+
+    public void SaveChanges()
+    {
+        SaveChangesAsync().GetAwaiter().GetResult();
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        // LocalStorage allows up to 5MB by default.
+        // Test: https://arty.name/localstorage.html
+        // TIP: Never store sensitive data in LocalStorage
+        await Task.Delay(0);
+        AppState.LastAccessed = DateTime.Now;
+        var json = JsonConvert.SerializeObject(AppState);
+        localStorage.SetItem("Causality_AppState", json);
+    }
+}

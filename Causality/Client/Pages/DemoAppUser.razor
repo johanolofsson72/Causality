@@ -1,0 +1,29 @@
+﻿@page "/demoappuser"
+@inject Services.UserService dataService
+@*@inject Services.EventService eventService*@
+
+<TelerikDropDownList @bind-Value="selectedUserId" Width="250px" Data="@users" DefaultText="Select a user" ValueField="Id" TextField="Name" Id="satan">
+    <ValueTemplate>
+        @((context as User).Name)
+    </ValueTemplate>
+    <ItemTemplate>
+        @((context as User).Name)
+    </ItemTemplate>
+</TelerikDropDownList>
+<br />
+<br />
+<AppUserComponent UserId="@selectedUserId" />
+
+@code
+{
+    [CascadingParameter]
+    public CascadingAppStateProvider state { get; set; }
+    public int selectedUserId { get; set; }
+    public IList<User> users;
+
+    protected async override Task OnInitializedAsync()
+    {
+        //await eventService.TryGet(e => e.Id > 0, "Id", true, "Cause,Class,Effect,Exclude", (IEnumerable<Event> e, string s) => { }, (Exception e, string s) => { }, state);
+        await dataService.TryGet(u => u.Id > 0, "Name", true, "", (IEnumerable<User>u, string s) => { users = u.ToList<User>(); }, (Exception e, string s) => { }, state);
+    }
+}

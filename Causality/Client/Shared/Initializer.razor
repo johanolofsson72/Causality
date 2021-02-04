@@ -1,0 +1,45 @@
+﻿@inject Services.EventService eventService
+@inject Services.CauseService causeService
+@inject Services.ClassService classService
+@inject Services.ExcludeService excludeService
+@inject Services.EffectService effectService
+@inject Services.UserService userService
+@inject Services.MetaService metaService
+
+@ChildContent
+
+@code
+{
+    [CascadingParameter]
+    CascadingAppStateProvider StateProvider { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        // Set support for offline mode
+        StateProvider.AppState.UpdateOfflineMode(this, false);
+        Console.WriteLine("AppState.UpdateOfflineMode to false...");
+
+        // Set support for indexedDB
+        StateProvider.AppState.UpdateUseIndexedDB(this, true);
+        Console.WriteLine("AppState.UpdateUseIndexedDB to true...");
+
+        Console.WriteLine("Services is warming up...");
+        List<Task> services = new();
+        services.Add(eventService.WarmUp());
+        services.Add(causeService.WarmUp());
+        services.Add(classService.WarmUp());
+        services.Add(excludeService.WarmUp());
+        services.Add(effectService.WarmUp());
+        services.Add(userService.WarmUp());
+        services.Add(metaService.WarmUp());
+        await Task.WhenAll(services);
+
+        StateProvider.AppState.UpdateWarmedUp(this, true);
+        Console.WriteLine("Services is warm and hot...");
+
+    }
+
+}

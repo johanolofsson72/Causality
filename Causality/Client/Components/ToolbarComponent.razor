@@ -1,0 +1,146 @@
+﻿@implements IDisposable
+@inject OnlineStateService onlineState
+
+<div style="height:42px;">
+    @if (StateProvider.AppState.OfflineMode)
+    {
+        <button class="btn btn-success btn-sm oi oi-ban" @onclick="ToggleOfflineMode" title="Toggle Offline Mode"></button>
+    }
+    else
+    {
+        <button class="btn btn-danger btn-sm oi oi-ban" @onclick="ToggleOfflineMode" title="Toggle Offline Mode"></button>
+    }
+    &nbsp;
+    @if (StateProvider.AppState.UseIndexedDB)
+    {
+        <button class="btn btn-success btn-sm oi oi-pin" @onclick="ToggleUseIndexedDB" title="Toggle the use of IndexedDB"></button>
+    }
+    else
+    {
+        <button class="btn btn-danger btn-sm oi oi-pin" @onclick="ToggleUseIndexedDB" title="Toggle the use of IndexedDB"></button>
+    }
+    &nbsp;
+    <button class="btn btn-primary btn-sm oi oi-wifi" @onclick="CheckIsOnline" title="Check if we are online"></button>
+    &nbsp;
+    <button class="btn btn-primary btn-sm oi oi-timer" @onclick="IncreaseTime" title="Increase time for the saved localstorage object"></button>
+    &nbsp;&nbsp;
+</div>
+<div style="height:42px;">
+    &nbsp;&nbsp;
+    @if (StateProvider.AppState.OfflineMode)
+    {
+        <span style="font-size:xx-small;">OfflineMode: <strong class="text-success">@(StateProvider.AppState.OfflineMode ? "Enabled" : "Disabled")</strong></span>
+    }
+    else
+    {
+        <span style="font-size:xx-small;">OfflineMode: <strong class="text-danger">@(StateProvider.AppState.OfflineMode ? "Enabled" : "Disabled")</strong></span>
+    }
+    &nbsp;
+    @if (IsOnline)
+    {
+        <span style="font-size:xx-small;">IsOnline: <strong class="text-success">@IsOnline</strong></span>
+    }
+    else
+    {
+        <span style="font-size:xx-small;">IsOnline: <strong class="text-danger">@IsOnline</strong></span>
+    }
+    &nbsp;
+    @if (StateProvider.AppState.UseIndexedDB)
+    {
+        <span style="font-size:xx-small;">UseIndexedDB: <strong class="text-success">@StateProvider.AppState.UseIndexedDB.ToString()</strong></span>
+    }
+    else
+    {
+        <span style="font-size:xx-small;">UseIndexedDB: <strong class="text-danger">@StateProvider.AppState.UseIndexedDB.ToString()</strong></span>
+    }
+    &nbsp;
+    @if (StateProvider.AppState.WarmedUp)
+    {
+        <span style="font-size:xx-small;">WarmedUp: <strong class="text-success">@StateProvider.AppState.WarmedUp.ToString()</strong></span>
+    }
+    else
+    {
+        <span style="font-size:xx-small;">WarmedUp: <strong class="text-danger">@StateProvider.AppState.WarmedUp.ToString()</strong></span>
+    }
+    &nbsp;
+    <span style="font-size:xx-small;">Time: <strong class="text-primary">@StateProvider.AppState.TimeToLiveInSeconds.ToString()</strong></span>
+</div>
+
+@code {
+
+    [CascadingParameter]
+    CascadingAppStateProvider StateProvider { get; set; }
+
+    public bool IsOnline = false;
+
+    void IncreaseTime()
+    {
+        StateProvider.AppState.UpdateTimeToLiveInSeconds(this, StateProvider.AppState.TimeToLiveInSeconds + 10);
+    }
+
+    void ToggleUseIndexedDB()
+    {
+        StateProvider.AppState.UpdateUseIndexedDB(this, !StateProvider.AppState.UseIndexedDB);
+    }
+
+    void ToggleOfflineMode()
+    {
+        StateProvider.AppState.UpdateOfflineMode(this, !StateProvider.AppState.OfflineMode);
+    }
+
+    async void CheckIsOnline()
+    {
+        if (await onlineState.IsOnline())
+        {
+            IsOnline = true;
+        }
+        else
+        {
+            IsOnline = false;
+        }
+        StateHasChanged();
+    }
+
+
+    private async Task AppState_StateChanged(ComponentBase Source, string Property)
+    {
+        if (Source != this)
+        {
+            // Inspect Property to determine if action needs to be taken.
+            //if (Property.Equals("UseIndexedDB"))
+            //{
+
+            //}
+            //else if (Property.Equals("TimeToLiveInSeconds"))
+            //{
+
+            //}
+            //else if (Property.Equals("OfflineMode"))
+            //{
+
+            //}
+            await InvokeAsync(StateHasChanged);
+        }
+        await StateProvider.SaveChangesAsync();
+    }
+
+    protected async override void OnInitialized()
+    {
+        StateProvider.AppState.StateChanged += async (Source, Property) => await AppState_StateChanged(Source, Property);
+        if (await onlineState.IsOnline())
+        {
+            IsOnline = true;
+        }
+        else
+        {
+            IsOnline = false;
+        }
+        StateHasChanged();
+    }
+
+    void IDisposable.Dispose()
+    {
+        StateProvider.AppState.StateChanged -= async (Source, Property) => await AppState_StateChanged(Source, Property);
+    }
+
+}

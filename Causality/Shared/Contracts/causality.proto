@@ -1,0 +1,587 @@
+﻿syntax = "proto3";
+ 
+// import "google/protobuf/any.proto";
+// import "google/protobuf/empty.proto";
+// import "google/protobuf/timestamp.proto";
+// import "google.type/datetime.proto";
+ 
+option csharp_namespace = "Causality.Shared.Models";
+ 
+package Causalitytest;
+ 
+service CauseService {
+
+  // Generic methods
+  rpc Get (CauseRequestGet) returns (CauseResponseGet);
+  rpc GetById (CauseRequestGetById) returns (CauseResponseGetById);
+  rpc Insert (CauseRequestInsert) returns (CauseResponseInsert);
+  rpc Update (CauseRequestUpdate) returns (CauseResponseUpdate);
+  rpc Delete (CauseRequestDelete) returns (CauseResponseDelete);
+  }
+service ClassService {
+  rpc Get (ClassRequestGet) returns (ClassResponseGet);
+  rpc GetById (ClassRequestGetById) returns (ClassResponseGetById);
+  rpc Insert (ClassRequestInsert) returns (ClassResponseInsert);
+  rpc Update (ClassRequestUpdate) returns (ClassResponseUpdate);
+  rpc Delete (ClassRequestDelete) returns (ClassResponseDelete);
+}
+service EffectService {
+  rpc Get (EffectRequestGet) returns (EffectResponseGet);
+  rpc GetById (EffectRequestGetById) returns (EffectResponseGetById);
+  rpc Insert (EffectRequestInsert) returns (EffectResponseInsert);
+  rpc Update (EffectRequestUpdate) returns (EffectResponseUpdate);
+  rpc Delete (EffectRequestDelete) returns (EffectResponseDelete);
+  }
+service EventService {
+  rpc Get (EventRequestGet) returns (EventResponseGet);
+  rpc GetById (EventRequestGetById) returns (EventResponseGetById);
+  rpc Insert (EventRequestInsert) returns (EventResponseInsert);
+  rpc Update (EventRequestUpdate) returns (EventResponseUpdate);
+  rpc Delete (EventRequestDelete) returns (EventResponseDelete);
+  }
+service ExcludeService {
+  rpc Get (ExcludeRequestGet) returns (ExcludeResponseGet);
+  rpc GetById (ExcludeRequestGetById) returns (ExcludeResponseGetById);
+  rpc Insert (ExcludeRequestInsert) returns (ExcludeResponseInsert);
+  rpc Update (ExcludeRequestUpdate) returns (ExcludeResponseUpdate);
+  rpc Delete (ExcludeRequestDelete) returns (ExcludeResponseDelete);
+  }
+service MetaService {
+  rpc Get (MetaRequestGet) returns (MetaResponseGet);
+  rpc GetById (MetaRequestGetById) returns (MetaResponseGetById);
+  rpc Insert (MetaRequestInsert) returns (MetaResponseInsert);
+  rpc Update (MetaRequestUpdate) returns (MetaResponseUpdate);
+  rpc Delete (MetaRequestDelete) returns (MetaResponseDelete);
+  }
+service UserService {
+  rpc Get (UserRequestGet) returns (UserResponseGet);
+  rpc GetById (UserRequestGetById) returns (UserResponseGetById);
+  rpc Insert (UserRequestInsert) returns (UserResponseInsert);
+  rpc Update (UserRequestUpdate) returns (UserResponseUpdate);
+  rpc Delete (UserRequestDelete) returns (UserResponseDelete);
+
+}
+ 
+
+message CauseRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+  string includeProperties = 4;
+}
+
+message CauseResponseGet {
+  repeated Cause causes = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message CauseRequestGetById {
+  int32 id = 1;
+  string includeProperties = 2;
+}
+ 
+message CauseResponseGetById {
+  Cause cause = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message CauseRequestInsert {
+  Cause cause = 1;
+}
+ 
+message CauseResponseInsert {
+  Cause cause = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message CauseRequestUpdate {
+  Cause cause = 1;
+}
+ 
+message CauseResponseUpdate {
+  Cause cause = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message CauseRequestDelete {
+  int32 id = 1;
+}
+ 
+message CauseResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
+ 
+
+message ClassRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+  string includeProperties = 4;
+}
+
+message ClassResponseGet {
+  repeated Class classes = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message ClassRequestGetById {
+  int32 id = 1;
+  string includeProperties = 2;
+}
+ 
+message ClassResponseGetById {
+  Class class = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ClassRequestInsert {
+  Class class = 1;
+}
+ 
+message ClassResponseInsert {
+  Class class = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ClassRequestUpdate {
+  Class class = 1;
+}
+ 
+message ClassResponseUpdate {
+  Class class = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ClassRequestDelete {
+  int32 id = 1;
+}
+ 
+message ClassResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
+ 
+
+message EffectRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+}
+
+message EffectResponseGet {
+  repeated Effect effects = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message EffectRequestGetById {
+  int32 id = 1;
+}
+ 
+message EffectResponseGetById {
+  Effect effect = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message EffectRequestInsert {
+  Effect effect = 1;
+}
+ 
+message EffectResponseInsert {
+  Effect effect = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message EffectRequestUpdate {
+  Effect effect = 1;
+}
+ 
+message EffectResponseUpdate {
+  Effect effect = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message EffectRequestDelete {
+  int32 id = 1;
+}
+ 
+message EffectResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
+ 
+
+message EventRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+  string includeProperties = 4;
+}
+
+message EventResponseGet {
+  repeated Event events = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message EventRequestGetById {
+  int32 id = 1;
+}
+ 
+message EventResponseGetById {
+  Event event = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message EventRequestInsert {
+  Event event = 1;
+}
+ 
+message EventResponseInsert {
+  Event event = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message EventRequestUpdate {
+  Event event = 1;
+}
+ 
+message EventResponseUpdate {
+  Event event = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message EventRequestDelete {
+  int32 id = 1;
+}
+ 
+message EventResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
+ 
+
+message ExcludeRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+}
+
+message ExcludeResponseGet {
+  repeated Exclude excludes = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message ExcludeRequestGetById {
+  int32 id = 1;
+}
+ 
+message ExcludeResponseGetById {
+  Exclude exclude = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ExcludeRequestInsert {
+  Exclude exclude = 1;
+}
+ 
+message ExcludeResponseInsert {
+  Exclude exclude = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ExcludeRequestUpdate {
+  Exclude exclude = 1;
+}
+ 
+message ExcludeResponseUpdate {
+  Exclude exclude = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ExcludeRequestDelete {
+  int32 id = 1;
+}
+ 
+message ExcludeResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
+ 
+
+message MetaRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+}
+
+message MetaResponseGet {
+  repeated Meta metas = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message MetaRequestGetById {
+  int32 id = 1;
+}
+ 
+message MetaResponseGetById {
+  Meta meta = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message MetaRequestInsert {
+  Meta meta = 1;
+}
+ 
+message MetaResponseInsert {
+  Meta meta = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message MetaRequestUpdate {
+  Meta meta = 1;
+}
+ 
+message MetaResponseUpdate {
+  Meta meta = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message MetaRequestDelete {
+  int32 id = 1;
+}
+ 
+message MetaResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
+ 
+
+message UserRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+  string includeProperties = 4;
+}
+
+message UserResponseGet {
+  repeated User users = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message UserRequestGetById {
+  int32 id = 1;
+  string includeProperties = 2;
+}
+ 
+message UserResponseGetById {
+  User user = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message UserRequestInsert {
+  User user = 1;
+}
+ 
+message UserResponseInsert {
+  User user = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message UserRequestUpdate {
+  User user = 1;
+}
+ 
+message UserResponseUpdate {
+  User user = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message UserRequestDelete {
+  int32 id = 1;
+}
+ 
+message UserResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
+ 
+
+message User {
+
+  // base class members
+  int32 id = 1;
+  string uID = 2;
+  string iP = 3;
+  string name = 4;
+  string email = 5;
+  string updatedDate = 6;
+  repeated Exclude excludes = 7;
+
+}
+// Type class
+message Meta {
+
+  // base class members
+  int32 id = 1;
+  string key = 2;
+  string value = 3;
+  string updatedDate = 4;
+
+}
+// Exclude class
+message Exclude {
+
+  // base class members
+  int32 id = 1;
+  int32 eventId = 2;
+  int32 causeId = 3;
+  int32 userId = 4;
+  string value = 5;
+  string updatedDate = 6;
+
+}
+// Event class
+message Event {
+
+  // base class members
+  int32 id = 1;
+  int32 order = 2;
+  string value = 3;
+  string updatedDate = 4;
+  repeated Class classes= 5;
+  repeated Cause causes = 6;
+  repeated Effect effects = 7;
+  repeated Exclude excludes = 8;
+}
+
+// Effect class
+message Effect {
+
+  // base class members
+  int32 id = 1;
+  int32 eventId = 2;
+  int32 causeId = 3;
+  int32 classId = 4;
+  int32 userId = 5;
+  string value = 6;
+  string updatedDate = 7;
+
+}
+// Class class
+message Class {
+
+  // base class members
+  int32 id = 1;
+  int32 eventId = 2;
+  int32 order = 3;
+  string value = 4;
+  string updatedDate = 5;
+  repeated Cause causes = 6;
+  repeated Effect effects = 7;
+
+}
+// Type class
+message Cause {
+
+  // base class members
+  int32 id = 1;
+  int32 eventId = 2;
+  int32 classId = 3;
+  int32 order = 4;
+  string value = 5;
+  string updatedDate = 6;
+  repeated Effect effects = 7;
+  repeated Exclude excludes = 8;
+
+}

@@ -1,0 +1,48 @@
+﻿@inherits AppUserViewModel
+
+@if (UserId > 0 && currentUser is not null)
+{
+<table class="table">
+    <tr>
+        <td colspan="2">Name:&nbsp;<strong>@currentUser.Name</strong>&nbsp;(@currentUser.ExecutionTime milliseconds)</td>
+    </tr>
+    <tr>
+        <td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="2">Interactions</td>
+    </tr>
+    @foreach (var item in currentUser.Interactions)
+    {
+        <tr>
+            <td>Class:</td>
+            <td> @item.Class</td>
+        </tr>
+        <tr>
+            <td>Cause:</td>
+            <td> @item.Cause</td>
+        </tr>
+        <tr>
+            <td>Effect:</td>
+            <td>@item.Effect</td>
+        </tr>
+    }
+    <tr>
+        <td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="2">Excluded interactions</td>
+    </tr>
+    @foreach (var item in currentUser.ExcludedInteractions)
+    {
+        <tr>
+            <td>Excluded Cause:</td>
+            <td>@item.Cause</td>
+        </tr>
+    }
+    <tr>
+        <td colspan="2">&nbsp;</td>
+    </tr>
+</table>
+}
+

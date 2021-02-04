@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Causality</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="Causality.Client.styles.css" rel="stylesheet" />
+    <link rel="stylesheet" href="_content/Telerik.UI.for.Blazor/css/kendo-theme-default/all.css" />
+    <script src="_content/Telerik.UI.for.Blazor/js/telerik-blazor.js" defer></script>
+    <link rel="stylesheet" href="css/telerik_dropdown.css" />
+</head>
+
+<body>
+    <div id="app">
+        <div style="width: 100%; height: 100%; text-align: center; vertical-align: central">
+            <br /><br /><br /><br />
+            <img src="preloader.gif" width="300" />
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script>
+        window.addEventListener("online", async () => {
+            if (window.navigator.onLine) {
+                DotNet.invokeMethodAsync("BlazorOnlineState", "OnOnline");
+            }
+        });
+
+        window.addEventListener("offline", () => {
+            DotNet.invokeMethodAsync("BlazorOnlineState", "OnOffline");
+        });
+
+        window.IsOnline = async () => {
+            if (window.navigator.onLine) {
+                return true;
+            }
+            return window.navigator.onLine;
+        };
+    </script>
+    <script src="_content/TG.Blazor.IndexedDB/indexedDb.Blazor.js"></script>
+</body>
+
+</html>

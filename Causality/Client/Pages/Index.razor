@@ -1,0 +1,87 @@
+﻿@page "/"
+@implements IDisposable 
+
+<table cellpadding="5">
+    <tr>
+        <td colspan="3"><h1>App started</h1></td>
+    </tr>
+    <tr>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="3">We have preset values for OfflineMode to disabled, Use indexedDB to enabled and then we ran the WarmUp for the grpc server in the cascading component Initializer.</td>
+    </tr>
+    <tr>
+        <td colspan="3">The project is a wasm hosted by .net core and support .net5, grpc, linq via grpc, sqlserver, server side cache into memory, client side cache into localstorage and indexedDB.</td>
+    </tr>
+    <tr>
+        <td colspan="3">The data model used here is causality with the structure (event, class, cause, effect, exclude, meta and user)</td>
+    </tr>
+    <tr>
+        <td colspan="3">There are two seperated interfaces for clients, grpc and rest, where both use all of the benefits above</td>
+    </tr>
+    <tr>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+    <tr>
+        <td colspan="3">-Event<br />--Class<br />---Cause<br />---Effect<br />--Exclude<br />-User<br />-Meta<br /></td>
+    </tr>
+    <tr>
+        <td colspan="3">&nbsp;</td>
+    </tr>
+</table>
+
+@code {
+
+    [CascadingParameter]
+    CascadingAppStateProvider StateProvider { get; set; }
+
+    void IncreaseTime()
+    {
+        StateProvider.AppState.UpdateTimeToLiveInSeconds(this, StateProvider.AppState.TimeToLiveInSeconds + 10);
+    }
+
+    void ToggleUseIndexedDB()
+    {
+        StateProvider.AppState.UpdateUseIndexedDB(this, !StateProvider.AppState.UseIndexedDB);
+    }
+
+    void ToggleOfflineMode()
+    {
+        StateProvider.AppState.UpdateOfflineMode(this, !StateProvider.AppState.OfflineMode);
+    }
+
+
+    private async Task AppState_StateChanged(ComponentBase Source, string Property)
+    {
+        if (Source != this)
+        {
+            // Inspect Property to determine if action needs to be taken.
+            //if (Property.Equals("UseIndexedDB"))
+            //{
+
+            //}
+            //else if (Property.Equals("TimeToLiveInSeconds"))
+            //{
+
+            //}
+            //else if (Property.Equals("OfflineMode"))
+            //{
+
+            //}
+            await InvokeAsync(StateHasChanged);
+        }
+        await StateProvider.SaveChangesAsync();
+    }
+
+    protected override void OnInitialized()
+    {
+        StateProvider.AppState.StateChanged += async (Source, Property) => await AppState_StateChanged(Source, Property);
+    }
+
+    void IDisposable.Dispose()
+    {
+        StateProvider.AppState.StateChanged -= async (Source, Property) => await AppState_StateChanged(Source, Property);
+    }
+
+}

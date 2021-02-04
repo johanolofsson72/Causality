@@ -1,0 +1,116 @@
+﻿@page "/demolinq"
+@inject Causality.Client.Services.EventService eventService
+@inject Causality.Client.Services.ClassService classService
+@inject Causality.Client.Services.CauseService causeService
+@inject Causality.Client.Services.EffectService effectService
+@inject Causality.Client.Services.ExcludeService excludeService
+@inject Causality.Client.Services.UserService userService
+@inject Causality.Client.Services.MetaService metaService
+@inject Blazored.LocalStorage.ILocalStorageService ls
+@inject ApplicationState AppState
+@using System.Linq.Expressions;
+
+<p>@status</p>
+<br />
+<table>
+    <tr>
+        <td>Table:</td>
+        <td><input @bind-value="@table" @bind-value:event="oninput" style="width: 180px" placeholder="Event" /></td>
+    </tr>
+    <tr>
+        <td>LINQ:</td>
+        <td><input @bind-value="@filter" @bind-value:event="oninput" style="width: 180px" placeholder="Id == 2" /></td>
+    </tr>
+    <tr>
+        <td>OrderBy:</td>
+        <td><input @bind-value="@orderby" @bind-value:event="oninput" style="width: 180px" placeholder="Id" /></td>
+    </tr>
+    @if (orderby.Length > 0)
+    {
+        <tr>
+            <td>Ascending:</td>
+            <td><input type="checkbox" @bind-value="@ascending" @bind-value:event="onchange" checked="@ascending" /></td>
+        </tr>
+    }
+</table>
+<button class="btn btn-primary" style="margin: 10px;" @onclick="GetClicked">Get</button>
+
+@if (metaList != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <Virtualize Items="@metaList" Context="item">
+                <tr>
+                    <td>@item.Value</td>
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+}
+
+@code
+{
+    [CascadingParameter]
+    CascadingAppStateProvider StateProvider { get; set; }
+
+    public bool ascending { get; set; } = true;
+    public string table { get; set; } = "Event";
+    public string filter { get; set; } = "Id == 1";
+    public string orderby { get; set; } = "Id";
+    public string status { get; set; } = "Lambda eg. (x.Id == 2)";
+    //private IList<Event> eventList;
+    //private IList<Class> classList;
+    //private IList<Cause> causeList;
+    //private IList<Effect> effectList;
+    //private IList<Exclude> excludeList;
+    //private IList<User> userList;
+    private IList<Meta> metaList;
+
+    public async void GetClicked()
+    {
+        await Task.Delay(0);
+        //if (table.ToLower().Equals("event"))
+        //{
+        //await eventService.TryGet(e => e.Id > 0, orderby, ascending, "", (IEnumerable<Event> m, String s) => { eventList = m.ToList<Event>(); status = s; StateHasChanged(); }, (Exception e, String r) => { status = r + " " + e.Message.ToString(); }, StateProvider);
+
+        //}
+        //else if (table.ToLower().Equals("cause"))
+        //{
+        //    await causeService.TryGet(filter, orderby, ascending, (IEnumerable<Cause> m, String s) => { causeList = m.ToList<Cause>(); status = s; StateHasChanged(); }, (Exception e, String r) => { status = r + " " + e.Message.ToString(); }, StateProvider);
+        //}
+        //else if (table.ToLower().Equals("effect"))
+        //{
+        //    Expression<Func<Effect, bool>> filter = x => x.UserId == 1;
+        //    await effectService.TryGet(filter, orderby, ascending, (IEnumerable<Effect> m, String s) => { effectList = m.ToList<Effect>(); status = s; StateHasChanged(); }, (Exception e, String r) => { status = r + " " + e.Message.ToString(); }, StateProvider);
+        //}
+        //else if (table.ToLower().Equals("class"))
+        //{
+        //    await classService.TryGet(filter, orderby, ascending, (IEnumerable<Class> m, String s) => { classList = m.ToList<Class>(); status = s; StateHasChanged(); }, (Exception e, String r) => { status = r + " " + e.Message.ToString(); }, StateProvider);
+        //}
+        //else if (table.ToLower().Equals("exclude"))
+        //{
+        //    await excludeService.TryGet(filter, orderby, ascending, (IEnumerable<Exclude> m, String s) => { excludeList = m.ToList<Exclude>(); status = s; StateHasChanged(); }, (Exception e, String r) => { status = r + " " + e.Message.ToString(); }, StateProvider);
+        //}
+        //else if (table.ToLower().Equals("meta"))
+        //{
+        await metaService.TryGet(m => m.Id > 0, orderby, ascending, (IEnumerable<Meta> m, String s) => { metaList = m.ToList<Meta>(); status = s; StateHasChanged(); }, (Exception e, String r) => { status = r + " " + e.Message.ToString(); }, StateProvider);
+        //}
+        //else if (table.ToLower().Equals("user"))
+        //{
+        //    await userService.TryGet(filter, orderby, ascending, (IEnumerable<User> m, String s) => { userList = m.ToList<User>(); status = s; StateHasChanged(); }, (Exception e, String r) => { status = r + " " + e.Message.ToString(); }, StateProvider);
+        //}
+
+
+    }
+
+
+
+
+
+}

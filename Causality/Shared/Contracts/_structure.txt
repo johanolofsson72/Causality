@@ -1,0 +1,53 @@
+﻿Causality										RXSurvey			Pepskola			
+
+Event											Survey				Område
+- Id				(int)		(pk)
+- Order				(int)
+- Value				(string)
+- UpdatedDate		(string)
+
+Cause											Question			Fråga
+- Id				(int)		(pk)			1, 2, 3
+- EventId			(int)		(fk)			1, 1, 1
+- ClassId			(int)		(fk)			1, 1, 2
+- Order				(int)						0, 1, 2
+- Value				(string)					A, B, C				Vad heter du?
+- UpdatedDate		(string)
+
+Class											QuestionType		Nuläge, Planera, Följ upp, Aktiviteter
+- Id				(int)		(pk)			1, 2, 3				1
+- EventId			(int)		(fk)			1, 1, 1				1
+- Order				(int)											1
+- Value				(string)					Sida1, Sida2		Aktivitet_1_Planera_Vem
+- UpdatedDate		(string)
+
+Exclude											QuestionExclude	
+- Id				(int)		(pk)	
+- EventId			(int)		(fk)	
+- CauseId			(int)		(fk)	
+- UserId			(int)		(fk)	
+- Value				(string)
+- UpdatedDate		(string)
+
+Effect											Answer				Svar
+- Id				(int)		(pk)								1
+- EventId			(int)		(fk)								1
+- CauseId			(int)		(fk)								1
+- ClassId			(int)		(fk)								1		
+- UserId			(int)		(fk)								1
+- Value				(string)										Jag heter Johan!
+- UpdatedDate		(string)
+
+Meta											Setting
+- Id				(int)		(pk)								
+- Key				(string)										
+- Value				(string)
+- UpdatedDate		(string)
+
+User											User				Användare
+- Id				(int)		(pk)								1
+- UID				(string)										583ab273-0193-425e-9de5-eec928cd8f90
+- IP				(string)										31.4.245.180
+- Name				(string)										Johan
+- Email				(string)										jool@me.com
+- UpdatedDate		(string)										2021-01-02 14:08:01
