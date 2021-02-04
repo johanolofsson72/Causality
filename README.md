@@ -6,12 +6,3 @@ The project is a wasm hosted by .net core and support .net5, grpc, linq via grpc
 
 The data model used here is causality with the structure (event, class, cause, effect, exclude, meta and user)
 There are two seperated interfaces for clients, grpc and rest, where both use all of the benefits above
-
--Event
---Class
----Cause
----Effect
---Exclude
--User
--Meta
-
