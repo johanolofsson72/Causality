@@ -73,11 +73,17 @@ namespace Causality.Client.ViewModels
             DateTime executeTimer = DateTime.Now;
 
             User _user = new();
-            await userService.TryGetById(UserId, "Exclude",  (User u, string s) => { _user = u; }, (Exception e, string s) => { }, StateProvider);
+            await userService.TryGetById(UserId, "Exclude,Meta",  async (User u, string s) => 
+            {
+                await Task.Delay(0);
+                _user = u; 
+
+            }, (Exception e, string s) => { }, StateProvider);
 
             currentUser = new();
             currentUser.Id = _user.Id;
             currentUser.Name = _user.Name;
+            currentUser.Metas = _user.Meta.ToList();
 
             List<Effect> _effets = new();
             await effectService.TryGet(u => u.UserId == UserId, "CauseId", true, (IEnumerable<Effect> e, string s) => { _effets = e.ToList(); }, (Exception e, string s) => { }, StateProvider);

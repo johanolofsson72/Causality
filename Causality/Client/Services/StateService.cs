@@ -126,7 +126,11 @@ namespace Causality.Client.Services
                                 {
                                     MetaRequestGet _req = new() { Filter = "e => e.Key LIKE '%StateId=" + item.Id + "%'", OrderBy = "Id", Ascending = true };
                                     MetaResponseGet _ret = await _metaService.GetAsync(_req);
-                                    item.Metas.Add(_ret.Metas);
+                                    //item.Metas.Add(_ret.Metas);
+                                    foreach (var m in _ret.Metas)
+                                    {
+                                        item.Meta.Add(new MetaCollection() { Meta = m });
+                                    }
                                 }
                             }
                         }
@@ -205,7 +209,11 @@ namespace Causality.Client.Services
                             {
                                 MetaRequestGet _req = new() { Filter = "e => e.Key LIKE '%StateId=" + ret.State.Id + "%'", OrderBy = "Id", Ascending = true };
                                 MetaResponseGet _ret = await _metaService.GetAsync(_req);
-                                ret.State.Metas.Add(_ret.Metas);
+                                //ret.State.Metas.Add(_ret.Metas);
+                                foreach (var m in _ret.Metas)
+                                {
+                                    ret.State.Meta.Add(new MetaCollection() { Meta = m });
+                                }
                             }
                         }
                         data = ret.State;

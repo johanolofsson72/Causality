@@ -10,6 +10,7 @@ using System.Linq.Dynamic.Core;
 using Causality.Server.Data;
 using Causality.Shared.Models;
 using Causality.Shared.Data;
+using Mapster;
 
 /// <summary>
 /// Can be copied when adding new service
@@ -20,24 +21,28 @@ namespace Causality.Server.Services
     public class UserService : Causality.Shared.Models.UserService.UserServiceBase
     {
 
-        Repository<User, ApplicationDbContext> _manager;
+        Repository<User, ApplicationDbContext> _user;
+        Repository<Exclude, ApplicationDbContext> _exclude;
+        Repository<Meta, ApplicationDbContext> _meta;
         ApplicationDbContext _context;
         IConfiguration _config;
         IMemoryCache _cache;
         int _cacheTimeInSeconds;
 
-        public UserService(Repository<User, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config)
+        public UserService(Repository<User, ApplicationDbContext> user, ApplicationDbContext context, IMemoryCache cache, IConfiguration config, Repository<Exclude, ApplicationDbContext> exclude, Repository<Meta, ApplicationDbContext> meta)
         {
-            _manager = manager;
+            _user = user;
             _context = context;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
+            _exclude = exclude;
+            _meta = meta;
         }
 
         public override async Task<UserResponseGet> Get(UserRequestGet request, ServerCallContext context)
         {
-            string cacheKey = "User.Get::" + request.Filter + "::" + request.OrderBy + "::" + request.Ascending.ToString();
+            string cacheKey = "User.Get::" + request.Filter + "::" + request.OrderBy + "::" + request.Ascending.ToString() + "::" + request.IncludeProperties;
             bool IsCached = true;
             IEnumerable<User> cacheEntry;
             UserResponseGet response = new();
@@ -47,7 +52,34 @@ namespace Causality.Server.Services
                 {
                     Expression<Func<User, bool>> filter = ExpressionBuilder.BuildFilter<User>(request.Filter);
                     Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = ExpressionBuilder.BuildOrderBy<User>(request.OrderBy, request.Ascending);
-                    cacheEntry = await _manager.Get(filter, orderBy);
+                    cacheEntry = await _user.Get(filter, orderBy);
+
+
+
+
+                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        foreach (var item in cacheEntry)
+                        {
+                            if (includeProperty.ToLower().Equals("exclude"))
+                            {
+                                var _ret = await _exclude.Get(e => e.UserId == item.Id, e => e.OrderBy("Id ASC"));
+                                item.Excludes.Add(_ret);
+                            }
+                            if (includeProperty.ToLower().Equals("meta"))
+                            {
+                                var _ret = await _meta.Get(m => m.Key == "'%UserId=" + item.Id + "%'", m => m.OrderBy("Id ASC"));
+                                foreach (var m in _ret)
+                                {
+                                    item.Meta.Add(new MetaCollection() { Meta = m });
+                                }
+                            }
+                        }
+                    }
+
+
+
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -69,7 +101,7 @@ namespace Causality.Server.Services
 
         public override async Task<UserResponseGetById> GetById(UserRequestGetById request, ServerCallContext context)
         {
-            string cacheKey = "User.GetById::" + request.Id.ToString();
+            string cacheKey = "User.GetById::" + request.Id.ToString() + "::" + request.IncludeProperties;
             bool IsCached = true;
             User cacheEntry;
             var response = new UserResponseGetById();
@@ -77,7 +109,31 @@ namespace Causality.Server.Services
             {
                 if (!_cache.TryGetValue<User>(cacheKey, out cacheEntry))
                 {
-                    cacheEntry = await _manager.GetById(request.Id);
+                    cacheEntry = await _user.GetById(request.Id);
+
+
+
+
+                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (includeProperty.ToLower().Equals("exclude"))
+                        {
+                            var _ret = await _exclude.Get(e => e.UserId == cacheEntry.Id, e => e.OrderBy("Id ASC"));
+                            cacheEntry.Excludes.Add(_ret);
+                        }
+                        if (includeProperty.ToLower().Equals("meta"))
+                        {
+                            var _ret = await _meta.Get(m => m.Key.Contains("UserId=" + cacheEntry.Id), m => m.OrderBy("Id ASC"));
+                            foreach (var m in _ret)
+                            {
+                                cacheEntry.Meta.Add(new MetaCollection() { Meta = m });
+                            }
+                        }
+                    }
+
+
+
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -102,9 +158,9 @@ namespace Causality.Server.Services
             var response = new UserResponseInsert();
             try
             {
-                User cacheEntry = await _manager.Insert(request.User);
+                User cacheEntry = await _user.Insert(request.User);
                 Cache.Remove(_cache, "User.");
-                var result = (await _manager.Get(x => x.Id == cacheEntry.Id)).FirstOrDefault();
+                var result = (await _user.Get(x => x.Id == cacheEntry.Id)).FirstOrDefault();
                 if (result != null)
                 {
                     string cacheKey = "User.GetById::" + cacheEntry.Id.ToString();
@@ -137,9 +193,9 @@ namespace Causality.Server.Services
             var response = new UserResponseUpdate();
             try
             {
-                User cacheEntry = await _manager.Update(request.User);
+                User cacheEntry = await _user.Update(request.User);
                 Cache.Remove(_cache, "User.");
-                var result = (await _manager.Get(x => x.Id == cacheEntry.Id)).FirstOrDefault();
+                var result = (await _user.Get(x => x.Id == cacheEntry.Id)).FirstOrDefault();
                 if (result != null)
                 {
                     string cacheKey = "User.GetById::" + cacheEntry.Id.ToString();
@@ -172,11 +228,11 @@ namespace Causality.Server.Services
             var response = new UserResponseDelete();
             try
             {
-                var list = await _manager.Get(x => x.Id == request.Id);
+                var list = await _user.Get(x => x.Id == request.Id);
                 if (list != null)
                 {
                     var first = list.First();
-                    var success = await _manager.Delete(first);
+                    var success = await _user.Delete(first);
                     if (success)
                     {
                         Cache.Remove(_cache, "User.");

@@ -43,6 +43,19 @@
     <tr>
         <td colspan="2">&nbsp;</td>
     </tr>
+    <tr>
+        <td colspan="2">Meta</td>
+    </tr>
+    @foreach (var item in currentUser.Metas)
+    {
+        <tr>
+            <td>Meta:</td>
+            <td>@item.Meta.Value</td>
+        </tr>
+    }
+    <tr>
+        <td colspan="2">&nbsp;</td>
+    </tr>
 </table>
 }
 

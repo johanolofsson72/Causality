@@ -22,18 +22,20 @@ namespace Causality.Client.Services
     {
         Causality.Shared.Models.UserService.UserServiceClient _userService;
         Causality.Shared.Models.ExcludeService.ExcludeServiceClient _excludeService;
+        readonly Causality.Shared.Models.MetaService.MetaServiceClient _metaService;
         IndexedDBManager _indexedDBManager;
         OnlineStateService _onlineState;
 
         public UserService(Causality.Shared.Models.UserService.UserServiceClient userService,
             Causality.Shared.Models.ExcludeService.ExcludeServiceClient excludeService,
             IndexedDBManager indexedDBManager,
-            OnlineStateService onlineState)
+            OnlineStateService onlineState, Causality.Shared.Models.MetaService.MetaServiceClient metaService)
         {
             _userService = userService;
             _excludeService = excludeService;
             _indexedDBManager = indexedDBManager;
             _onlineState = onlineState;
+            _metaService = metaService;
         }
 
         public async Task TryDelete(int id, Action<string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
@@ -87,7 +89,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Exclude), OrderBy (Id, UID, IP, Name, Email, UpdatedDate)
+        /// TryGet, Includes (Exclude, Meta), OrderBy (Id, UID, IP, Name, Email, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -134,22 +136,10 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    UserRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
+                    UserRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
                     UserResponseGet ret = await _userService.GetAsync(req);
                     if (ret.Success)
                     {
-                        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            foreach (var item in ret.Users)
-                            {
-                                if (includeProperty.ToLower().Equals("exclude"))
-                                {
-                                    ExcludeRequestGet _req = new() { Filter = "e => e.UserId = " + item.Id, OrderBy = "Id", Ascending = true };
-                                    ExcludeResponseGet _ret = await _excludeService.GetAsync(_req);
-                                    item.Excludes.Add(_ret.Excludes);
-                                }
-                            }
-                        }
                         data = ret.Users.ToList();
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)
@@ -173,7 +163,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Exclude)
+        /// TryGetById, Includes (Exclude, Meta)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="onSuccess"></param>
@@ -214,19 +204,10 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    UserRequestGetById req = new() { Id = id };
+                    UserRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
                     UserResponseGetById ret = await _userService.GetByIdAsync(req);
                     if (ret.Success)
                     {
-                        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            if (includeProperty.ToLower().Equals("exclude"))
-                            {
-                                ExcludeRequestGet _req = new() { Filter = "e => e.UserId = " + ret.User.Id, OrderBy = "Id", Ascending = true };
-                                ExcludeResponseGet _ret = await _excludeService.GetAsync(_req);
-                                ret.User.Excludes.Add(_ret.Excludes);
-                            }
-                        }
                         data = ret.User;
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)

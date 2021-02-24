@@ -94,6 +94,9 @@ namespace Causality.Server
                 endpoints.MapGrpcService<Services.EffectService>().EnableGrpcWeb().RequireCors("AllowAll");
                 endpoints.MapGrpcService<Services.UserService>().EnableGrpcWeb().RequireCors("AllowAll");
                 endpoints.MapGrpcService<Services.MetaService>().EnableGrpcWeb().RequireCors("AllowAll");
+                endpoints.MapGrpcService<Services.ProcessService>().EnableGrpcWeb().RequireCors("AllowAll");
+                endpoints.MapGrpcService<Services.StateService>().EnableGrpcWeb().RequireCors("AllowAll");
+                endpoints.MapGrpcService<Services.ResultService>().EnableGrpcWeb().RequireCors("AllowAll");
 
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();

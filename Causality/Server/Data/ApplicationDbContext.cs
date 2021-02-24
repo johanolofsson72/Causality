@@ -115,6 +115,10 @@ namespace Causality.Server.Data
                 f.Property("Email").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
             });
+            modelBuilder.Entity<MetaCollection>(f =>
+            {
+                f.HasKey(e => e.Null);
+            });
 
             base.OnModelCreating(modelBuilder);
 

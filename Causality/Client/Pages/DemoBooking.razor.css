@@ -1,0 +1,20 @@
+﻿.demo-notification {
+    position: absolute;
+}
+
+    .demo-notification .k-notification {
+        width: 530px;
+    }
+
+.notification-parent {
+    position: relative;
+    height: 250px;
+}
+
+.k-notification-container {
+    margin: 6px 0;
+}
+
+#demo-runner {
+    height: 320px;
+}

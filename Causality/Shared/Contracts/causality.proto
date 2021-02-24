@@ -4,6 +4,7 @@
 // import "google/protobuf/empty.proto";
 // import "google/protobuf/timestamp.proto";
 // import "google.type/datetime.proto";
+import "google/protobuf/struct.proto";
  
 option csharp_namespace = "Causality.Shared.Models";
  
@@ -715,24 +716,6 @@ message ResultResponseDelete {
 }
  
 
-message User {
-
-  // base class members
-  int32 id = 1;
-  string uID = 2;
-  string iP = 3;
-  string name = 4;
-  string email = 5;
-  string updatedDate = 6;
-  repeated Exclude excludes = 7;
-  repeated Meta metas = 8;
-
-}
-
-
-
-
-
 // Type class
 message Meta {
 
@@ -809,6 +792,22 @@ message Cause {
   repeated Exclude excludes = 8;
 
 }
+
+// Type class
+message User {
+
+  // base class members
+  int32 id = 1;
+  string uID = 2;
+  string iP = 3;
+  string name = 4;
+  string email = 5;
+  string updatedDate = 6;
+  repeated Exclude excludes = 7;
+  repeated MetaCollection meta = 8;
+
+}
+
 // Type class
 message Process {
 
@@ -818,7 +817,7 @@ message Process {
   int32 order = 3;
   string value = 4;
   string updatedDate = 5;
-  repeated Meta metas = 6;
+  repeated MetaCollection meta = 6;
 
 }
 // Type class
@@ -832,7 +831,7 @@ message State {
   int32 userId = 5;
   string value = 6;
   string updatedDate = 7;
-  repeated Meta metas = 8;
+  repeated MetaCollection meta = 8;
 
 }
 // Type class
@@ -847,6 +846,13 @@ message Result {
   int32 userId = 6;
   string value = 7;
   string updatedDate = 8;
-  repeated Meta metas = 9;
+  repeated MetaCollection meta = 9;
 
+}
+
+message MetaCollection {
+    oneof kind {
+        Meta meta = 1;
+        google.protobuf.NullValue null = 2;
+    }
 }

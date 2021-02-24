@@ -12,6 +12,7 @@ namespace Causality.Shared.Models
         public string Name { get; set; }
         public List<Interaction> Interactions { get; set; }
         public List<ExcludedInteraction> ExcludedInteractions { get; set; }
+        public List<MetaCollection> Metas { get; set; }
         public string ExecutionTime { get; set; }
 
         public class Interaction
@@ -24,7 +25,8 @@ namespace Causality.Shared.Models
         public class ExcludedInteraction
         {
             public string Cause { get; set; }
-        }        
+        }
+
     }
 
 }
