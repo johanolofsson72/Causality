@@ -80,12 +80,14 @@ namespace Causality.Client.ViewModels
 
         protected async Task Add()
         {
-            var item = new Cause();
-            item.EventId = EventId;
-            item.ClassId = ClassId;
-            item.Order = list.Count > 0 ? list.LastOrDefault().Order + 1 : 0;
-            item.Value = "Cause";
-            item.UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+            Cause item = new()
+            {
+                EventId = EventId,
+                ClassId = ClassId,
+                Order = list.Count > 0 ? list.LastOrDefault().Order + 1 : 0,
+                Value = "Cause",
+                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
+            };
             await dataService.TryInsert(item, (Cause m, String s) => { list.Add(m); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
@@ -121,9 +123,11 @@ namespace Causality.Client.ViewModels
 
         protected void Notify(string theme, string text)
         {
-            var parameter = new Dictionary<string, string>();
-            parameter.Add("theme", theme);
-            parameter.Add("text", text);
+            Dictionary<string, string> parameter = new()
+            {
+                { "theme", theme },
+                { "text", text }
+            };
             NotifyParent.InvokeAsync(parameter);
         }
     }

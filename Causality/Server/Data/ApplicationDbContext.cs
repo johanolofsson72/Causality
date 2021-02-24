@@ -18,13 +18,16 @@ namespace Causality.Server.Data
         public DbSet<Exclude> Exclude { get; set; }
         public DbSet<Meta> Meta { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<Process> Process { get; set; }
+        public DbSet<State> State { get; set; }
+        public DbSet<Result> Result { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Event>(f =>
             {
                 f.HasKey(e => e.Id);
-                f.ToTable("Event");
+                f.ToTable(nameof(Event));
                 f.HasIndex(e => new { e.Id });
                 f.Property("Value").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
@@ -32,50 +35,79 @@ namespace Causality.Server.Data
             modelBuilder.Entity<Cause>(f =>
             {
                 f.HasKey(e => e.Id);
-                f.ToTable("Cause");
+                f.ToTable(nameof(Cause));
                 f.HasIndex(e => new { e.Id });
+                f.HasIndex(e => new { e.Id, e.EventId, e.ClassId });
                 f.Property("Value").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
             });
             modelBuilder.Entity<Class>(f =>
             {
                 f.HasKey(e => e.Id);
-                f.ToTable("Class");
+                f.ToTable(nameof(Class));
                 f.HasIndex(e => new { e.Id });
+                f.HasIndex(e => new { e.Id, e.EventId });
                 f.Property("Value").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
             });
             modelBuilder.Entity<Effect>(f =>
             {
                 f.HasKey(e => e.Id);
-                f.ToTable("Effect");
+                f.ToTable(nameof(Effect));
                 f.HasIndex(e => new { e.Id });
-                f.HasIndex(e => new { e.Id, e.UserId });
+                f.HasIndex(e => new { e.Id, e.EventId, e.CauseId, e.ClassId, e.UserId });
                 f.Property("Value").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
             });
             modelBuilder.Entity<Exclude>(f =>
             {
                 f.HasKey(e => e.Id);
-                f.ToTable("Exclude");
+                f.ToTable(nameof(Exclude));
                 f.HasIndex(e => new { e.Id });
-                f.HasIndex(e => new { e.Id, e.UserId });
+                f.HasIndex(e => new { e.Id, e.EventId, e.CauseId, e.UserId });
                 f.Property("Value").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
             });
             modelBuilder.Entity<Meta>(f =>
             {
                 f.HasKey(e => e.Id);
-                f.ToTable("Meta");
+                f.ToTable(nameof(Meta));
                 f.HasIndex(e => new { e.Id });
                 f.Property("Key").IsRequired();
+                f.Property("Value").IsRequired();
+                f.Property("UpdatedDate").IsRequired();
+            });
+            modelBuilder.Entity<Process>(f =>
+            {
+                f.HasKey(e => e.Id);
+                f.ToTable(nameof(Process));
+                f.HasIndex(e => new { e.Id });
+                f.HasIndex(e => new { e.Id, e.EventId });
+                f.Property("Value").IsRequired();
+                f.Property("UpdatedDate").IsRequired();
+            });
+            modelBuilder.Entity<State>(f =>
+            {
+                f.HasKey(e => e.Id);
+                f.ToTable(nameof(State));
+                f.HasIndex(e => new { e.Id });
+                f.HasIndex(e => new { e.Id, e.EventId, e.CauseId, e.ClassId, e.UserId });
+                f.Property("Value").IsRequired();
+                f.Property("UpdatedDate").IsRequired();
+            });
+            modelBuilder.Entity<Result>(f =>
+            {
+                f.HasKey(e => e.Id);
+                f.ToTable(nameof(Result));
+                f.HasIndex(e => new { e.Id });
+                f.HasIndex(e => new { e.Id, e.ProcessId, e.EventId, e.CauseId, e.ClassId, e.UserId });
                 f.Property("Value").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
             });
             modelBuilder.Entity<User>(f =>
             {
                 f.HasKey(e => e.Id);
-                f.ToTable("User");
+                f.ToTable(nameof(User));
                 f.HasIndex(e => new { e.Id });
                 f.Property("UID").IsRequired();
                 f.Property("IP").IsRequired();

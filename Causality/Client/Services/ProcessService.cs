@@ -18,25 +18,22 @@ using System.Linq.Expressions;
 /// </summary>
 namespace Causality.Client.Services
 {
-    public class CauseService
+    public class ProcessService
     {
-        readonly Causality.Shared.Models.EffectService.EffectServiceClient _effectService;
-        readonly Causality.Shared.Models.CauseService.CauseServiceClient _causeService;
-        readonly Causality.Shared.Models.ExcludeService.ExcludeServiceClient _excludeService;
+        readonly Causality.Shared.Models.ProcessService.ProcessServiceClient _processService;
+        readonly Causality.Shared.Models.MetaService.MetaServiceClient _metaService;
         readonly IndexedDBManager _indexedDBManager;
         readonly OnlineStateService _onlineState;
 
-        public CauseService(Causality.Shared.Models.EffectService.EffectServiceClient effectService,
-            Causality.Shared.Models.CauseService.CauseServiceClient causeService,
-            Causality.Shared.Models.ExcludeService.ExcludeServiceClient excludeService,
-            IndexedDBManager indexedDBManager,
-            OnlineStateService onlineState)
+        public ProcessService(IndexedDBManager indexedDBManager,
+            OnlineStateService onlineState, 
+            Causality.Shared.Models.ProcessService.ProcessServiceClient processService, 
+            Causality.Shared.Models.MetaService.MetaServiceClient metaService)
         {
-            _effectService = effectService;
-            _causeService = causeService;
-            _excludeService = excludeService;
             _indexedDBManager = indexedDBManager;
             _onlineState = onlineState;
+            _processService = processService;
+            _metaService = metaService;
         }
 
         public async Task TryDelete(int id, Action<string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
@@ -45,8 +42,8 @@ namespace Causality.Client.Services
             {
                 if (await _onlineState.IsOnline())
                 {
-                    CauseRequestDelete req = new() { Id = id };
-                    CauseResponseDelete ret = await _causeService.DeleteAsync(req);
+                    ProcessRequestDelete req = new() { Id = id };
+                    ProcessResponseDelete ret = await _processService.DeleteAsync(req);
                     if (!ret.Success)
                     {
                         throw new Exception(RequestCodes.FIVE_ZERO_ZERO);
@@ -69,7 +66,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Effect, Exclude), OrderBy (Id, EventId, ClassId, Order, Value, UpdatedDate)
+        /// TryGet, Includes (Meta), OrderBy (Id, EventId, Order, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -79,7 +76,7 @@ namespace Causality.Client.Services
         /// <param name="onFail"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public async Task TryGet(Expression<Func<Cause, bool>> filter, string orderby, bool ascending, string includeProperties, Action<IEnumerable<Cause>, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryGet(Expression<Func<Process, bool>> filter, string orderby, bool ascending, string includeProperties, Action<IEnumerable<Process>, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
         {
             try
             {
@@ -87,8 +84,8 @@ namespace Causality.Client.Services
                 var bytes = serializer.SerializeBinary(filter);
                 var predicateDeserialized = serializer.DeserializeBinary(bytes);
                 string filterString = predicateDeserialized.ToString();
-                string key = ("causality_cause_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower();
-                List<Cause> data = new();
+                string key = ("causality_process_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower();
+                List<Process> data = new();
                 bool getFromServer = false;
                 string source = "";
 
@@ -97,7 +94,7 @@ namespace Causality.Client.Services
                     var result = await _indexedDBManager.GetRecordByIndex<string, Blob>(new StoreIndexQuery<string> { Storename = _indexedDBManager.Stores[0].Name, IndexName = "key", QueryValue = key });
                     if (result is not null)
                     {
-                        data = JsonConvert.DeserializeObject<List<Cause>>(result.Value);
+                        data = JsonConvert.DeserializeObject<List<Process>>(result.Value);
                         source = "indexedDB";
                     }
                     else if (await _onlineState.IsOnline())
@@ -116,29 +113,23 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    CauseRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
-                    CauseResponseGet ret = await _causeService.GetAsync(req);
+                    ProcessRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
+                    ProcessResponseGet ret = await _processService.GetAsync(req);
                     if (ret.Success)
                     {
                         foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            foreach (var item in ret.Causes)
+                            foreach (var item in ret.Process)
                             {
-                                if (includeProperty.ToLower().Equals("effect"))
+                                if (includeProperty.ToLower().Equals("meta"))
                                 {
-                                    EffectRequestGet _req = new() { Filter = "e => e.CauseId = " + item.Id, OrderBy = "Id", Ascending = true };
-                                    EffectResponseGet _ret = await _effectService.GetAsync(_req);
-                                    item.Effects.Add(_ret.Effects);
-                                }
-                                if (includeProperty.ToLower().Equals("exclude"))
-                                {
-                                    ExcludeRequestGet _req = new() { Filter = "e => e.CauseId = " + item.Id, OrderBy = "Id", Ascending = true };
-                                    ExcludeResponseGet _ret = await _excludeService.GetAsync(_req);
-                                    item.Excludes.Add(_ret.Excludes);
+                                    MetaRequestGet _req = new() { Filter = "e => e.Key LIKE '%ProcessId=" + item.Id + "%'", OrderBy = "Id", Ascending = true };
+                                    MetaResponseGet _ret = await _metaService.GetAsync(_req);
+                                    item.Metas.Add(_ret.Metas);
                                 }
                             }
                         }
-                        data = ret.Causes.ToList();
+                        data = ret.Process.ToList();
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)
                         {
@@ -161,7 +152,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Effect, Exclude)
+        /// TryGetById, Includes (Meta)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="includeProperties"></param>
@@ -169,13 +160,13 @@ namespace Causality.Client.Services
         /// <param name="onFail"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public async Task TryGetById(int id, string includeProperties, Action<Cause, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryGetById(int id, string includeProperties, Action<Process, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
         {
             try
             {
-                string key = ("causality_Cause_trygetbyid_" + id).Replace(" ", "").ToLower();
+                string key = ("causality_Process_trygetbyid_" + id).Replace(" ", "").ToLower();
 
-                Cause data = new();
+                Process data = new();
                 bool getFromServer = false;
                 string source = "";
 
@@ -184,7 +175,7 @@ namespace Causality.Client.Services
                     var result = await _indexedDBManager.GetRecordByIndex<string, Blob>(new StoreIndexQuery<string> { Storename = _indexedDBManager.Stores[0].Name, IndexName = "key", QueryValue = key });
                     if (result is not null)
                     {
-                        data = JsonConvert.DeserializeObject<Cause>(result.Value);
+                        data = JsonConvert.DeserializeObject<Process>(result.Value);
                         source = "indexedDB";
                     }
                     else if (await _onlineState.IsOnline())
@@ -203,26 +194,20 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    CauseRequestGetById req = new() { Id = id };
-                    CauseResponseGetById ret = await _causeService.GetByIdAsync(req);
+                    ProcessRequestGetById req = new() { Id = id };
+                    ProcessResponseGetById ret = await _processService.GetByIdAsync(req);
                     if (ret.Success)
                     {
                         foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                         {
-                            if (includeProperty.ToLower().Equals("effect"))
+                            if (includeProperty.ToLower().Equals("meta"))
                             {
-                                EffectRequestGet _req = new() { Filter = "e => e.CauseId = " + ret.Cause.Id, OrderBy = "Id", Ascending = true };
-                                EffectResponseGet _ret = await _effectService.GetAsync(_req);
-                                ret.Cause.Effects.Add(_ret.Effects);
-                            }
-                            if (includeProperty.ToLower().Equals("exclude"))
-                            {
-                                ExcludeRequestGet _req = new() { Filter = "e => e.CauseId = " + ret.Cause.Id, OrderBy = "Id", Ascending = true };
-                                ExcludeResponseGet _ret = await _excludeService.GetAsync(_req);
-                                ret.Cause.Excludes.Add(_ret.Excludes);
+                                MetaRequestGet _req = new() { Filter = "e => e.Key LIKE '%ProcessId=" + ret.Process.Id + "%'", OrderBy = "Id", Ascending = true };
+                                MetaResponseGet _ret = await _metaService.GetAsync(_req);
+                                ret.Process.Metas.Add(_ret.Metas);
                             }
                         }
-                        data = ret.Cause;
+                        data = ret.Process;
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)
                         {
@@ -244,18 +229,18 @@ namespace Causality.Client.Services
             }
         }
 
-        public async Task TryInsert(Cause Cause, Action<Cause, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryInsert(Process Process, Action<Process, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
         {
             try
             {
                 string status = "";
                 if (await _onlineState.IsOnline())
                 {
-                    CauseRequestInsert req = new() { Cause = Cause };
-                    CauseResponseInsert ret = await _causeService.InsertAsync(req);
+                    ProcessRequestInsert req = new() { Process = Process };
+                    ProcessResponseInsert ret = await _processService.InsertAsync(req);
                     if (ret.Success)
                     {
-                        Cause = ret.Cause;
+                        Process = ret.Process;
                         status = ret.Status;
                         if (state.AppState.UseIndexedDB)
                         {
@@ -273,7 +258,7 @@ namespace Causality.Client.Services
                     throw new Exception(RequestCodes.FIVE_ZERO_FOUR);
                 }
 
-                onSuccess(Cause, status);
+                onSuccess(Process, status);
 
             }
             catch (Exception e)
@@ -282,18 +267,18 @@ namespace Causality.Client.Services
             }
         }
 
-        public async Task TryUpdate(Cause Cause, Action<Cause, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryUpdate(Process Process, Action<Process, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
         {
             try
             {
                 string status = "";
                 if (await _onlineState.IsOnline())
                 {
-                    CauseRequestUpdate req = new() { Cause = Cause };
-                    CauseResponseUpdate ret = await _causeService.UpdateAsync(req);
+                    ProcessRequestUpdate req = new() { Process = Process };
+                    ProcessResponseUpdate ret = await _processService.UpdateAsync(req);
                     if (ret.Success)
                     {
-                        Cause = ret.Cause;
+                        Process = ret.Process;
                         status = ret.Status;
                         if (state.AppState.UseIndexedDB)
                         {
@@ -311,7 +296,7 @@ namespace Causality.Client.Services
                     throw new Exception(RequestCodes.FIVE_ZERO_FOUR);
                 }  
 
-                onSuccess(Cause, status);
+                onSuccess(Process, status);
 
             }
             catch (Exception e)
@@ -324,8 +309,8 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                CauseRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Effect,Exclude" };
-                await _causeService.GetAsync(req);
+                ProcessRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Meta" };
+                await _processService.GetAsync(req);
             }
         }
 

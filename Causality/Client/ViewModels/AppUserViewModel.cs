@@ -64,11 +64,11 @@ namespace Causality.Client.ViewModels
         {
             if (UserId > 0)
             {
-                await GetAppUser2();
+                await GetAppUser();
             }
         }
 
-        private async Task GetAppUser2()
+        private async Task GetAppUser()
         {
             DateTime executeTimer = DateTime.Now;
 

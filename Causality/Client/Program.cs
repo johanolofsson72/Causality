@@ -75,6 +75,27 @@ namespace Causality.Client
                 var channel = GrpcChannel.ForAddress(backendUrl, new GrpcChannelOptions { HttpClient = httpClient });
                 return new Causality.Shared.Models.MetaService.MetaServiceClient(channel);
             });
+            builder.Services.AddSingleton(services =>
+            {
+                var httpClient = new HttpClient(new GrpcWebHandler(GrpcWebMode.GrpcWeb, new HttpClientHandler()));
+                var backendUrl = services.GetRequiredService<NavigationManager>().BaseUri;
+                var channel = GrpcChannel.ForAddress(backendUrl, new GrpcChannelOptions { HttpClient = httpClient });
+                return new Causality.Shared.Models.ProcessService.ProcessServiceClient(channel);
+            });
+            builder.Services.AddSingleton(services =>
+            {
+                var httpClient = new HttpClient(new GrpcWebHandler(GrpcWebMode.GrpcWeb, new HttpClientHandler()));
+                var backendUrl = services.GetRequiredService<NavigationManager>().BaseUri;
+                var channel = GrpcChannel.ForAddress(backendUrl, new GrpcChannelOptions { HttpClient = httpClient });
+                return new Causality.Shared.Models.StateService.StateServiceClient(channel);
+            });
+            builder.Services.AddSingleton(services =>
+            {
+                var httpClient = new HttpClient(new GrpcWebHandler(GrpcWebMode.GrpcWeb, new HttpClientHandler()));
+                var backendUrl = services.GetRequiredService<NavigationManager>().BaseUri;
+                var channel = GrpcChannel.ForAddress(backendUrl, new GrpcChannelOptions { HttpClient = httpClient });
+                return new Causality.Shared.Models.ResultService.ResultServiceClient(channel);
+            });
 
             // Add http client
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
@@ -101,12 +122,6 @@ namespace Causality.Client
                         new IndexSpec{Name="value", KeyPath = "value", Auto = false}
                     }
                 });
-
-                dbStore.Stores.Add(new StoreSchema
-                {
-                    Name = "Outbox",
-                    PrimaryKey = new IndexSpec { Auto = true }
-                });
             });
 
             // Add the stateobject
@@ -120,6 +135,9 @@ namespace Causality.Client
             builder.Services.AddTransient<EffectService>();
             builder.Services.AddTransient<UserService>();
             builder.Services.AddTransient<MetaService>();
+            builder.Services.AddTransient<ProcessService>();
+            builder.Services.AddTransient<StateService>();
+            builder.Services.AddTransient<ResultService>();
 
             await builder.Build().RunAsync();
         }

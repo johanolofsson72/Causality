@@ -68,9 +68,8 @@ namespace Causality.Server.Data
                 System.Diagnostics.Debug.WriteLine("");
                 return await query.ToListAsync();
             }
-            catch (Exception ex)
+            catch
             {
-                var msg = ex.Message;
                 return null;
             }
         }

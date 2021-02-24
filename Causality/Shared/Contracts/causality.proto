@@ -18,6 +18,7 @@ service CauseService {
   rpc Update (CauseRequestUpdate) returns (CauseResponseUpdate);
   rpc Delete (CauseRequestDelete) returns (CauseResponseDelete);
   }
+
 service ClassService {
   rpc Get (ClassRequestGet) returns (ClassResponseGet);
   rpc GetById (ClassRequestGetById) returns (ClassResponseGetById);
@@ -25,6 +26,7 @@ service ClassService {
   rpc Update (ClassRequestUpdate) returns (ClassResponseUpdate);
   rpc Delete (ClassRequestDelete) returns (ClassResponseDelete);
 }
+
 service EffectService {
   rpc Get (EffectRequestGet) returns (EffectResponseGet);
   rpc GetById (EffectRequestGetById) returns (EffectResponseGetById);
@@ -32,6 +34,7 @@ service EffectService {
   rpc Update (EffectRequestUpdate) returns (EffectResponseUpdate);
   rpc Delete (EffectRequestDelete) returns (EffectResponseDelete);
   }
+
 service EventService {
   rpc Get (EventRequestGet) returns (EventResponseGet);
   rpc GetById (EventRequestGetById) returns (EventResponseGetById);
@@ -39,6 +42,7 @@ service EventService {
   rpc Update (EventRequestUpdate) returns (EventResponseUpdate);
   rpc Delete (EventRequestDelete) returns (EventResponseDelete);
   }
+
 service ExcludeService {
   rpc Get (ExcludeRequestGet) returns (ExcludeResponseGet);
   rpc GetById (ExcludeRequestGetById) returns (ExcludeResponseGetById);
@@ -46,6 +50,7 @@ service ExcludeService {
   rpc Update (ExcludeRequestUpdate) returns (ExcludeResponseUpdate);
   rpc Delete (ExcludeRequestDelete) returns (ExcludeResponseDelete);
   }
+
 service MetaService {
   rpc Get (MetaRequestGet) returns (MetaResponseGet);
   rpc GetById (MetaRequestGetById) returns (MetaResponseGetById);
@@ -53,12 +58,40 @@ service MetaService {
   rpc Update (MetaRequestUpdate) returns (MetaResponseUpdate);
   rpc Delete (MetaRequestDelete) returns (MetaResponseDelete);
   }
+
 service UserService {
   rpc Get (UserRequestGet) returns (UserResponseGet);
   rpc GetById (UserRequestGetById) returns (UserResponseGetById);
   rpc Insert (UserRequestInsert) returns (UserResponseInsert);
   rpc Update (UserRequestUpdate) returns (UserResponseUpdate);
   rpc Delete (UserRequestDelete) returns (UserResponseDelete);
+
+}
+
+service ProcessService {
+  rpc Get (ProcessRequestGet) returns (ProcessResponseGet);
+  rpc GetById (ProcessRequestGetById) returns (ProcessResponseGetById);
+  rpc Insert (ProcessRequestInsert) returns (ProcessResponseInsert);
+  rpc Update (ProcessRequestUpdate) returns (ProcessResponseUpdate);
+  rpc Delete (ProcessRequestDelete) returns (ProcessResponseDelete);
+
+}
+
+service StateService {
+  rpc Get (StateRequestGet) returns (StateResponseGet);
+  rpc GetById (StateRequestGetById) returns (StateResponseGetById);
+  rpc Insert (StateRequestInsert) returns (StateResponseInsert);
+  rpc Update (StateRequestUpdate) returns (StateResponseUpdate);
+  rpc Delete (StateRequestDelete) returns (StateResponseDelete);
+
+}
+
+service ResultService {
+  rpc Get (ResultRequestGet) returns (ResultResponseGet);
+  rpc GetById (ResultRequestGetById) returns (ResultResponseGetById);
+  rpc Insert (ResultRequestInsert) returns (ResultResponseInsert);
+  rpc Update (ResultRequestUpdate) returns (ResultResponseUpdate);
+  rpc Delete (ResultRequestDelete) returns (ResultResponseDelete);
 
 }
  
@@ -495,6 +528,191 @@ message UserResponseDelete {
   string status = 2;
   string error = 3;
 }
+
+
+message ProcessRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+  string includeProperties = 4;
+}
+
+message ProcessResponseGet {
+  repeated Process process = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message ProcessRequestGetById {
+  int32 id = 1;
+}
+ 
+message ProcessResponseGetById {
+  Process process = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ProcessRequestInsert {
+  Process process = 1;
+}
+ 
+message ProcessResponseInsert {
+  Process process = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ProcessRequestUpdate {
+  Process process = 1;
+}
+ 
+message ProcessResponseUpdate {
+  Process process = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ProcessRequestDelete {
+  int32 id = 1;
+}
+ 
+message ProcessResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
+ 
+message StateRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+  string includeProperties = 4;
+}
+
+message StateResponseGet {
+  repeated State state = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message StateRequestGetById {
+  int32 id = 1;
+}
+ 
+message StateResponseGetById {
+  State state = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message StateRequestInsert {
+  State state = 1;
+}
+ 
+message StateResponseInsert {
+  State state = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message StateRequestUpdate {
+  State state = 1;
+}
+ 
+message StateResponseUpdate {
+  State state = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message StateRequestDelete {
+  int32 id = 1;
+}
+ 
+message StateResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
+
+
+message ResultRequestGet {
+  string filter = 1;
+  string orderBy = 2;
+  bool ascending = 3;
+  string includeProperties = 4;
+}
+
+message ResultResponseGet {
+  repeated Result result = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+ 
+
+message ResultRequestGetById {
+  int32 id = 1;
+}
+ 
+message ResultResponseGetById {
+  Result result = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ResultRequestInsert {
+  Result result = 1;
+}
+ 
+message ResultResponseInsert {
+  Result result = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ResultRequestUpdate {
+  Result result = 1;
+}
+ 
+message ResultResponseUpdate {
+  Result result = 1;
+  bool success = 2;
+  string status = 3;
+  string error = 4;
+}
+
+
+message ResultRequestDelete {
+  int32 id = 1;
+}
+ 
+message ResultResponseDelete {
+  bool success = 1;
+  string status = 2;
+  string error = 3;
+}
  
 
 message User {
@@ -507,8 +725,14 @@ message User {
   string email = 5;
   string updatedDate = 6;
   repeated Exclude excludes = 7;
+  repeated Meta metas = 8;
 
 }
+
+
+
+
+
 // Type class
 message Meta {
 
@@ -583,5 +807,46 @@ message Cause {
   string updatedDate = 6;
   repeated Effect effects = 7;
   repeated Exclude excludes = 8;
+
+}
+// Type class
+message Process {
+
+  // base class members
+  int32 id = 1;
+  int32 eventId = 2;
+  int32 order = 3;
+  string value = 4;
+  string updatedDate = 5;
+  repeated Meta metas = 6;
+
+}
+// Type class
+message State {
+
+  // base class members
+  int32 id = 1;
+  int32 eventId = 2;
+  int32 causeId = 3;
+  int32 classId = 4;
+  int32 userId = 5;
+  string value = 6;
+  string updatedDate = 7;
+  repeated Meta metas = 8;
+
+}
+// Type class
+message Result {
+
+  // base class members
+  int32 id = 1;
+  int32 processId = 2;
+  int32 eventId = 3;
+  int32 causeId = 4;
+  int32 classId = 5;
+  int32 userId = 6;
+  string value = 7;
+  string updatedDate = 8;
+  repeated Meta metas = 9;
 
 }

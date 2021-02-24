@@ -45,6 +45,9 @@ namespace Causality.Server
             services.AddTransient<Repository<Effect, ApplicationDbContext>>();
             services.AddTransient<Repository<User, ApplicationDbContext>>();
             services.AddTransient<Repository<Meta, ApplicationDbContext>>();
+            services.AddTransient<Repository<Process, ApplicationDbContext>>();
+            services.AddTransient<Repository<State, ApplicationDbContext>>();
+            services.AddTransient<Repository<Result, ApplicationDbContext>>();
 
             // Use memeorycache
             services.AddMemoryCache();

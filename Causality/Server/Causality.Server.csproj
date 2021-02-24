@@ -32,16 +32,6 @@
     <ProjectReference Include="..\Client\Causality.Client.csproj" />
     <ProjectReference Include="..\Shared\Causality.Shared.csproj" />
   </ItemGroup>
-
-
-  <ItemGroup>
-    <None Remove="Causality.db" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Causality.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>

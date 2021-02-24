@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
 
 namespace Causality.Server.Migrations
 {
@@ -23,18 +22,56 @@ namespace Causality.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Meta",
+                name: "Process",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Key = table.Column<string>(type: "TEXT", nullable: false),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Order = table.Column<int>(type: "INTEGER", nullable: false),
                     Value = table.Column<string>(type: "TEXT", nullable: false),
                     UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Meta", x => x.Id);
+                    table.PrimaryKey("PK_Process", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Result",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProcessId = table.Column<int>(type: "INTEGER", nullable: false),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CauseId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ClassId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Result", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "State",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CauseId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ClassId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_State", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -74,6 +111,35 @@ namespace Causality.Server.Migrations
                         principalTable: "Event",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Meta",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Key = table.Column<string>(type: "TEXT", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false),
+                    ProcessId = table.Column<int>(type: "INTEGER", nullable: true),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Meta", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Meta_Process_ProcessId",
+                        column: x => x.ProcessId,
+                        principalTable: "Process",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Meta_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -192,6 +258,11 @@ namespace Causality.Server.Migrations
                 column: "Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Cause_Id_EventId_ClassId",
+                table: "Cause",
+                columns: new[] { "Id", "EventId", "ClassId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Class_EventId",
                 table: "Class",
                 column: "EventId");
@@ -200,6 +271,11 @@ namespace Causality.Server.Migrations
                 name: "IX_Class_Id",
                 table: "Class",
                 column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Class_Id_EventId",
+                table: "Class",
+                columns: new[] { "Id", "EventId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Effect_CauseId",
@@ -222,9 +298,9 @@ namespace Causality.Server.Migrations
                 column: "Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Effect_Id_UserId",
+                name: "IX_Effect_Id_EventId_CauseId_ClassId_UserId",
                 table: "Effect",
-                columns: new[] { "Id", "UserId" });
+                columns: new[] { "Id", "EventId", "CauseId", "ClassId", "UserId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Event_Id",
@@ -247,9 +323,9 @@ namespace Causality.Server.Migrations
                 column: "Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Exclude_Id_UserId",
+                name: "IX_Exclude_Id_EventId_CauseId_UserId",
                 table: "Exclude",
-                columns: new[] { "Id", "UserId" });
+                columns: new[] { "Id", "EventId", "CauseId", "UserId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Exclude_UserId",
@@ -262,78 +338,49 @@ namespace Causality.Server.Migrations
                 column: "Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Meta_ProcessId",
+                table: "Meta",
+                column: "ProcessId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_UserId",
+                table: "Meta",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Process_Id",
+                table: "Process",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Process_Id_EventId",
+                table: "Process",
+                columns: new[] { "Id", "EventId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Result_Id",
+                table: "Result",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Result_Id_ProcessId_EventId_CauseId_ClassId_UserId",
+                table: "Result",
+                columns: new[] { "Id", "ProcessId", "EventId", "CauseId", "ClassId", "UserId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_State_Id",
+                table: "State",
+                column: "Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_State_Id_EventId_CauseId_ClassId_UserId",
+                table: "State",
+                columns: new[] { "Id", "EventId", "CauseId", "ClassId", "UserId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_User_Id",
                 table: "User",
                 column: "Id");
-
-            // Fill the database with demodata
-            migrationBuilder.InsertData(
-                table: "User",
-                columns: new[] { "UID", "IP", "Name", "Email", "UpdatedDate" },
-                values: new object[] { "583ab273-0193-425e-9de5-eec928cd8f90", "31.4.245.180", "Johan", "jool@me.com", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Event",
-                columns: new[] { "Order", "Value", "UpdatedDate" },
-                values: new object[] { 1, "Survey 2021", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Class",
-                columns: new[] { "EventId", "Order", "Value", "UpdatedDate" },
-                values: new object[] { 1, 1, "Frågor på startsidan", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Class",
-                columns: new[] { "EventId", "Order", "Value", "UpdatedDate" },
-                values: new object[] { 1, 1, "Frågor på resultatsidan", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Cause",
-                columns: new[] { "EventId", "ClassId", "Order", "Value", "UpdatedDate" },
-                values: new object[] { 1, 1, 1, "Vad heter du?", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Cause",
-                columns: new[] { "EventId", "ClassId", "Order", "Value", "UpdatedDate" },
-                values: new object[] { 1, 1, 2, "Hur gammal är du?", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Cause",
-                columns: new[] { "EventId", "ClassId", "Order", "Value", "UpdatedDate" },
-                values: new object[] { 1, 2, 1, "Vet du vad Blazor är för något?", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Cause",
-                columns: new[] { "EventId", "ClassId", "Order", "Value", "UpdatedDate" },
-                values: new object[] { 1, 2, 2, "Vad är det för skillnad på inject och insert?", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Exclude",
-                columns: new[] { "EventId", "CauseId", "UserId", "Value", "UpdatedDate" },
-                values: new object[] { 1, 4, 1, "Visa ej denna för Johan", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Effect",
-                columns: new[] { "EventId", "CauseId", "ClassId", "UserId", "Value", "UpdatedDate" },
-                values: new object[] { 1, 1, 1, 1, "Johan", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Effect",
-                columns: new[] { "EventId", "CauseId", "ClassId", "UserId", "Value", "UpdatedDate" },
-                values: new object[] { 1, 2, 1, 1, "48 år", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            migrationBuilder.InsertData(
-                table: "Effect",
-                columns: new[] { "EventId", "CauseId", "ClassId", "UserId", "Value", "UpdatedDate" },
-                values: new object[] { 1, 3, 2, 1, "Ja, det som rockar!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
-            for (int i = 1; i < 4; i++)
-            {
-                migrationBuilder.InsertData(
-                    table: "Meta",
-                    columns: new[] { "Key", "Value", "UpdatedDate" },
-                    values: new object[] { "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-            }
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -348,7 +395,16 @@ namespace Causality.Server.Migrations
                 name: "Meta");
 
             migrationBuilder.DropTable(
+                name: "Result");
+
+            migrationBuilder.DropTable(
+                name: "State");
+
+            migrationBuilder.DropTable(
                 name: "Cause");
+
+            migrationBuilder.DropTable(
+                name: "Process");
 
             migrationBuilder.DropTable(
                 name: "User");

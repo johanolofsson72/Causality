@@ -5,6 +5,9 @@
 @inject Services.EffectService effectService
 @inject Services.UserService userService
 @inject Services.MetaService metaService
+@inject Services.ProcessService processService
+@inject Services.StateService stateService
+@inject Services.ResultService resultService
 
 @ChildContent
 
@@ -18,6 +21,8 @@
 
     protected async override Task OnInitializedAsync()
     {
+        await Task.Delay(0);
+
         // Set support for offline mode
         StateProvider.AppState.UpdateOfflineMode(this, false);
         Console.WriteLine("AppState.UpdateOfflineMode to false...");
@@ -26,19 +31,22 @@
         StateProvider.AppState.UpdateUseIndexedDB(this, true);
         Console.WriteLine("AppState.UpdateUseIndexedDB to true...");
 
-        Console.WriteLine("Services is warming up...");
-        List<Task> services = new();
-        services.Add(eventService.WarmUp());
-        services.Add(causeService.WarmUp());
-        services.Add(classService.WarmUp());
-        services.Add(excludeService.WarmUp());
-        services.Add(effectService.WarmUp());
-        services.Add(userService.WarmUp());
-        services.Add(metaService.WarmUp());
-        await Task.WhenAll(services);
+        //Console.WriteLine("Services is warming up...");
+        //List<Task> services = new();
+        //services.Add(eventService.WarmUp());
+        //services.Add(causeService.WarmUp());
+        //services.Add(classService.WarmUp());
+        //services.Add(excludeService.WarmUp());
+        //services.Add(effectService.WarmUp());
+        //services.Add(userService.WarmUp());
+        //services.Add(metaService.WarmUp());
+        //services.Add(processService.WarmUp());
+        //services.Add(stateService.WarmUp());
+        //services.Add(resultService.WarmUp());
+        //await Task.WhenAll(services);
 
-        StateProvider.AppState.UpdateWarmedUp(this, true);
-        Console.WriteLine("Services is warm and hot...");
+        //StateProvider.AppState.UpdateWarmedUp(this, true);
+        //Console.WriteLine("Services is warm and hot...");
 
     }
 

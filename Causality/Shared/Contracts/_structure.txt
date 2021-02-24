@@ -1,12 +1,12 @@
-﻿Causality										RXSurvey			Pepskola			
+﻿Causality										RXSurvey			Pepskola					Ronneby Motorbåtsklubb
 
-Event											Survey				Område
+Event											Survey				Område						RMK
 - Id				(int)		(pk)
 - Order				(int)
 - Value				(string)
 - UpdatedDate		(string)
 
-Cause											Question			Fråga
+Cause											Question			Fråga						Bryggplatser 1-141
 - Id				(int)		(pk)			1, 2, 3
 - EventId			(int)		(fk)			1, 1, 1
 - ClassId			(int)		(fk)			1, 1, 2
@@ -14,14 +14,14 @@ Cause											Question			Fråga
 - Value				(string)					A, B, C				Vad heter du?
 - UpdatedDate		(string)
 
-Class											QuestionType		Nuläge, Planera, Följ upp, Aktiviteter
+Class											QuestionType		Nuläge, Planera				Bryggplatstyp (Västra bryggan stolpe)
 - Id				(int)		(pk)			1, 2, 3				1
 - EventId			(int)		(fk)			1, 1, 1				1
 - Order				(int)											1
 - Value				(string)					Sida1, Sida2		Aktivitet_1_Planera_Vem
 - UpdatedDate		(string)
 
-Exclude											QuestionExclude	
+Exclude											QuestionExclude									används ej
 - Id				(int)		(pk)	
 - EventId			(int)		(fk)	
 - CauseId			(int)		(fk)	
@@ -29,25 +29,69 @@ Exclude											QuestionExclude
 - Value				(string)
 - UpdatedDate		(string)
 
-Effect											Answer				Svar
+Effect											Answer				Svar						används ej
 - Id				(int)		(pk)								1
 - EventId			(int)		(fk)								1
 - CauseId			(int)		(fk)								1
-- ClassId			(int)		(fk)								1		
+- ClassId			(int)		(fk)								1
 - UserId			(int)		(fk)								1
 - Value				(string)										Jag heter Johan!
 - UpdatedDate		(string)
 
-Meta											Setting
+========================================================================================================================================
+
+Process																Entity						Boat (Storebro34)
+- Id				(int)		(pk)
+- EventId			(int)		(fk)
+- Order				(int)
+- Value				(string)
+- UpdatedDate		(string)
+
+State																Queue						Boat queue
+- Id				(int)		(pk)
+- EventId			(int)		(fk)
+- CauseId			(int)		(fk)
+- ClassId			(int)		(fk)
+- UserId			(int)		(fk)
+- Value				(string)
+- UpdatedDate		(string)
+
+Result																Reservation					Reserved boat berth
+- Id				(int)		(pk)
+- ProcessId			(int)		(fk)
+- EventId			(int)		(fk)
+- CauseId			(int)		(fk)
+- ClassId			(int)		(fk)
+- UserId			(int)		(fk)
+- Value				(string)
+- UpdatedDate		(string)
+
+=====================================================================================================================
+
+Meta											Setting				Parameters					regnummer, adress, email, längd, bredd, djup, etc...
 - Id				(int)		(pk)								
 - Key				(string)										
 - Value				(string)
 - UpdatedDate		(string)
 
-User											User				Användare
+User											User				Användare					Customer (Johan, Lars, etc)
 - Id				(int)		(pk)								1
 - UID				(string)										583ab273-0193-425e-9de5-eec928cd8f90
 - IP				(string)										31.4.245.180
 - Name				(string)										Johan
 - Email				(string)										jool@me.com
 - UpdatedDate		(string)										2021-01-02 14:08:01
+
+
+
+
+
+Source			Event										Ronneby Motorbåtsklubb
+Customer		User										Johan
+Parameter		Meta										regnummer, adress, email, längd, bredd, djup, etc...
+
+Entity			Process										Storebro34
+Object			Cause  (ClassId)							Bryggplats 125
+ Type			 Class										Västra bryggan stolpe
+Reservation		Result (ProcessId,CauseId,ClassId,UserId)	Storebro34, Bryggplats 125, Västra bryggan stolpe, Johan
+Queue			State (ProcessId,CauseId,ClassId,UserId)	Storebro34, Bryggplats 125, Västra bryggan stolpe, Johan
