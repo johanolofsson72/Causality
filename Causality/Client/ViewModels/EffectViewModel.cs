@@ -96,14 +96,14 @@ namespace Causality.Client.ViewModels
 
         protected async Task Edit(Int32 Id)
         {
-            await dataService.TryGetById(Id, (Effect m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await dataService.TryGetById(Id, "", (Effect m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
         }
 
         protected async Task Search(ChangeEventArgs args)
         {
             if (args.Value?.ToString().Length > 0)
             {
-                await dataService.TryGet(e => e.Value.ToLower().Contains(args.Value.ToString()), "Id", true, (IEnumerable<Effect> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+                await dataService.TryGet(e => e.Value.ToLower().Contains(args.Value.ToString()), "Id", true, "", (IEnumerable<Effect> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             }
             else
             {
@@ -113,7 +113,7 @@ namespace Causality.Client.ViewModels
 
         protected async void GetAll()
         {
-            await dataService.TryGet(e => e.UserId == UserId, "Id", true, (IEnumerable<Effect> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            await dataService.TryGet(e => e.UserId == UserId, "Id", true, "", (IEnumerable<Effect> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected async Task Cancel()

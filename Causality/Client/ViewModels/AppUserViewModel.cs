@@ -86,7 +86,7 @@ namespace Causality.Client.ViewModels
             currentUser.Metas = _user.Metas.ToList<Meta>();
 
             List<Effect> _effets = new();
-            await effectService.TryGet(u => u.UserId == UserId, "CauseId", true, (IEnumerable<Effect> e, string s) => { _effets = e.ToList(); }, (Exception e, string s) => { }, StateProvider);
+            await effectService.TryGet(u => u.UserId == UserId, "CauseId", true, "", (IEnumerable<Effect> e, string s) => { _effets = e.ToList(); }, (Exception e, string s) => { }, StateProvider);
             currentUser.Interactions = new();
 
             foreach (var item in _effets)

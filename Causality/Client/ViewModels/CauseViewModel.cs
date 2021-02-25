@@ -53,7 +53,7 @@ namespace Causality.Client.ViewModels
         [Parameter] public EventCallback OnAdded { get; set; }
         [Parameter] public EventCallback<Dictionary<string, string>> NotifyParent { get; set; }
 
-        [Inject] Services.CauseService dataService { get; set; }
+        [Inject] Services.CauseService CauseManager { get; set; }
 
         protected TelerikNotification NotificationComponent { get; set; }
         protected String Title = "Cause";
@@ -68,13 +68,13 @@ namespace Causality.Client.ViewModels
 
         protected async Task Delete(Int32 Id)
         {
-            await dataService.TryDelete(Id, (String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await CauseManager.TryDelete(Id, (String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
         protected async Task Update()
         {
-            await dataService.TryUpdate(selectedItem, (Cause m, String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await CauseManager.TryUpdate(selectedItem, (Cause m, String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
@@ -88,20 +88,20 @@ namespace Causality.Client.ViewModels
                 Value = "Cause",
                 UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
             };
-            await dataService.TryInsert(item, (Cause m, String s) => { list.Add(m); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await CauseManager.TryInsert(item, (Cause m, String s) => { list.Add(m); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
         protected async Task Edit(Int32 Id)
         {
-            await dataService.TryGetById(Id, "", (Cause m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await CauseManager.TryGetById(Id, "", (Cause m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
         }
 
         protected async Task Search(ChangeEventArgs args)
         {
             if (args.Value?.ToString().Length > 0)
             {
-                await dataService.TryGet(c => c.Value.ToLower().Contains(args.Value.ToString()), "Id", true, "",(IEnumerable<Cause> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+                await CauseManager.TryGet(c => c.Value.ToLower().Contains(args.Value.ToString()), "Id", true, "",(IEnumerable<Cause> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
                 await InvokeAsync(StateHasChanged);
             }
             else
@@ -112,7 +112,7 @@ namespace Causality.Client.ViewModels
 
         protected async void GetAll()
         {
-            await dataService.TryGet(c => c.EventId == EventId && c.ClassId == ClassId, "Id", true, "", (IEnumerable<Cause> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            await CauseManager.TryGet(c => c.EventId == EventId && c.ClassId == ClassId, "Id", true, "", (IEnumerable<Cause> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected async Task Cancel()

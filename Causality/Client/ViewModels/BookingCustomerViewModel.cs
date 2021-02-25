@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using Causality.Client.Services;
 using Causality.Client.Shared;
 using Causality.Shared.Models;
+using Ipify;
 using Microsoft.AspNetCore.Components;
 using Telerik.Blazor.Components;
 
 namespace Causality.Client.ViewModels
 {
-    public class UserViewModel : ComponentBase, ICausalityViewModel, IDisposable
+    public class BookingCustomerViewModel : ComponentBase, ICausalityViewModel, IDisposable
     {
         #region StateProvider
         [CascadingParameter]
@@ -47,17 +48,14 @@ namespace Causality.Client.ViewModels
         }
         #endregion
 
-        [Parameter] public Int32 EventId { get; set; } = 0;
-
-        [Parameter] public String EventKey { get; set; } = "";
-
         [Parameter] public EventCallback OnAdded { get; set; }
 
         [Parameter] public EventCallback<Dictionary<string, string>> NotifyParent { get; set; }
 
         [Inject] Services.UserService UserManager { get; set; }
+        [Inject] Services.MetaService MetaManager { get; set; }
 
-        protected String Title = "User";
+        protected String Title = "Customer";
         protected List<User> list;
         protected User selectedItem;
 
@@ -87,15 +85,51 @@ namespace Causality.Client.ViewModels
 
         protected async Task Add()
         {
+            var CustomerId = 0;
+            var UID = new Guid().ToString();
+            var IP = await IpifyIp.GetPublicIpAsync();
+            var Name = "new_customer";
+            var Email = "_";
+            var UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+            var Firstname = "_";
+
             var item = new User
             {
-                UID = new Guid().ToString(),
-                IP = "127.0.0.1",
-                Name = "Namn",
-                Email = "Epost",
-                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
+                UID = UID,
+                IP = IP,
+                Name = Name,
+                Email = Email,
+                UpdatedDate = UpdatedDate
             };
-            await UserManager.TryInsert(item, (User m, String s) => { list.Add(m); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await UserManager.TryInsert(item, async (User c, String s) => 
+            {
+                CustomerId = c.Id;
+
+                // lägg till alla meta fält...
+                var FirstnameParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = 0,
+                    ExcludeId = 0,
+                    ProcessId = 0,
+                    StateId = 0,
+                    ResultId = 0,
+                    UserId = c.Id,
+                    Key = "Firstname",
+                    Value = Firstname,
+                    UpdatedDate = UpdatedDate
+                };
+                await MetaManager.TryInsert(FirstnameParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                Notify("success", s); 
+            
+            }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+
+            // Get the customer with all its meta...
+            await UserManager.TryGetById(CustomerId, "Meta", (User u, String s) => { list.Add(u); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
             await InvokeAsync(StateHasChanged);
         }
 
