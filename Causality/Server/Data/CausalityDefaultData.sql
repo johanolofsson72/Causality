@@ -67,3 +67,11 @@
                     columns: new[] { "Key", "Value", "UpdatedDate" },
                     values: new object[] { "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
             }
+
+            for (int i = 1; i < 4; i++)
+            {
+                migrationBuilder.InsertData(
+                    table: "Meta",
+                    columns: new[] { "UserId", "Key", "Value", "UpdatedDate" },
+                    values: new object[] { 1, "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
+            }

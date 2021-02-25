@@ -61,7 +61,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (none), OrderBy (Id, EventId, CauseId, UserId, Value, UpdatedDate)
+        /// TryGet, Includes (Meta), OrderBy (Id, EventId, CauseId, UserId, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -71,7 +71,7 @@ namespace Causality.Client.Services
         /// <param name="onFail"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public async Task TryGet(Expression<Func<Exclude, bool>> filter, string orderby, bool ascending, Action<IEnumerable<Exclude>, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryGet(Expression<Func<Exclude, bool>> filter, string orderby, bool ascending, string includeProperties, Action<IEnumerable<Exclude>, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace Causality.Client.Services
                 var bytes = serializer.SerializeBinary(filter);
                 var predicateDeserialized = serializer.DeserializeBinary(bytes);
                 string filterString = predicateDeserialized.ToString();
-                string key = ("causality_Exclude_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower();
+                string key = ("causality_Exclude_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower() + "_" + includeProperties;
                 List<Exclude> data = new();
                 bool getFromServer = false;
                 string source = "";
@@ -108,7 +108,7 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    ExcludeRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
+                    ExcludeRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
                     ExcludeResponseGet ret = await _excludeService.GetAsync(req);
                     if (ret.Success)
                     {
@@ -135,18 +135,18 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (none)
+        /// TryGetById, Includes (Meta)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="onSuccess"></param>
         /// <param name="onFail"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public async Task TryGetById(int id, Action<Exclude, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryGetById(int id, string includeProperties, Action<Exclude, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
         {
             try
             {
-                string key = ("causality_Exclude_trygetbyid_" + id).Replace(" ", "").ToLower();
+                string key = ("causality_Exclude_trygetbyid_" + id).Replace(" ", "").ToLower() + "_" + includeProperties;
 
                 Exclude data = new();
                 bool getFromServer = false;
@@ -176,7 +176,7 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    ExcludeRequestGetById req = new() { Id = id };
+                    ExcludeRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
                     ExcludeResponseGetById ret = await _excludeService.GetByIdAsync(req);
                     if (ret.Success)
                     {
@@ -282,7 +282,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                ExcludeRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true };
+                ExcludeRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Meta" };
                 await _excludeService.GetAsync(req);
             }
         }

@@ -69,7 +69,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Cause, Effect), OrderBy (Id, EventId, Order, Value, UpdatedDate)
+        /// TryGet, Includes (Cause, Effect, Meta), OrderBy (Id, EventId, Order, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -87,7 +87,7 @@ namespace Causality.Client.Services
                 var bytes = serializer.SerializeBinary(filter);
                 var predicateDeserialized = serializer.DeserializeBinary(bytes);
                 string filterString = predicateDeserialized.ToString();
-                string key = ("causality_Class_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower();
+                string key = ("causality_Class_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower() + "_" + includeProperties;
                 List<Class> data = new();
                 bool getFromServer = false;
                 string source = "";
@@ -116,28 +116,10 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    ClassRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
+                    ClassRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
                     ClassResponseGet ret = await _classService.GetAsync(req);
                     if (ret.Success)
                     {
-                        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            foreach (var item in ret.Classes)
-                            {
-                                if (includeProperty.ToLower().Equals("cause"))
-                                {
-                                    CauseRequestGet _req = new() { Filter = "c => c.ClassId = " + item.Id, OrderBy = "Id", Ascending = true };
-                                    CauseResponseGet _ret = await _causeService.GetAsync(_req);
-                                    item.Causes.Add(_ret.Causes);
-                                }
-                                if (includeProperty.ToLower().Equals("effect"))
-                                {
-                                    EffectRequestGet _req = new() { Filter = "e => e.ClassId = " + item.Id, OrderBy = "Id", Ascending = true };
-                                    EffectResponseGet _ret = await _effectService.GetAsync(_req);
-                                    item.Effects.Add(_ret.Effects);
-                                }
-                            }
-                        }
                         data = ret.Classes.ToList();
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)
@@ -161,7 +143,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Cause, Effect)
+        /// TryGetById, Includes (Cause, Effect Meta)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="onSuccess"></param>
@@ -172,7 +154,7 @@ namespace Causality.Client.Services
         {
             try
             {
-                string key = ("causality_Class_trygetbyid_" + id).Replace(" ", "").ToLower();
+                string key = ("causality_Class_trygetbyid_" + id).Replace(" ", "").ToLower() + "_" + includeProperties;
 
                 Class data = new();
                 bool getFromServer = false;
@@ -202,25 +184,10 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    ClassRequestGetById req = new() { Id = id };
+                    ClassRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
                     ClassResponseGetById ret = await _classService.GetByIdAsync(req);
                     if (ret.Success)
                     {
-                        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            if (includeProperty.ToLower().Equals("cause"))
-                            {
-                                CauseRequestGet _req = new() { Filter = "c => c.ClassId = " + ret.Class.Id, OrderBy = "Id", Ascending = true };
-                                CauseResponseGet _ret = await _causeService.GetAsync(_req);
-                                ret.Class.Causes.Add(_ret.Causes);
-                            }
-                            if (includeProperty.ToLower().Equals("effect"))
-                            {
-                                EffectRequestGet _req = new() { Filter = "e => e.ClassId = " + ret.Class.Id, OrderBy = "Id", Ascending = true };
-                                EffectResponseGet _ret = await _effectService.GetAsync(_req);
-                                ret.Class.Effects.Add(_ret.Effects);
-                            }
-                        }
                         data = ret.Class;
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)
@@ -323,7 +290,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                ClassRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Cause,Effect" };
+                ClassRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Cause,Effect,Meta" };
                 await _classService.GetAsync(req);
             }
         }

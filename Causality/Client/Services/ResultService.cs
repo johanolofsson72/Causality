@@ -118,22 +118,6 @@ namespace Causality.Client.Services
                     ResultResponseGet ret = await _resultService.GetAsync(req);
                     if (ret.Success)
                     {
-                        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            foreach (var item in ret.Result)
-                            {
-                                if (includeProperty.ToLower().Equals("meta"))
-                                {
-                                    MetaRequestGet _req = new() { Filter = "e => e.Key LIKE '%ResultId=" + item.Id + "%'", OrderBy = "Id", Ascending = true };
-                                    MetaResponseGet _ret = await _metaService.GetAsync(_req);
-                                    //item.Metas.Add(_ret.Metas);
-                                    foreach (var m in _ret.Metas)
-                                    {
-                                        item.Meta.Add(new MetaCollection() { Meta = m });
-                                    }
-                                }
-                            }
-                        }
                         data = ret.Result.ToList();
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)
@@ -203,19 +187,6 @@ namespace Causality.Client.Services
                     ResultResponseGetById ret = await _resultService.GetByIdAsync(req);
                     if (ret.Success)
                     {
-                        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            if (includeProperty.ToLower().Equals("meta"))
-                            {
-                                MetaRequestGet _req = new() { Filter = "e => e.Key LIKE '%ResultId=" + ret.Result.Id + "%'", OrderBy = "Id", Ascending = true };
-                                MetaResponseGet _ret = await _metaService.GetAsync(_req);
-                                //ret.Result.Metas.Add(_ret.Metas);
-                                foreach (var m in _ret.Metas)
-                                {
-                                    ret.Result.Meta.Add(new MetaCollection() { Meta = m });
-                                }
-                            }
-                        }
                         data = ret.Result;
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)

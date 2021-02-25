@@ -21,6 +21,9 @@ namespace Causality.Server.Services
     {
 
         Repository<Class, ApplicationDbContext> _manager;
+        Repository<Cause, ApplicationDbContext> _cause;
+        Repository<Effect, ApplicationDbContext> _effect;
+        Repository<Meta, ApplicationDbContext> _meta;
         ApplicationDbContext _context;
         IConfiguration _config;
         IMemoryCache _cache;
@@ -37,7 +40,7 @@ namespace Causality.Server.Services
 
         public override async Task<ClassResponseGet> Get(ClassRequestGet request, ServerCallContext context)
         {
-            string cacheKey = "Class.Get::" + request.Filter + "::" + request.OrderBy + "::" + request.Ascending.ToString();
+            string cacheKey = "Class.Get::" + request.Filter + "::" + request.OrderBy + "::" + request.Ascending.ToString() + "::" + request.IncludeProperties;
             bool IsCached = true;
             IEnumerable<Class> cacheEntry;
             ClassResponseGet response = new();
@@ -48,6 +51,29 @@ namespace Causality.Server.Services
                     Expression<Func<Class, bool>> filter = ExpressionBuilder.BuildFilter<Class>(request.Filter);
                     Func<IQueryable<Class>, IOrderedQueryable<Class>> orderBy = ExpressionBuilder.BuildOrderBy<Class>(request.OrderBy, request.Ascending);
                     cacheEntry = await _manager.Get(filter, orderBy);
+
+                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        foreach (var item in cacheEntry)
+                        {
+                            if (includeProperty.ToLower().Equals("cause"))
+                            {
+                                var _ret = await _cause.Get(m => m.ClassId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Causes.AddRange(_ret);
+                            }
+                            if (includeProperty.ToLower().Equals("effect"))
+                            {
+                                var _ret = await _effect.Get(m => m.ClassId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Effects.AddRange(_ret);
+                            }
+                            if (includeProperty.ToLower().Equals("meta"))
+                            {
+                                var _ret = await _meta.Get(m => m.ClassId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Metas.AddRange(_ret);
+                            }
+                        }
+                    }
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -69,7 +95,7 @@ namespace Causality.Server.Services
 
         public override async Task<ClassResponseGetById> GetById(ClassRequestGetById request, ServerCallContext context)
         {
-            string cacheKey = "Class.GetById::" + request.Id.ToString();
+            string cacheKey = "Class.GetById::" + request.Id.ToString() + "::" + request.IncludeProperties;
             bool IsCached = true;
             Class cacheEntry;
             var response = new ClassResponseGetById();
@@ -78,6 +104,26 @@ namespace Causality.Server.Services
                 if (!_cache.TryGetValue<Class>(cacheKey, out cacheEntry))
                 {
                     cacheEntry = await _manager.GetById(request.Id);
+
+                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (includeProperty.ToLower().Equals("cause"))
+                        {
+                            var _ret = await _cause.Get(m => m.ClassId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Causes.AddRange(_ret);
+                        }
+                        if (includeProperty.ToLower().Equals("effect"))
+                        {
+                            var _ret = await _effect.Get(m => m.ClassId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Effects.AddRange(_ret);
+                        }
+                        if (includeProperty.ToLower().Equals("meta"))
+                        {
+                            var _ret = await _meta.Get(m => m.ClassId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Metas.AddRange(_ret);
+                        }
+                    }
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;

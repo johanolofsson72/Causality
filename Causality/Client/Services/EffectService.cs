@@ -62,7 +62,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (none), OrderBy (Id, EventId, ClassId, CauseId, UserId, Value, UpdatedDate)
+        /// TryGet, Includes (Meta), OrderBy (Id, EventId, ClassId, CauseId, UserId, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -72,7 +72,7 @@ namespace Causality.Client.Services
         /// <param name="onFail"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public async Task TryGet(Expression<Func<Effect, bool>> filter, string orderby, bool ascending, Action<IEnumerable<Effect>, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryGet(Expression<Func<Effect, bool>> filter, string orderby, bool ascending, string includeProperties, Action<IEnumerable<Effect>, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
         {
             try
             {
@@ -80,7 +80,7 @@ namespace Causality.Client.Services
                 var bytes = serializer.SerializeBinary(filter);
                 var predicateDeserialized = serializer.DeserializeBinary(bytes);
                 string filterString = predicateDeserialized.ToString();
-                string key = ("causality_effect_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower();
+                string key = ("causality_effect_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower() + "_" + includeProperties;
                 List<Effect> data = new();
                 bool getFromServer = false;
                 string source = "";
@@ -109,7 +109,7 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    EffectRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
+                    EffectRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
                     EffectResponseGet ret = await _effectService.GetAsync(req);
                     if (ret.Success)
                     {
@@ -136,18 +136,18 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (none)
+        /// TryGetById, Includes (Meta)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="onSuccess"></param>
         /// <param name="onFail"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public async Task TryGetById(int id, Action<Effect, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryGetById(int id, string includeProperties, Action<Effect, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
         {
             try
             {
-                string key = ("causality_Effect_trygetbyid_" + id).Replace(" ", "").ToLower();
+                string key = ("causality_Effect_trygetbyid_" + id).Replace(" ", "").ToLower() + "_" + includeProperties;
 
                 Effect data = new();
                 bool getFromServer = false;
@@ -177,7 +177,7 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    EffectRequestGetById req = new() { Id = id };
+                    EffectRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
                     EffectResponseGetById ret = await _effectService.GetByIdAsync(req);
                     if (ret.Success)
                     {
@@ -283,7 +283,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                EffectRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true };
+                EffectRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Meta" };
                 await _effectService.GetAsync(req);
             }
         }

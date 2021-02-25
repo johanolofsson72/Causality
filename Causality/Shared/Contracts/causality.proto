@@ -227,6 +227,7 @@ message EffectRequestGet {
   string filter = 1;
   string orderBy = 2;
   bool ascending = 3;
+  string includeProperties = 4;
 }
 
 message EffectResponseGet {
@@ -239,6 +240,7 @@ message EffectResponseGet {
 
 message EffectRequestGetById {
   int32 id = 1;
+  string includeProperties = 2;
 }
  
 message EffectResponseGetById {
@@ -301,6 +303,7 @@ message EventResponseGet {
 
 message EventRequestGetById {
   int32 id = 1;
+  string includeProperties = 2;
 }
  
 message EventResponseGetById {
@@ -350,6 +353,7 @@ message ExcludeRequestGet {
   string filter = 1;
   string orderBy = 2;
   bool ascending = 3;
+  string includeProperties = 4;
 }
 
 message ExcludeResponseGet {
@@ -362,6 +366,7 @@ message ExcludeResponseGet {
 
 message ExcludeRequestGetById {
   int32 id = 1;
+  string includeProperties = 2;
 }
  
 message ExcludeResponseGetById {
@@ -548,6 +553,7 @@ message ProcessResponseGet {
 
 message ProcessRequestGetById {
   int32 id = 1;
+  string includeProperties = 2;
 }
  
 message ProcessResponseGetById {
@@ -609,6 +615,7 @@ message StateResponseGet {
 
 message StateRequestGetById {
   int32 id = 1;
+  string includeProperties = 2;
 }
  
 message StateResponseGetById {
@@ -671,6 +678,7 @@ message ResultResponseGet {
 
 message ResultRequestGetById {
   int32 id = 1;
+  string includeProperties = 2;
 }
  
 message ResultResponseGetById {
@@ -715,29 +723,8 @@ message ResultResponseDelete {
   string error = 3;
 }
  
+// =======================================================================================
 
-// Type class
-message Meta {
-
-  // base class members
-  int32 id = 1;
-  string key = 2;
-  string value = 3;
-  string updatedDate = 4;
-
-}
-// Exclude class
-message Exclude {
-
-  // base class members
-  int32 id = 1;
-  int32 eventId = 2;
-  int32 causeId = 3;
-  int32 userId = 4;
-  string value = 5;
-  string updatedDate = 6;
-
-}
 // Event class
 message Event {
 
@@ -750,6 +737,38 @@ message Event {
   repeated Cause causes = 6;
   repeated Effect effects = 7;
   repeated Exclude excludes = 8;
+  repeated Meta metas = 9;
+}
+
+// Type class
+message Cause {
+
+  // base class members
+  int32 id = 1;
+  int32 eventId = 2;
+  int32 classId = 3;
+  int32 order = 4;
+  string value = 5;
+  string updatedDate = 6;
+  repeated Effect effects = 7;
+  repeated Exclude excludes = 8;
+  repeated Meta metas = 9;
+
+}
+
+// Class class
+message Class {
+
+  // base class members
+  int32 id = 1;
+  int32 eventId = 2;
+  int32 order = 3;
+  string value = 4;
+  string updatedDate = 5;
+  repeated Cause causes = 6;
+  repeated Effect effects = 7;
+  repeated Meta metas = 8;
+
 }
 
 // Effect class
@@ -763,33 +782,40 @@ message Effect {
   int32 userId = 5;
   string value = 6;
   string updatedDate = 7;
+  repeated Meta metas = 8;
 
 }
-// Class class
-message Class {
+// Exclude class
+message Exclude {
 
   // base class members
   int32 id = 1;
   int32 eventId = 2;
-  int32 order = 3;
-  string value = 4;
-  string updatedDate = 5;
-  repeated Cause causes = 6;
-  repeated Effect effects = 7;
-
-}
-// Type class
-message Cause {
-
-  // base class members
-  int32 id = 1;
-  int32 eventId = 2;
-  int32 classId = 3;
-  int32 order = 4;
+  int32 causeId = 3;
+  int32 userId = 4;
   string value = 5;
   string updatedDate = 6;
-  repeated Effect effects = 7;
-  repeated Exclude excludes = 8;
+  repeated Meta metas = 7;
+
+}
+
+// Type class
+message Meta {
+
+  // base class members
+  int32 id = 1;
+  int32 eventId = 2;
+  int32 causeId = 3;
+  int32 classId = 4;
+  int32 effectId = 5;
+  int32 excludeId = 6;
+  int32 userId = 7;
+  int32 processId = 8;
+  int32 stateId = 9;
+  int32 resultId = 10;
+  string key = 11;
+  string value = 12;
+  string updatedDate = 13;
 
 }
 
@@ -804,7 +830,7 @@ message User {
   string email = 5;
   string updatedDate = 6;
   repeated Exclude excludes = 7;
-  repeated MetaCollection meta = 8;
+  repeated Meta metas = 8;
 
 }
 
@@ -817,7 +843,7 @@ message Process {
   int32 order = 3;
   string value = 4;
   string updatedDate = 5;
-  repeated MetaCollection meta = 6;
+  repeated Meta metas = 6;
 
 }
 // Type class
@@ -831,7 +857,7 @@ message State {
   int32 userId = 5;
   string value = 6;
   string updatedDate = 7;
-  repeated MetaCollection meta = 8;
+  repeated Meta metas = 8;
 
 }
 // Type class
@@ -846,13 +872,6 @@ message Result {
   int32 userId = 6;
   string value = 7;
   string updatedDate = 8;
-  repeated MetaCollection meta = 9;
+  repeated Meta metas = 9;
 
-}
-
-message MetaCollection {
-    oneof kind {
-        Meta meta = 1;
-        google.protobuf.NullValue null = 2;
-    }
 }

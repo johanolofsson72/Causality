@@ -73,6 +73,15 @@ namespace Causality.Server.Data
                 f.HasKey(e => e.Id);
                 f.ToTable(nameof(Meta));
                 f.HasIndex(e => new { e.Id });
+                f.HasIndex(e => new { e.Id, e.EventId });
+                f.HasIndex(e => new { e.Id, e.CauseId });
+                f.HasIndex(e => new { e.Id, e.ClassId });
+                f.HasIndex(e => new { e.Id, e.EffectId });
+                f.HasIndex(e => new { e.Id, e.ExcludeId });
+                f.HasIndex(e => new { e.Id, e.UserId });
+                f.HasIndex(e => new { e.Id, e.ProcessId });
+                f.HasIndex(e => new { e.Id, e.StateId });
+                f.HasIndex(e => new { e.Id, e.ResultId });
                 f.Property("Key").IsRequired();
                 f.Property("Value").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
@@ -114,10 +123,6 @@ namespace Causality.Server.Data
                 f.Property("Name").IsRequired();
                 f.Property("Email").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
-            });
-            modelBuilder.Entity<MetaCollection>(f =>
-            {
-                f.HasKey(e => e.Null);
             });
 
             base.OnModelCreating(modelBuilder);

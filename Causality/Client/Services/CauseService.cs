@@ -69,7 +69,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Effect, Exclude), OrderBy (Id, EventId, ClassId, Order, Value, UpdatedDate)
+        /// TryGet, Includes (Effect, Exclude, Meta), OrderBy (Id, EventId, ClassId, Order, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -87,7 +87,7 @@ namespace Causality.Client.Services
                 var bytes = serializer.SerializeBinary(filter);
                 var predicateDeserialized = serializer.DeserializeBinary(bytes);
                 string filterString = predicateDeserialized.ToString();
-                string key = ("causality_cause_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower();
+                string key = ("causality_cause_tryget_" + filterString + "_" + orderby + "_" + ascending.ToString()).Replace(" ", "").ToLower() + "_" + includeProperties;
                 List<Cause> data = new();
                 bool getFromServer = false;
                 string source = "";
@@ -116,28 +116,10 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    CauseRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
+                    CauseRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
                     CauseResponseGet ret = await _causeService.GetAsync(req);
                     if (ret.Success)
                     {
-                        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            foreach (var item in ret.Causes)
-                            {
-                                if (includeProperty.ToLower().Equals("effect"))
-                                {
-                                    EffectRequestGet _req = new() { Filter = "e => e.CauseId = " + item.Id, OrderBy = "Id", Ascending = true };
-                                    EffectResponseGet _ret = await _effectService.GetAsync(_req);
-                                    item.Effects.Add(_ret.Effects);
-                                }
-                                if (includeProperty.ToLower().Equals("exclude"))
-                                {
-                                    ExcludeRequestGet _req = new() { Filter = "e => e.CauseId = " + item.Id, OrderBy = "Id", Ascending = true };
-                                    ExcludeResponseGet _ret = await _excludeService.GetAsync(_req);
-                                    item.Excludes.Add(_ret.Excludes);
-                                }
-                            }
-                        }
                         data = ret.Causes.ToList();
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)
@@ -161,7 +143,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Effect, Exclude)
+        /// TryGetById, Includes (Effect, Exclude, Meta)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="includeProperties"></param>
@@ -173,7 +155,7 @@ namespace Causality.Client.Services
         {
             try
             {
-                string key = ("causality_Cause_trygetbyid_" + id).Replace(" ", "").ToLower();
+                string key = ("causality_Cause_trygetbyid_" + id).Replace(" ", "").ToLower() + "_" + includeProperties;
 
                 Cause data = new();
                 bool getFromServer = false;
@@ -203,25 +185,10 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    CauseRequestGetById req = new() { Id = id };
+                    CauseRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
                     CauseResponseGetById ret = await _causeService.GetByIdAsync(req);
                     if (ret.Success)
                     {
-                        foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            if (includeProperty.ToLower().Equals("effect"))
-                            {
-                                EffectRequestGet _req = new() { Filter = "e => e.CauseId = " + ret.Cause.Id, OrderBy = "Id", Ascending = true };
-                                EffectResponseGet _ret = await _effectService.GetAsync(_req);
-                                ret.Cause.Effects.Add(_ret.Effects);
-                            }
-                            if (includeProperty.ToLower().Equals("exclude"))
-                            {
-                                ExcludeRequestGet _req = new() { Filter = "e => e.CauseId = " + ret.Cause.Id, OrderBy = "Id", Ascending = true };
-                                ExcludeResponseGet _ret = await _excludeService.GetAsync(_req);
-                                ret.Cause.Excludes.Add(_ret.Excludes);
-                            }
-                        }
                         data = ret.Cause;
                         source = ret.Status;
                         if (state.AppState.UseIndexedDB)
@@ -324,7 +291,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                CauseRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Effect,Exclude" };
+                CauseRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Effect,Exclude,Meta" };
                 await _causeService.GetAsync(req);
             }
         }

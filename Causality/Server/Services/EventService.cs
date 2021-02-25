@@ -21,6 +21,11 @@ namespace Causality.Server.Services
     {
 
         Repository<Event, ApplicationDbContext> _manager;
+        Repository<Class, ApplicationDbContext> _class;
+        Repository<Cause, ApplicationDbContext> _cause;
+        Repository<Effect, ApplicationDbContext> _effect;
+        Repository<Exclude, ApplicationDbContext> _exclude;
+        Repository<Meta, ApplicationDbContext> _meta;
         ApplicationDbContext _context;
         IConfiguration _config;
         IMemoryCache _cache;
@@ -37,7 +42,7 @@ namespace Causality.Server.Services
 
         public override async Task<EventResponseGet> Get(EventRequestGet request, ServerCallContext context)
         {
-            string cacheKey = "Event.Get::" + request.Filter + "::" + request.OrderBy + "::" + request.Ascending.ToString();
+            string cacheKey = "Event.Get::" + request.Filter + "::" + request.OrderBy + "::" + request.Ascending.ToString() + "::" + request.IncludeProperties;
             bool IsCached = true;
             IEnumerable<Event> cacheEntry;
             EventResponseGet response = new();
@@ -48,6 +53,39 @@ namespace Causality.Server.Services
                     Expression<Func<Event, bool>> filter = ExpressionBuilder.BuildFilter<Event>(request.Filter);
                     Func<IQueryable<Event>, IOrderedQueryable<Event>> orderBy = ExpressionBuilder.BuildOrderBy<Event>(request.OrderBy, request.Ascending);
                     cacheEntry = await _manager.Get(filter, orderBy);
+
+                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        foreach (var item in cacheEntry)
+                        {
+                            if (includeProperty.ToLower().Equals("class"))
+                            {
+                                var _ret = await _class.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Classes.AddRange(_ret);
+                            }
+                            if (includeProperty.ToLower().Equals("cause"))
+                            {
+                                var _ret = await _cause.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Causes.AddRange(_ret);
+                            }
+                            if (includeProperty.ToLower().Equals("effect"))
+                            {
+                                var _ret = await _effect.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Effects.AddRange(_ret);
+                            }
+                            if (includeProperty.ToLower().Equals("exclude"))
+                            {
+                                var _ret = await _exclude.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Excludes.AddRange(_ret);
+                            }
+                            if (includeProperty.ToLower().Equals("meta"))
+                            {
+                                var _ret = await _meta.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Metas.AddRange(_ret);
+                            }
+                        }
+                    }
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -69,7 +107,7 @@ namespace Causality.Server.Services
 
         public override async Task<EventResponseGetById> GetById(EventRequestGetById request, ServerCallContext context)
         {
-            string cacheKey = "Event.GetById::" + request.Id.ToString();
+            string cacheKey = "Event.GetById::" + request.Id.ToString() + "::" + request.IncludeProperties;
             bool IsCached = true;
             Event cacheEntry;
             var response = new EventResponseGetById();
@@ -78,6 +116,36 @@ namespace Causality.Server.Services
                 if (!_cache.TryGetValue<Event>(cacheKey, out cacheEntry))
                 {
                     cacheEntry = await _manager.GetById(request.Id);
+
+                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (includeProperty.ToLower().Equals("class"))
+                        {
+                            var _ret = await _class.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Classes.AddRange(_ret);
+                        }
+                        if (includeProperty.ToLower().Equals("cause"))
+                        {
+                            var _ret = await _cause.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Causes.AddRange(_ret);
+                        }
+                        if (includeProperty.ToLower().Equals("effect"))
+                        {
+                            var _ret = await _effect.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Effects.AddRange(_ret);
+                        }
+                        if (includeProperty.ToLower().Equals("exclude"))
+                        {
+                            var _ret = await _exclude.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Excludes.AddRange(_ret);
+                        }
+                        if (includeProperty.ToLower().Equals("meta"))
+                        {
+                            var _ret = await _meta.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Metas.AddRange(_ret);
+                        }
+                    }
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;

@@ -115,35 +115,6 @@ namespace Causality.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Meta",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Key = table.Column<string>(type: "TEXT", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: false),
-                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false),
-                    ProcessId = table.Column<int>(type: "INTEGER", nullable: true),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Meta", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Meta_Process_ProcessId",
-                        column: x => x.ProcessId,
-                        principalTable: "Process",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Meta_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Cause",
                 columns: table => new
                 {
@@ -243,6 +214,84 @@ namespace Causality.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Meta",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: true),
+                    CauseId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ClassId = table.Column<int>(type: "INTEGER", nullable: true),
+                    EffectId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ExcludeId = table.Column<int>(type: "INTEGER", nullable: true),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ProcessId = table.Column<int>(type: "INTEGER", nullable: true),
+                    StateId = table.Column<int>(type: "INTEGER", nullable: true),
+                    ResultId = table.Column<int>(type: "INTEGER", nullable: true),
+                    Key = table.Column<string>(type: "TEXT", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Meta", x => x.Id);
+                    //table.ForeignKey(
+                    //    name: "FK_Meta_Cause_CauseId",
+                    //    column: x => x.CauseId,
+                    //    principalTable: "Cause",
+                    //    principalColumn: "Id",
+                    //    onDelete: ReferentialAction.Cascade);
+                    //table.ForeignKey(
+                    //    name: "FK_Meta_Class_ClassId",
+                    //    column: x => x.ClassId,
+                    //    principalTable: "Class",
+                    //    principalColumn: "Id",
+                    //    onDelete: ReferentialAction.Cascade);
+                    //table.ForeignKey(
+                    //    name: "FK_Meta_Effect_EffectId",
+                    //    column: x => x.EffectId,
+                    //    principalTable: "Effect",
+                    //    principalColumn: "Id",
+                    //    onDelete: ReferentialAction.Cascade);
+                    //table.ForeignKey(
+                    //    name: "FK_Meta_Event_EventId",
+                    //    column: x => x.EventId,
+                    //    principalTable: "Event",
+                    //    principalColumn: "Id",
+                    //    onDelete: ReferentialAction.Cascade);
+                    //table.ForeignKey(
+                    //    name: "FK_Meta_Exclude_ExcludeId",
+                    //    column: x => x.ExcludeId,
+                    //    principalTable: "Exclude",
+                    //    principalColumn: "Id",
+                    //    onDelete: ReferentialAction.Cascade);
+                    //table.ForeignKey(
+                    //    name: "FK_Meta_Process_ProcessId",
+                    //    column: x => x.ProcessId,
+                    //    principalTable: "Process",
+                    //    principalColumn: "Id",
+                    //    onDelete: ReferentialAction.Cascade);
+                    //table.ForeignKey(
+                    //    name: "FK_Meta_Result_ResultId",
+                    //    column: x => x.ResultId,
+                    //    principalTable: "Result",
+                    //    principalColumn: "Id",
+                    //    onDelete: ReferentialAction.Cascade);
+                    //table.ForeignKey(
+                    //    name: "FK_Meta_State_StateId",
+                    //    column: x => x.StateId,
+                    //    principalTable: "State",
+                    //    principalColumn: "Id",
+                    //    onDelete: ReferentialAction.Cascade);
+                    //table.ForeignKey(
+                    //    name: "FK_Meta_User_UserId",
+                    //    column: x => x.UserId,
+                    //    principalTable: "User",
+                    //    principalColumn: "Id",
+                    //    onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Cause_ClassId",
                 table: "Cause",
@@ -334,6 +383,31 @@ namespace Causality.Server.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Meta_CauseId",
+                table: "Meta",
+                column: "CauseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_ClassId",
+                table: "Meta",
+                column: "ClassId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_EffectId",
+                table: "Meta",
+                column: "EffectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_EventId",
+                table: "Meta",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_ExcludeId",
+                table: "Meta",
+                column: "ExcludeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Meta_Id",
                 table: "Meta",
                 column: "Id");
@@ -342,6 +416,16 @@ namespace Causality.Server.Migrations
                 name: "IX_Meta_ProcessId",
                 table: "Meta",
                 column: "ProcessId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_ResultId",
+                table: "Meta",
+                column: "ResultId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_StateId",
+                table: "Meta",
+                column: "StateId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Meta_UserId",
@@ -382,7 +466,6 @@ namespace Causality.Server.Migrations
                 name: "IX_User_Id",
                 table: "User",
                 column: "Id");
-
 
             // Fill the database with demodata
             migrationBuilder.InsertData(
@@ -445,17 +528,30 @@ namespace Causality.Server.Migrations
                 columns: new[] { "EventId", "CauseId", "ClassId", "UserId", "Value", "UpdatedDate" },
                 values: new object[] { 1, 3, 2, 1, "Ja, det som rockar!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
 
+            //for (int i = 1; i < 4; i++)
+            //{
+            //    migrationBuilder.InsertData(
+            //        table: "Meta",
+            //        columns: new[] { "Key", "Value", "UpdatedDate" },
+            //        values: new object[] { "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
+            //}
+
             for (int i = 1; i < 4; i++)
             {
                 migrationBuilder.InsertData(
                     table: "Meta",
-                    columns: new[] { "Key", "Value", "UpdatedDate" },
-                    values: new object[] { "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
+                    columns: new[] { "EventId", "CauseId", "ClassId", "EffectId", "ExcludeId", "UserId", "ProcessId", "StateId", "ResultId", "Key", "Value", "UpdatedDate" },
+                    values: new object[] { 1, 0, 0, 0, 0, 1, 0, 0, 0, "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
             }
+
+
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Meta");
+
             migrationBuilder.DropTable(
                 name: "Effect");
 
@@ -463,7 +559,7 @@ namespace Causality.Server.Migrations
                 name: "Exclude");
 
             migrationBuilder.DropTable(
-                name: "Meta");
+                name: "Process");
 
             migrationBuilder.DropTable(
                 name: "Result");
@@ -473,9 +569,6 @@ namespace Causality.Server.Migrations
 
             migrationBuilder.DropTable(
                 name: "Cause");
-
-            migrationBuilder.DropTable(
-                name: "Process");
 
             migrationBuilder.DropTable(
                 name: "User");

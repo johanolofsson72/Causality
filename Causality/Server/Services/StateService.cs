@@ -21,23 +21,25 @@ namespace Causality.Server.Services
     {
 
         readonly Repository<State, ApplicationDbContext> _manager;
+        Repository<Meta, ApplicationDbContext> _meta;
         readonly ApplicationDbContext _context;
         readonly IConfiguration _config;
         readonly IMemoryCache _cache;
         readonly int _cacheTimeInSeconds;
 
-        public StateService(Repository<State, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config)
+        public StateService(Repository<State, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config, Repository<Meta, ApplicationDbContext> meta)
         {
             _manager = manager;
             _context = context;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
+            _meta = meta;
         }
 
         public override async Task<StateResponseGet> Get(StateRequestGet request, ServerCallContext context)
         {
-            string cacheKey = "State.Get::" + request.Filter + "::" + request.OrderBy + "::" + request.Ascending.ToString();
+            string cacheKey = "State.Get::" + request.Filter + "::" + request.OrderBy + "::" + request.Ascending.ToString() + "::" + request.IncludeProperties;
             bool IsCached = true;
             StateResponseGet response = new();
             try
@@ -47,6 +49,19 @@ namespace Causality.Server.Services
                     Expression<Func<State, bool>> filter = ExpressionBuilder.BuildFilter<State>(request.Filter);
                     Func<IQueryable<State>, IOrderedQueryable<State>> orderBy = ExpressionBuilder.BuildOrderBy<State>(request.OrderBy, request.Ascending);
                     cacheEntry = await _manager.Get(filter, orderBy);
+
+                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        foreach (var item in cacheEntry)
+                        {
+                            if (includeProperty.ToLower().Equals("meta"))
+                            {
+                                var _ret = await _meta.Get(m => m.StateId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Metas.AddRange(_ret);
+                            }
+                        }
+                    }
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -68,7 +83,7 @@ namespace Causality.Server.Services
 
         public override async Task<StateResponseGetById> GetById(StateRequestGetById request, ServerCallContext context)
         {
-            string cacheKey = "State.GetById::" + request.Id.ToString();
+            string cacheKey = "State.GetById::" + request.Id.ToString() + "::" + request.IncludeProperties;
             bool IsCached = true;
             var response = new StateResponseGetById();
             try
@@ -76,6 +91,16 @@ namespace Causality.Server.Services
                 if (!_cache.TryGetValue<State>(cacheKey, out State cacheEntry))
                 {
                     cacheEntry = await _manager.GetById(request.Id);
+
+                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (includeProperty.ToLower().Equals("meta"))
+                        {
+                            var _ret = await _meta.Get(m => m.StateId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Metas.AddRange(_ret);
+                        }
+                    }
+
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;

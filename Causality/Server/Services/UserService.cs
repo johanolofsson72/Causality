@@ -54,9 +54,6 @@ namespace Causality.Server.Services
                     Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = ExpressionBuilder.BuildOrderBy<User>(request.OrderBy, request.Ascending);
                     cacheEntry = await _user.Get(filter, orderBy);
 
-
-
-
                     foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                     {
                         foreach (var item in cacheEntry)
@@ -68,17 +65,11 @@ namespace Causality.Server.Services
                             }
                             if (includeProperty.ToLower().Equals("meta"))
                             {
-                                var _ret = await _meta.Get(m => m.Key == "'%UserId=" + item.Id + "%'", m => m.OrderBy("Id ASC"));
-                                foreach (var m in _ret)
-                                {
-                                    item.Meta.Add(new MetaCollection() { Meta = m });
-                                }
+                                var _ret = await _meta.Get(m => m.UserId == item.Id, m => m.OrderBy("Id ASC"));
+                                item.Metas.AddRange(_ret);
                             }
                         }
                     }
-
-
-
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
@@ -111,9 +102,6 @@ namespace Causality.Server.Services
                 {
                     cacheEntry = await _user.GetById(request.Id);
 
-
-
-
                     foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                     {
                         if (includeProperty.ToLower().Equals("exclude"))
@@ -123,16 +111,10 @@ namespace Causality.Server.Services
                         }
                         if (includeProperty.ToLower().Equals("meta"))
                         {
-                            var _ret = await _meta.Get(m => m.Key.Contains("UserId=" + cacheEntry.Id), m => m.OrderBy("Id ASC"));
-                            foreach (var m in _ret)
-                            {
-                                cacheEntry.Meta.Add(new MetaCollection() { Meta = m });
-                            }
+                            var _ret = await _meta.Get(m => m.UserId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
+                            cacheEntry.Metas.AddRange(_ret);
                         }
                     }
-
-
-
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
