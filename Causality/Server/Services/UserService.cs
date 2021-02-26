@@ -213,6 +213,22 @@ namespace Causality.Server.Services
                 var list = await _user.Get(x => x.Id == request.Id);
                 if (list != null)
                 {
+                    foreach (var item in await _meta.Get(x => x.UserId == request.Id))
+                    {
+                        if (! await _meta.Delete(item))
+                        {
+                            throw new Exception("Could not delete " + nameof(item.GetType));
+                        }
+                    }
+
+                    foreach (var item in await _exclude.Get(x => x.UserId == request.Id))
+                    {
+                        if (!await _exclude.Delete(item))
+                        {
+                            throw new Exception("Could not delete " + nameof(item.GetType));
+                        }
+                    }
+
                     var first = list.First();
                     var success = await _user.Delete(first);
                     if (success)

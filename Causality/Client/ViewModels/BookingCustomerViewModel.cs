@@ -55,7 +55,7 @@ namespace Causality.Client.ViewModels
         [Inject] Services.UserService UserManager { get; set; }
         [Inject] Services.MetaService MetaManager { get; set; }
 
-        protected String Title = "Customer";
+        protected String Title = "New Customers";
         protected List<User> list;
         protected User selectedItem;
 
@@ -89,9 +89,16 @@ namespace Causality.Client.ViewModels
             var UID = new Guid().ToString();
             var IP = await IpifyIp.GetPublicIpAsync();
             var Name = "new_customer";
-            var Email = "_";
+            var Email = "jool@me.com";
             var UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-            var Firstname = "_";
+            var Firstname = "Johan";
+            var Lastname = "Olofsson";
+            var Address = "Droppemålavägen 14";
+            var Postalcode = "37273";
+            var City = "Ronneby";
+            var Country = "Sverige";
+            var Regnumber = "DDU001";
+            var Phone = "+46709161669";
 
             var item = new User
             {
@@ -108,6 +115,16 @@ namespace Causality.Client.ViewModels
                 // lägg till alla meta fält...
                 var FirstnameParameter = new Meta
                 {
+                    CauseId = 0, ClassId = 0, EffectId = 0, EventId = 0, ExcludeId = 0, ProcessId = 0, StateId = 0, ResultId = 0,
+                    UserId = c.Id,
+                    Key = "Firstname",
+                    Value = Firstname,
+                    UpdatedDate = UpdatedDate
+                };
+                await MetaManager.TryInsert(FirstnameParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var LastnameParameter = new Meta
+                {
                     CauseId = 0,
                     ClassId = 0,
                     EffectId = 0,
@@ -117,11 +134,113 @@ namespace Causality.Client.ViewModels
                     StateId = 0,
                     ResultId = 0,
                     UserId = c.Id,
-                    Key = "Firstname",
-                    Value = Firstname,
+                    Key = "Lastname",
+                    Value = Lastname,
                     UpdatedDate = UpdatedDate
                 };
-                await MetaManager.TryInsert(FirstnameParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(LastnameParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var AddressParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = 0,
+                    ExcludeId = 0,
+                    ProcessId = 0,
+                    StateId = 0,
+                    ResultId = 0,
+                    UserId = c.Id,
+                    Key = "Address",
+                    Value = Address,
+                    UpdatedDate = UpdatedDate
+                };
+                await MetaManager.TryInsert(AddressParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var PostalcodeParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = 0,
+                    ExcludeId = 0,
+                    ProcessId = 0,
+                    StateId = 0,
+                    ResultId = 0,
+                    UserId = c.Id,
+                    Key = "Postalcode",
+                    Value = Postalcode,
+                    UpdatedDate = UpdatedDate
+                };
+                await MetaManager.TryInsert(PostalcodeParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var CityParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = 0,
+                    ExcludeId = 0,
+                    ProcessId = 0,
+                    StateId = 0,
+                    ResultId = 0,
+                    UserId = c.Id,
+                    Key = "City",
+                    Value = City,
+                    UpdatedDate = UpdatedDate
+                };
+                await MetaManager.TryInsert(CityParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var CountryParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = 0,
+                    ExcludeId = 0,
+                    ProcessId = 0,
+                    StateId = 0,
+                    ResultId = 0,
+                    UserId = c.Id,
+                    Key = "Country",
+                    Value = Country,
+                    UpdatedDate = UpdatedDate
+                };
+                await MetaManager.TryInsert(CountryParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var RegnumberParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = 0,
+                    ExcludeId = 0,
+                    ProcessId = 0,
+                    StateId = 0,
+                    ResultId = 0,
+                    UserId = c.Id,
+                    Key = "Regnumber",
+                    Value = Regnumber,
+                    UpdatedDate = UpdatedDate
+                };
+                await MetaManager.TryInsert(RegnumberParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var PhoneParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = 0,
+                    ExcludeId = 0,
+                    ProcessId = 0,
+                    StateId = 0,
+                    ResultId = 0,
+                    UserId = c.Id,
+                    Key = "Phone",
+                    Value = Phone,
+                    UpdatedDate = UpdatedDate
+                };
+                await MetaManager.TryInsert(PhoneParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 Notify("success", s); 
             

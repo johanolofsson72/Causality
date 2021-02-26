@@ -1,0 +1,33 @@
+﻿@inherits BookingCustomerViewModel
+
+<div class="irx-container">
+    <h5>@Title</h5>
+    @if (list != null)
+    {
+        @if (selectedItem != null)
+        {
+            <input @bind="@selectedItem.Name" class="form-control" />
+            <button class="btn btn-success" @onclick="Update">Update</button>
+            <button class="btn btn-light" @onclick="Cancel">Cancel</button>
+        }
+        else
+        {
+            <input @oninput="Search" class="form-control" placeholder="Search..." />
+            <button class="btn btn-primary" @onclick="GetAll">Get</button>
+            <button class="btn btn-secondary" @onclick="Add">Add</button>
+            <table class="table" cellpadding="0" cellspacing="0">
+                <Virtualize Items="@list" Context="item">
+                    <tr>
+                        <td class="first-tabel-cell"><a @onclick="(() => Edit(item.Id))">@item.Name</a></td>
+                        <td class="second-tabel-cell"><button class="btn btn-warning" @onclick="(() => Edit(item.Id))">Edit</button></td>
+                        <td class="last-tabel-cell"><button class="btn btn-danger" @onclick="(() => Delete(item.Id))">Delete</button></td>
+                    </tr>
+                </Virtualize>
+            </table>
+        }
+    }
+    else
+    {
+        <i>Loading...</i>
+    }
+</div>

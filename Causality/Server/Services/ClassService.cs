@@ -221,6 +221,30 @@ namespace Causality.Server.Services
                 var list = await _manager.Get(x => x.Id == request.Id);
                 if (list != null)
                 {
+                    foreach (var item in await _cause.Get(x => x.ClassId == request.Id))
+                    {
+                        if (!await _cause.Delete(item))
+                        {
+                            throw new Exception("Could not delete " + nameof(item.GetType));
+                        }
+                    }
+
+                    foreach (var item in await _effect.Get(x => x.ClassId == request.Id))
+                    {
+                        if (!await _effect.Delete(item))
+                        {
+                            throw new Exception("Could not delete " + nameof(item.GetType));
+                        }
+                    }
+
+                    foreach (var item in await _meta.Get(x => x.ClassId == request.Id))
+                    {
+                        if (!await _meta.Delete(item))
+                        {
+                            throw new Exception("Could not delete " + nameof(item.GetType));
+                        }
+                    }
+
                     var first = list.First();
                     var success = await _manager.Delete(first);
                     if (success)
