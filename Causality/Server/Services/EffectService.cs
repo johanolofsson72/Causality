@@ -29,13 +29,14 @@ namespace Causality.Server.Services
         IMemoryCache _cache;
         int _cacheTimeInSeconds;
 
-        public EffectService(Repository<Effect, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config)
+        public EffectService(Repository<Effect, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config, Repository<Meta, ApplicationDbContext> meta)
         {
             _manager = manager;
             _context = context;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
+            _meta = meta;
         }
 
         public override async Task<EffectResponseGet> Get(EffectRequestGet request, ServerCallContext context)

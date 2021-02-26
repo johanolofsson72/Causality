@@ -56,49 +56,122 @@ namespace Causality.Client.ViewModels
         [Inject] Services.MetaService MetaManager { get; set; }
 
         protected String Title = "New Customers";
-        protected List<User> list;
-        protected User selectedItem;
+        protected List<BookingCustomer> list = new List<BookingCustomer>();
+        protected BookingCustomer selectedItem = new BookingCustomer();
+
+        private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
+        {
+            var ret = "missing";
+            try
+            {
+                foreach (var item in list)
+                {
+                    if (item.Key.ToLower().Equals(propertyName.ToLower()))
+                    {
+                        return item.Value;
+                    }
+                }
+                return ret;
+            }
+            catch
+            {
+                return ret;
+            }
+        }
 
         protected override async Task OnInitializedAsync()
         {
-            await Task.Delay(0);
-            GetAll();
+            // Load data
+            await GetAll();
+
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
         }
 
         protected async Task RefreshFromChildControl()
         {
-            await Task.Delay(0);
-            GetAll();
-        }
+            // Load data
+            await GetAll();
 
-        protected async Task Delete(Int32 Id)
-        {
-            await UserManager.TryDelete(Id, (String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            // Invoke StateHasChange
             await InvokeAsync(StateHasChanged);
         }
 
-        protected async Task Update()
+        protected async Task GetAll()
         {
-            await UserManager.TryUpdate(selectedItem, (User m, String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
-            await InvokeAsync(StateHasChanged);
+            await UserManager.TryGet(u => u.Id > 0, "Id", true, "Meta", async (IEnumerable<User> users, String s) =>
+            {
+                await Task.Delay(0);
+                List<BookingCustomer> _list = new();
+                foreach (var u in users)
+                {
+                    var bookingCustomer = new BookingCustomer()
+                    {
+                        Id = u.Id,
+                        Uid = u.UID,
+                        Status = u.Name,
+                        EmailAddress = u.Email,
+                        UpdatedDate = Convert.ToDateTime(u.UpdatedDate),
+                        FirstName = SeachForProperty("firstname", u.Metas).ToString(),
+                        LastName = SeachForProperty("lastname", u.Metas).ToString(),
+                        Address = SeachForProperty("address", u.Metas).ToString(),
+                        PostalCode = SeachForProperty("postalcode", u.Metas).ToString(),
+                        City = SeachForProperty("city", u.Metas).ToString(),
+                        Country = SeachForProperty("country", u.Metas).ToString(),
+                        PhoneNumber = SeachForProperty("phonenumber", u.Metas).ToString(),
+                        RegNumber = SeachForProperty("regnumber", u.Metas).ToString()
+                    };
+                    _list.Add(bookingCustomer);
+                }
+
+                list = _list;
+
+                selectedItem = null;
+                Notify("info", s);
+
+            }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
         }
 
-        protected async Task Add()
+        protected async Task DeleteHandler(GridCommandEventArgs args)
         {
+            // Get the reference
+            selectedItem = (BookingCustomer)args.Item;
+
+            // Delete all objects
+            await UserManager.TryDelete(selectedItem.Id, async (String s) =>
+            {
+                // Load data
+                await GetAll();
+
+                // Notify
+                Notify("success", s);
+
+                // Invoke StateHasChange
+                await InvokeAsync(StateHasChanged);
+
+            }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+
+        }
+
+        protected async Task CreateHandler(GridCommandEventArgs args)
+        {
+            // Get the reference
+            selectedItem = (BookingCustomer)args.Item;
+
             var CustomerId = 0;
             var UID = new Guid().ToString();
-            var IP = await IpifyIp.GetPublicIpAsync();
+            var IP = "_";// await IpifyIp.GetPublicIpAsync();
             var Name = "new_customer";
-            var Email = "jool@me.com";
+            var Email = selectedItem.EmailAddress;
             var UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-            var Firstname = "Johan";
-            var Lastname = "Olofsson";
-            var Address = "Droppemålavägen 14";
-            var Postalcode = "37273";
-            var City = "Ronneby";
-            var Country = "Sverige";
-            var Regnumber = "DDU001";
-            var Phone = "+46709161669";
+            var Firstname = selectedItem.FirstName;
+            var Lastname = selectedItem.LastName;
+            var Address = selectedItem.Address;
+            var Postalcode = selectedItem.PostalCode;
+            var City = selectedItem.City;
+            var Country = selectedItem.Country;
+            var Regnumber = selectedItem.RegNumber;
+            var Phone = selectedItem.PhoneNumber;
 
             var item = new User
             {
@@ -108,14 +181,21 @@ namespace Causality.Client.ViewModels
                 Email = Email,
                 UpdatedDate = UpdatedDate
             };
-            await UserManager.TryInsert(item, async (User c, String s) => 
+            await UserManager.TryInsert(item, async (User c, String s) =>
             {
                 CustomerId = c.Id;
 
                 // lägg till alla meta fält...
                 var FirstnameParameter = new Meta
                 {
-                    CauseId = 0, ClassId = 0, EffectId = 0, EventId = 0, ExcludeId = 0, ProcessId = 0, StateId = 0, ResultId = 0,
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = 0,
+                    ExcludeId = 0,
+                    ProcessId = 0,
+                    StateId = 0,
+                    ResultId = 0,
                     UserId = c.Id,
                     Key = "Firstname",
                     Value = Firstname,
@@ -236,49 +316,131 @@ namespace Causality.Client.ViewModels
                     StateId = 0,
                     ResultId = 0,
                     UserId = c.Id,
-                    Key = "Phone",
+                    Key = "Phonenumber",
                     Value = Phone,
                     UpdatedDate = UpdatedDate
                 };
                 await MetaManager.TryInsert(PhoneParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
-                Notify("success", s); 
-            
+                // Load data
+                await GetAll();
+
+                // Notify
+                Notify("success", s);
+
+                // Invoke StateHasChange
+                await InvokeAsync(StateHasChanged);
+
             }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
 
-            // Get the customer with all its meta...
-            await UserManager.TryGetById(CustomerId, "Meta", (User u, String s) => { list.Add(u); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+        }
 
+        protected async Task UpdateHandler(GridCommandEventArgs args)
+        {
+            // Get the reference
+            selectedItem = (BookingCustomer)args.Item;
+
+            var CustomerId = selectedItem.Id;
+            var UID = selectedItem.Uid;
+            var Email = selectedItem.EmailAddress;
+            var UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+            var Firstname = selectedItem.FirstName;
+            var Lastname = selectedItem.LastName;
+            var Address = selectedItem.Address;
+            var Postalcode = selectedItem.PostalCode;
+            var City = selectedItem.City;
+            var Country = selectedItem.Country;
+            var Regnumber = selectedItem.RegNumber;
+            var Phone = selectedItem.PhoneNumber;
+
+            await UserManager.TryGetById(CustomerId, "Meta", async (User u, String s) =>
+            {
+                // Notify
+                Notify("success", s);
+
+                u.Email = Email;
+                u.UpdatedDate = UpdatedDate;
+
+                foreach (var item in u.Metas)
+                {
+                    bool update = false;
+                    if (item.Key.ToLower().Equals("firstname", StringComparison.Ordinal))
+                    {
+                        item.Value = Firstname;
+                        update = true;
+                    }
+                    else if (item.Key.ToLower().Equals("lastname", StringComparison.Ordinal))
+                    {
+                        item.Value = Lastname;
+                        update = true;
+                    }
+                    else if (item.Key.ToLower().Equals("address", StringComparison.Ordinal))
+                    {
+                        item.Value = Address;
+                        update = true;
+                    }
+                    else if (item.Key.ToLower().Equals("postalcode", StringComparison.Ordinal))
+                    {
+                        item.Value = Postalcode;
+                        update = true;
+                    }
+                    else if (item.Key.ToLower().Equals("city", StringComparison.Ordinal))
+                    {
+                        item.Value = City;
+                        update = true;
+                    }
+                    else if (item.Key.ToLower().Equals("country", StringComparison.Ordinal))
+                    {
+                        item.Value = Country;
+                        update = true;
+                    }
+                    else if (item.Key.ToLower().Equals("regnumber", StringComparison.Ordinal))
+                    {
+                        item.Value = Regnumber;
+                        update = true;
+                    }
+                    else if (item.Key.ToLower().Equals("phonenumber", StringComparison.Ordinal))
+                    {
+                        item.Value = Phone;
+                        update = true;
+                    }
+
+                    if (update)
+                    {
+                        await MetaManager.TryUpdate(item, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                    }
+                }
+
+                await UserManager.TryUpdate(u, async (User u, String s) =>
+                {
+                    // Load data
+                    await GetAll();
+
+                    // Notify
+                    Notify("success", s);
+
+                    // Invoke StateHasChange
+                    await InvokeAsync(StateHasChanged);
+
+                }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+            }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+        }
+
+
+
+        protected async Task Update()
+        {
+           // await UserManager.TryUpdate(selectedItem, (User m, String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
-        protected async Task Edit(Int32 Id)
-        {
-            await UserManager.TryGetById(Id, "", (User m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
-        }
+        //protected async Task Edit(Int32 Id)
+        //{
+        //    //await UserManager.TryGetById(Id, "", (User m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+        //}
 
-        protected async Task Search(ChangeEventArgs args)
-        {
-            if (args.Value?.ToString().Length > 0)
-            {
-                await UserManager.TryGet(u => u.Name.ToLower().Contains(args.Value.ToString()), "Id", true, "", (IEnumerable<User> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
-            }
-            else
-            {
-                GetAll();
-            }
-        }
-
-        protected async void GetAll()
-        {
-            await UserManager.TryGet(u => u.Id > 0, "Id", true, "", (IEnumerable<User> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
-        }
-
-        protected async Task Cancel()
-        {
-            await Task.Delay(0);
-            selectedItem = null;
-        }
 
         protected void Notify(string theme, string text)
         {

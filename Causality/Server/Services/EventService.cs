@@ -31,13 +31,18 @@ namespace Causality.Server.Services
         IMemoryCache _cache;
         int _cacheTimeInSeconds;
 
-        public EventService(Repository<Event, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config)
+        public EventService(Repository<Event, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config, Repository<Class, ApplicationDbContext> @class, Repository<Cause, ApplicationDbContext> cause, Repository<Effect, ApplicationDbContext> effect, Repository<Exclude, ApplicationDbContext> exclude, Repository<Meta, ApplicationDbContext> meta)
         {
             _manager = manager;
             _context = context;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
+            _class = @class;
+            _cause = cause;
+            _effect = effect;
+            _exclude = exclude;
+            _meta = meta;
         }
 
         public override async Task<EventResponseGet> Get(EventRequestGet request, ServerCallContext context)

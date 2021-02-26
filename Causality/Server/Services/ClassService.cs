@@ -29,13 +29,16 @@ namespace Causality.Server.Services
         IMemoryCache _cache;
         int _cacheTimeInSeconds;
 
-        public ClassService(Repository<Class, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config)
+        public ClassService(Repository<Class, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config, Repository<Cause, ApplicationDbContext> cause, Repository<Effect, ApplicationDbContext> effect, Repository<Meta, ApplicationDbContext> meta)
         {
             _manager = manager;
             _context = context;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
+            _cause = cause;
+            _effect = effect;
+            _meta = meta;
         }
 
         public override async Task<ClassResponseGet> Get(ClassRequestGet request, ServerCallContext context)
