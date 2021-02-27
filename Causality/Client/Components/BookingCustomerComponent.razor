@@ -30,9 +30,12 @@
             <GridColumn Field=@nameof(BookingCustomer.PhoneNumber) Title="Phone" />
             <GridColumn Field=@nameof(BookingCustomer.EmailAddress) Title="Email" />
             <GridColumn Field=@nameof(BookingCustomer.RegNumber) Title="Regnumber" />
-            <GridCommandColumn Width="240px">
-                <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
-                <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+            <GridCommandColumn Width="185px">
+                <div style="display: flex; flex-direction: row;">
+                    <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+                    <div>&nbsp;</div>
+                    <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                </div>
             </GridCommandColumn>
         </GridColumns>
     </TelerikGrid>
