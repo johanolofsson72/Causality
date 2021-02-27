@@ -1,0 +1,110 @@
+﻿@inherits BookingCustomersViewModel
+
+<style>
+    .k-window .k-edit-form-container {
+        max-height: 80vh;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+</style>
+
+<div class="irx-container">
+    <h5>@Title</h5>
+    <TelerikGrid Data=@list
+                 EditMode="@GridEditMode.Popup"
+                 Sortable="true"
+                 OnCreate="@CreateHandler"
+                 OnUpdate="@UpdateHandler"
+                 OnDelete="@DeleteHandler">
+        <GridToolBar>
+            <GridCommandButton Command="Add" Icon="add">Add Customer</GridCommandButton>
+        </GridToolBar>
+        <GridColumns>
+
+            @if (IsMedium)
+            {
+                <GridColumn Title="More" Width="77px" Editable="false">
+                    <Template>
+                        <div style="display: flex; justify-content: center;">
+                            <TelerikButton Icon="plus" @onclick="() => MoreHandler(context as BookingCustomer)"></TelerikButton>
+                        </div>
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingCustomer.FirstName) Title="Firstname" />
+                <GridColumn Field=@nameof(BookingCustomer.LastName) Title="Lastname" />
+                <GridColumn Field=@nameof(BookingCustomer.Address) Title="Address" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.PostalCode) Title="Postal" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.City) Title="City" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.Country) Title="Country" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.PhoneNumber) Title="Phone" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.EmailAddress) Title="Email" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.RegNumber) Title="Regnumber" Width="0.01px" />
+
+                <GridCommandColumn Width="185px">
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+                        <div>&nbsp;</div>
+                        <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
+            else if (IsSmall)
+            {
+                <GridColumn Title="More" Editable="false">
+                    <Template>
+                        <div style="display: flex; justify-content: center;">
+                            <TelerikButton Icon="plus" @onclick="() => MoreHandler(context as BookingCustomer)"></TelerikButton>
+                        </div>
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingCustomer.FirstName) Title="Firstname" />
+                <GridColumn Field=@nameof(BookingCustomer.LastName) Title="Lastname" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.Address) Title="Address" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.PostalCode) Title="Postal" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.City) Title="City" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.Country) Title="Country" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.PhoneNumber) Title="Phone" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.EmailAddress) Title="Email" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.RegNumber) Title="Regnumber" Width="0.01px" />
+                <GridCommandColumn>
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit"></GridCommandButton>
+                        <div>&nbsp;</div>
+                        <GridCommandButton Command="Delete" Icon="delete"></GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
+            else
+            {
+                <GridColumn Title="More" Width="77px" Editable="false">
+                    <Template>
+                        <div style="display: flex; justify-content: center;">
+                            <TelerikButton Icon="plus" @onclick="() => MoreHandler(context as BookingCustomer)"></TelerikButton>
+                        </div>
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingCustomer.FirstName) Title="Firstname" Width="12%" />
+                <GridColumn Field=@nameof(BookingCustomer.LastName) Title="Lastname" Width="14%" />
+                <GridColumn Field=@nameof(BookingCustomer.Address) Title="Address" Width="24%" />
+                <GridColumn Field=@nameof(BookingCustomer.PostalCode) Title="Postal" Width="10%" />
+                <GridColumn Field=@nameof(BookingCustomer.City) Title="City" Width="10%" />
+                <GridColumn Field=@nameof(BookingCustomer.Country) Title="Country" Width="0.01px" />
+                <GridColumn Field=@nameof(BookingCustomer.PhoneNumber) Title="Phone" Width="14%" />
+                <GridColumn Field=@nameof(BookingCustomer.EmailAddress) Title="Email" Width="14%" />
+                <GridColumn Field=@nameof(BookingCustomer.RegNumber) Title="Regnumber" Width="0.01px" />
+
+                <GridCommandColumn Width="185px">
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+                        <div>&nbsp;</div>
+                        <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
+
+        </GridColumns>
+    </TelerikGrid>
+
+    <MediaQuery Media="@Breakpoints.OnlyMedium" @bind-Matches="IsMedium" />
+    <MediaQuery Media="@Breakpoints.SmallDown" @bind-Matches="IsSmall" />
+</div>

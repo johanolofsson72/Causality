@@ -11,7 +11,7 @@ using Telerik.Blazor.Components;
 
 namespace Causality.Client.ViewModels
 {
-    public class BookingCustomerViewModel : ComponentBase, ICausalityViewModel, IDisposable
+    public class BookingNewCustomerViewModel : ComponentBase, ICausalityViewModel, IDisposable
     {
         #region StateProvider
         [CascadingParameter]
@@ -49,15 +49,16 @@ namespace Causality.Client.ViewModels
         #endregion
 
         [Parameter] public EventCallback OnAdded { get; set; }
-
         [Parameter] public EventCallback<Dictionary<string, string>> NotifyParent { get; set; }
 
         [Inject] Services.UserService UserManager { get; set; }
         [Inject] Services.MetaService MetaManager { get; set; }
 
-        protected String Title = "New Customers";
-        protected List<BookingCustomer> list = new List<BookingCustomer>();
-        protected BookingCustomer selectedItem = new BookingCustomer();
+        protected bool IsMedium = false;
+        protected bool IsSmall = false;
+        protected string Title = "New Customers";
+        protected List<BookingCustomer> list = new();
+        protected BookingCustomer selectedItem = new();
 
         private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
         {
@@ -97,9 +98,33 @@ namespace Causality.Client.ViewModels
             await InvokeAsync(StateHasChanged);
         }
 
+        protected async Task ApproveHandler(BookingCustomer item)
+        {
+            await UserManager.TryGetById(item.Id, "", async (User u, String s) =>
+            {
+                u.Name = "approved_customer";
+                u.UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+
+                await UserManager.TryUpdate(u, async (User u, String s) =>
+                {
+                    // Load data
+                    await GetAll();
+
+                    // Notify
+                    Notify("success", s);
+
+                    // Invoke StateHasChange
+                    await InvokeAsync(StateHasChanged);
+
+                }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+
+            }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+
+        }
+
         protected async Task GetAll()
         {
-            await UserManager.TryGet(u => u.Id > 0, "Id", true, "Meta", async (IEnumerable<User> users, String s) =>
+            await UserManager.TryGet(u => u.Id > 0 && u.Name == "new_customer", "Id", true, "Meta", async (IEnumerable<User> users, String s) =>
             {
                 await Task.Delay(0);
                 List<BookingCustomer> _list = new();
@@ -124,7 +149,7 @@ namespace Causality.Client.ViewModels
                     _list.Add(bookingCustomer);
                 }
 
-                list = _list;
+                list = _list.OrderBy(x => x.LastName).ThenBy(x => x.FirstName).ToList();
 
                 selectedItem = null;
                 Notify("info", s);
@@ -426,12 +451,6 @@ namespace Causality.Client.ViewModels
 
             }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
-        }
-
-        protected async Task Update()
-        {
-           // await UserManager.TryUpdate(selectedItem, (User m, String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
-            await InvokeAsync(StateHasChanged);
         }
 
         protected void Notify(string theme, string text)

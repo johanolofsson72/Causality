@@ -1,18 +1,20 @@
 ﻿@layout TelerikLayout
 @inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <div class="main">
-        <div class="top-row px-2">
-            <ToolbarComponent />
+<MediaQueryList>
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
         </div>
 
-        <div class="content px-2">
-            @Body
+        <div class="main">
+            <div class="top-row px-2">
+                <ToolbarComponent />
+            </div>
+
+            <div class="content px-2">
+                @Body
+            </div>
         </div>
     </div>
-</div>
+</MediaQueryList>

@@ -28,14 +28,48 @@
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="booking">
+            <NavLink class="nav-link" @onclick="()=>expandSubNav = !expandSubNav">
                 <span class="oi oi-calendar" aria-hidden="true"></span> Booking
             </NavLink>
         </li>
+        @if (expandSubNav)
+        {
+            <li class="nav-item px-3" style="margin-left: 10px;">
+                <NavLink class="nav-link" href="bookingnewcustomers">
+                    <span class="oi oi-person" aria-hidden="true"></span> New Customers
+                </NavLink>
+            </li>
+            <li class="nav-item px-3" style="margin-left: 10px;">
+                <NavLink class="nav-link" href="bookingcustomers">
+                    <span class="oi oi-people" aria-hidden="true"></span> Customers
+                </NavLink>
+            </li>
+            <li class="nav-item px-3" style="margin-left: 10px;">
+                <NavLink class="nav-link" href="bookingqueues">
+                    <span class="oi oi-list" aria-hidden="true"></span> Queues
+                </NavLink>
+            </li>
+            <li class="nav-item px-3" style="margin-left: 10px;">
+                <NavLink class="nav-link" href="bookings">
+                    <span class="oi oi-lock-locked" aria-hidden="true"></span> Bookings
+                </NavLink>
+            </li>
+            <li class="nav-item px-3" style="margin-left: 10px;">
+                <NavLink class="nav-link" href="bookingmessages">
+                    <span class="oi oi-envelope-closed" aria-hidden="true"></span> Messages
+                </NavLink>
+            </li>
+            <li class="nav-item px-3" style="margin-left: 10px;">
+                <NavLink class="nav-link" href="bookingother">
+                    <span class="oi oi-star" aria-hidden="true"></span> Other
+                </NavLink>
+            </li>
+        }
     </ul>
 </div>
 
 @code {
+    private bool expandSubNav;
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;

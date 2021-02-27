@@ -1,42 +1,27 @@
-﻿@inherits BookingCustomerViewModel
+﻿@page "/customer/{Id:int}"
 
-<style>
-    .k-window .k-edit-form-container {
-        max-height: 90vh;
-        overflow: auto;
-        overflow-x: hidden;
-    }
-</style>
+<h3>Component1</h3>
 
-<div class="irx-container">
-    <h5>@Title</h5>
+<br />
 
-    <TelerikGrid Data=@list
-                 EditMode="@GridEditMode.Popup"
-                 Sortable="true"
-                 OnCreate="@CreateHandler" 
-                 OnUpdate="@UpdateHandler"
-                 OnDelete="@DeleteHandler">
-        <GridToolBar>
-            <GridCommandButton Command="Add" Icon="add">Add Customer</GridCommandButton>
-        </GridToolBar>
-        <GridColumns>
-            <GridColumn Field=@nameof(BookingCustomer.FirstName) Title="Firstname" />
-            <GridColumn Field=@nameof(BookingCustomer.LastName) Title="Lastname" />
-            <GridColumn Field=@nameof(BookingCustomer.Address) Title="Address" />
-            <GridColumn Field=@nameof(BookingCustomer.PostalCode) Title="Postal" />
-            <GridColumn Field=@nameof(BookingCustomer.City) Title="City" />
-            <GridColumn Field=@nameof(BookingCustomer.Country) Title="Country" />
-            <GridColumn Field=@nameof(BookingCustomer.PhoneNumber) Title="Phone" />
-            <GridColumn Field=@nameof(BookingCustomer.EmailAddress) Title="Email" />
-            <GridColumn Field=@nameof(BookingCustomer.RegNumber) Title="Regnumber" />
-            <GridCommandColumn Width="185px">
-                <div style="display: flex; flex-direction: row;">
-                    <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
-                    <div>&nbsp;</div>
-                    <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
-                </div>
-            </GridCommandColumn>
-        </GridColumns>
-    </TelerikGrid>
-</div>
+<TelerikTabStrip TabPosition="TabPosition.Top" @ref="myTabStrip">
+    <TabStripTab Title="Personal information">
+        1
+    </TabStripTab>
+    <TabStripTab Title="Boat information">
+        2
+    </TabStripTab>
+    <TabStripTab Title="Berth information">
+        3
+    </TabStripTab>
+    <TabStripTab Title="Queue information">
+        4
+    </TabStripTab>
+</TelerikTabStrip>
+
+@code {
+    TelerikTabStrip myTabStrip;
+
+    [Parameter]
+    public int Id { get; set; }
+}
