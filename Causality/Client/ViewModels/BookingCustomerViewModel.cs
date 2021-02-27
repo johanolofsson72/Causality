@@ -428,19 +428,11 @@ namespace Causality.Client.ViewModels
 
         }
 
-
-
         protected async Task Update()
         {
            // await UserManager.TryUpdate(selectedItem, (User m, String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
-
-        //protected async Task Edit(Int32 Id)
-        //{
-        //    //await UserManager.TryGetById(Id, "", (User m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
-        //}
-
 
         protected void Notify(string theme, string text)
         {
