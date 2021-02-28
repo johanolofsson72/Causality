@@ -1,0 +1,24 @@
+﻿@inherits BookingCustomerPersonalViewModel
+
+<h5>@Title</h5>
+
+<TelerikForm Model="@SelectedBookingCustomer" Columns="2" ColumnSpacing="25px" OnValidSubmit="@OnValidSubmitHandler">
+    <FormValidation>
+        <DataAnnotationsValidator />
+    </FormValidation>
+    <FormItems>
+        <FormItem Field="@nameof(SelectedBookingCustomer.FirstName)"></FormItem>
+        <FormItem Field="@nameof(SelectedBookingCustomer.LastName)"></FormItem>
+        <FormItem Field="@nameof(SelectedBookingCustomer.Address)"></FormItem>
+        <FormItem Field="@nameof(SelectedBookingCustomer.PostalCode)"></FormItem>
+        <FormItem Field="@nameof(SelectedBookingCustomer.City)"></FormItem>
+        <FormItem Field="@nameof(SelectedBookingCustomer.Country)"></FormItem>
+        <FormItem Field="@nameof(SelectedBookingCustomer.PhoneNumber)"></FormItem>
+        <FormItem Field="@nameof(SelectedBookingCustomer.EmailAddress)"></FormItem>
+        <FormItem Field="@nameof(SelectedBookingCustomer.RegNumber)"></FormItem>
+    </FormItems>
+    <FormButtons>
+        <TelerikButton ButtonType="@ButtonType.Submit" Primary="true">Update</TelerikButton>
+        <TelerikButton ButtonType="ButtonType.Button" Primary="false" @onclick="() => DeleteHandler(SelectedBookingCustomer as BookingCustomer)">Delete</TelerikButton>
+    </FormButtons>
+</TelerikForm>
