@@ -21,20 +21,17 @@ namespace Causality.Client.Services
     public class StateService
     {
         readonly Causality.Shared.Models.StateService.StateServiceClient _stateService;
-        readonly Causality.Shared.Models.MetaService.MetaServiceClient _metaService;
         readonly IndexedDBManager _indexedDBManager;
         readonly OnlineStateService _onlineState;
 
         public StateService(
             Causality.Shared.Models.StateService.StateServiceClient stateService,
             IndexedDBManager indexedDBManager,
-            OnlineStateService onlineState, 
-            Causality.Shared.Models.MetaService.MetaServiceClient metaService)
+            OnlineStateService onlineState)
         {
             _stateService = stateService;
             _indexedDBManager = indexedDBManager;
             _onlineState = onlineState;
-            _metaService = metaService;
         }
 
         public async Task TryDelete(int id, Action<string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
@@ -67,7 +64,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Meta), OrderBy (Id, EventId, CauseId, ClassId, UserId, Value, UpdatedDate)
+        /// TryGet, Includes (Metas), OrderBy (Id, EventId, CauseId, ClassId, UserId, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -141,7 +138,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Meta)
+        /// TryGetById, Includes (Metas)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="includeProperties"></param>
@@ -289,7 +286,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                StateRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Meta" };
+                StateRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Metas" };
                 await _stateService.GetAsync(req);
             }
         }

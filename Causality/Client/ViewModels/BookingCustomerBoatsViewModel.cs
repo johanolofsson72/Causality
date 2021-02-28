@@ -84,6 +84,8 @@ namespace Causality.Client.ViewModels
 
         protected override async Task OnInitializedAsync()
         {
+            await Task.Delay(0);
+
             //// Load data
             //await GetAll();
 
@@ -93,6 +95,8 @@ namespace Causality.Client.ViewModels
 
         protected async Task RefreshFromChildControl()
         {
+            await Task.Delay(0);
+
             //// Load data
             //await GetAll();
 
@@ -102,17 +106,23 @@ namespace Causality.Client.ViewModels
 
         protected async Task GetAll()
         {
-            
+            await Task.Delay(0);
+
+
         }
 
         protected async Task DeleteHandler(GridCommandEventArgs args)
         {
-            
+            await Task.Delay(0);
+
+
         }
 
         protected async Task UpdateHandler(GridCommandEventArgs args)
         {
-            
+            await Task.Delay(0);
+
+
         }
 
         protected void Notify(string theme, string text)

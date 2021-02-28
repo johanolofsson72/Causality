@@ -21,21 +21,16 @@ namespace Causality.Client.Services
     public class UserService
     {
         Causality.Shared.Models.UserService.UserServiceClient _userService;
-        Causality.Shared.Models.ExcludeService.ExcludeServiceClient _excludeService;
-        readonly Causality.Shared.Models.MetaService.MetaServiceClient _metaService;
         IndexedDBManager _indexedDBManager;
         OnlineStateService _onlineState;
 
         public UserService(Causality.Shared.Models.UserService.UserServiceClient userService,
-            Causality.Shared.Models.ExcludeService.ExcludeServiceClient excludeService,
             IndexedDBManager indexedDBManager,
-            OnlineStateService onlineState, Causality.Shared.Models.MetaService.MetaServiceClient metaService)
+            OnlineStateService onlineState)
         {
             _userService = userService;
-            _excludeService = excludeService;
             _indexedDBManager = indexedDBManager;
             _onlineState = onlineState;
-            _metaService = metaService;
         }
 
         public async Task TryDelete(int id, Action<string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
@@ -89,7 +84,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Exclude, Meta), OrderBy (Id, UID, IP, Name, Email, UpdatedDate)
+        /// TryGet, Includes (Excludes, Metas), OrderBy (Id, UID, IP, Name, Email, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -163,7 +158,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Exclude, Meta)
+        /// TryGetById, Includes (Excludes, Metas)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="onSuccess"></param>
@@ -310,7 +305,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                UserRequestGet req = new() { Filter = "u => u.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Exclude"};
+                UserRequestGet req = new() { Filter = "u => u.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Metas,Excludes"};
                 await _userService.GetAsync(req);
             }
         }

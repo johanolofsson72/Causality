@@ -11,10 +11,8 @@ namespace Causality.Repositories
     {
         Task<bool> Delete(TEntity entityToDelete);
         Task<bool> Delete(object id);
-        Task<IEnumerable<TEntity>> Get(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null);
-        Task<TEntity> GetById(object id);
+        Task<IEnumerable<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, string includeProperties = null);
+        Task<TEntity> GetById(object id, string includeProperties = null);
         Task<TEntity> Insert(TEntity entity);
         Task<TEntity> Update(TEntity entityToUpdate);
     }

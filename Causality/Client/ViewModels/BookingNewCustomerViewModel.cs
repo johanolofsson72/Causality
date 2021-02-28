@@ -124,7 +124,7 @@ namespace Causality.Client.ViewModels
 
         protected async Task GetAll()
         {
-            await UserManager.TryGet(u => u.Id > 0 && u.Name == "new_customer", "Id", true, "Meta", async (IEnumerable<User> users, String s) =>
+            await UserManager.TryGet(u => u.Id > 0 && u.Name == "new_customer", "Id", true, "Metas", async (IEnumerable<User> users, String s) =>
             {
                 await Task.Delay(0);
                 List<BookingCustomer> _list = new();
@@ -378,7 +378,7 @@ namespace Causality.Client.ViewModels
             var Regnumber = selectedItem.RegNumber;
             var Phone = selectedItem.PhoneNumber;
 
-            await UserManager.TryGetById(CustomerId, "Meta", async (User u, String s) =>
+            await UserManager.TryGetById(CustomerId, "Metas", async (User u, String s) =>
             {
                 // Notify
                 Notify("success", s);

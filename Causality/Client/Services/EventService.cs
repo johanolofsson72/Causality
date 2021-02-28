@@ -21,26 +21,14 @@ namespace Causality.Client.Services
     public class EventService
     {
         Causality.Shared.Models.EventService.EventServiceClient _eventService;
-        Causality.Shared.Models.ClassService.ClassServiceClient _classService;
-        Causality.Shared.Models.EffectService.EffectServiceClient _effectService;
-        Causality.Shared.Models.CauseService.CauseServiceClient _causeService;
-        Causality.Shared.Models.ExcludeService.ExcludeServiceClient _excludeService;
         IndexedDBManager _indexedDBManager;
         OnlineStateService _onlineState;
 
         public EventService(Causality.Shared.Models.EventService.EventServiceClient eventService,
-            Causality.Shared.Models.ClassService.ClassServiceClient classService,
-            Causality.Shared.Models.EffectService.EffectServiceClient effectService,
-            Causality.Shared.Models.CauseService.CauseServiceClient causeService,
-            Causality.Shared.Models.ExcludeService.ExcludeServiceClient excludeService, 
             IndexedDBManager indexedDBManager, 
             OnlineStateService onlineState)
         {
             _eventService = eventService;
-            _classService = classService;
-            _effectService = effectService;
-            _causeService = causeService;
-            _excludeService = excludeService;
             _indexedDBManager = indexedDBManager;
             _onlineState = onlineState;
         }
@@ -75,7 +63,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Class, Cause, Effect, Exclude, Meta), OrderBy (Id, Order, Value, UpdatedDate)
+        /// TryGet, Includes (Classes, Causes, Effects, Excludes, Metas), OrderBy (Id, Order, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -149,7 +137,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Class, Cause, Effect, Exclude, Meta)
+        /// TryGetById, Includes (Classes, Causes, Effects, Excludes, Metas)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="onSuccess"></param>
@@ -296,7 +284,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                EventRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Class,Cause,Effect,Exclude,Meta" };
+                EventRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Classes,Causes,Effects,Excludes,Metas" };
                 await _eventService.GetAsync(req);
             }
         }

@@ -106,7 +106,7 @@ namespace Causality.Client.ViewModels
 
         protected async Task Get()
         {
-            await UserManager.TryGetById(BookingCustomerId, "Meta", async (User u, String s) =>
+            await UserManager.TryGetById(BookingCustomerId, "Metas", async (User u, String s) =>
             {
                 await Task.Delay(0);
                 var bookingCustomer = new BookingCustomer()
@@ -158,7 +158,7 @@ namespace Causality.Client.ViewModels
             // Get the reference
             var bookingCustomer = SelectedBookingCustomer;
 
-            await UserManager.TryGetById(bookingCustomer.Id, "Meta", async (User u, String s) =>
+            await UserManager.TryGetById(bookingCustomer.Id, "Metas", async (User u, String s) =>
             {
                 // Notify
                 Notify("success", s);

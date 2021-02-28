@@ -21,28 +21,16 @@ namespace Causality.Server.Services
     {
 
         Repository<Event, ApplicationDbContext> _manager;
-        Repository<Class, ApplicationDbContext> _class;
-        Repository<Cause, ApplicationDbContext> _cause;
-        Repository<Effect, ApplicationDbContext> _effect;
-        Repository<Exclude, ApplicationDbContext> _exclude;
-        Repository<Meta, ApplicationDbContext> _meta;
-        ApplicationDbContext _context;
         IConfiguration _config;
         IMemoryCache _cache;
         int _cacheTimeInSeconds;
 
-        public EventService(Repository<Event, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config, Repository<Class, ApplicationDbContext> @class, Repository<Cause, ApplicationDbContext> cause, Repository<Effect, ApplicationDbContext> effect, Repository<Exclude, ApplicationDbContext> exclude, Repository<Meta, ApplicationDbContext> meta)
+        public EventService(Repository<Event, ApplicationDbContext> manager, IMemoryCache cache, IConfiguration config)
         {
             _manager = manager;
-            _context = context;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
-            _class = @class;
-            _cause = cause;
-            _effect = effect;
-            _exclude = exclude;
-            _meta = meta;
         }
 
         public override async Task<EventResponseGet> Get(EventRequestGet request, ServerCallContext context)
@@ -57,40 +45,7 @@ namespace Causality.Server.Services
                 {
                     Expression<Func<Event, bool>> filter = ExpressionBuilder.BuildFilter<Event>(request.Filter);
                     Func<IQueryable<Event>, IOrderedQueryable<Event>> orderBy = ExpressionBuilder.BuildOrderBy<Event>(request.OrderBy, request.Ascending);
-                    cacheEntry = await _manager.Get(filter, orderBy);
-
-                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        foreach (var item in cacheEntry)
-                        {
-                            if (includeProperty.ToLower().Equals("class"))
-                            {
-                                var _ret = await _class.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
-                                item.Classes.AddRange(_ret);
-                            }
-                            if (includeProperty.ToLower().Equals("cause"))
-                            {
-                                var _ret = await _cause.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
-                                item.Causes.AddRange(_ret);
-                            }
-                            if (includeProperty.ToLower().Equals("effect"))
-                            {
-                                var _ret = await _effect.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
-                                item.Effects.AddRange(_ret);
-                            }
-                            if (includeProperty.ToLower().Equals("exclude"))
-                            {
-                                var _ret = await _exclude.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
-                                item.Excludes.AddRange(_ret);
-                            }
-                            if (includeProperty.ToLower().Equals("meta"))
-                            {
-                                var _ret = await _meta.Get(m => m.EventId == item.Id, m => m.OrderBy("Id ASC"));
-                                item.Metas.AddRange(_ret);
-                            }
-                        }
-                    }
-
+                    cacheEntry = await _manager.Get(filter, orderBy, request.IncludeProperties);
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -120,37 +75,7 @@ namespace Causality.Server.Services
             {
                 if (!_cache.TryGetValue<Event>(cacheKey, out cacheEntry))
                 {
-                    cacheEntry = await _manager.GetById(request.Id);
-
-                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (includeProperty.ToLower().Equals("class"))
-                        {
-                            var _ret = await _class.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
-                            cacheEntry.Classes.AddRange(_ret);
-                        }
-                        if (includeProperty.ToLower().Equals("cause"))
-                        {
-                            var _ret = await _cause.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
-                            cacheEntry.Causes.AddRange(_ret);
-                        }
-                        if (includeProperty.ToLower().Equals("effect"))
-                        {
-                            var _ret = await _effect.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
-                            cacheEntry.Effects.AddRange(_ret);
-                        }
-                        if (includeProperty.ToLower().Equals("exclude"))
-                        {
-                            var _ret = await _exclude.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
-                            cacheEntry.Excludes.AddRange(_ret);
-                        }
-                        if (includeProperty.ToLower().Equals("meta"))
-                        {
-                            var _ret = await _meta.Get(m => m.EventId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
-                            cacheEntry.Metas.AddRange(_ret);
-                        }
-                    }
-
+                    cacheEntry = (await _manager.Get(x => x.Id == request.Id, x => x.OrderBy(x => x.Id), request.IncludeProperties)).FirstOrDefault<Event>();
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -245,49 +170,9 @@ namespace Causality.Server.Services
             var response = new EventResponseDelete();
             try
             {
-                var list = await _manager.Get(x => x.Id == request.Id);
+                var list = await _manager.Get(x => x.Id == request.Id, x => x.OrderBy(x => x.Id), "Metas,Classes,Causes,Effects,Excludes");
                 if (list != null)
                 {
-                    foreach (var item in await _class.Get(x => x.EventId == request.Id))
-                    {
-                        if (!await _class.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
-                    foreach (var item in await _cause.Get(x => x.EventId == request.Id))
-                    {
-                        if (!await _cause.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
-                    foreach (var item in await _effect.Get(x => x.EventId == request.Id))
-                    {
-                        if (!await _effect.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
-                    foreach (var item in await _exclude.Get(x => x.EventId == request.Id))
-                    {
-                        if (!await _exclude.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
-                    foreach (var item in await _meta.Get(x => x.EventId == request.Id))
-                    {
-                        if (!await _meta.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
                     var first = list.First();
                     var success = await _manager.Delete(first);
                     if (success)

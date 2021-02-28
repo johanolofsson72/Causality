@@ -21,20 +21,17 @@ namespace Causality.Client.Services
     public class ResultService
     {
         readonly Causality.Shared.Models.ResultService.ResultServiceClient _resultService;
-        readonly Causality.Shared.Models.MetaService.MetaServiceClient _metaService;
         readonly IndexedDBManager _indexedDBManager;
         readonly OnlineStateService _onlineState;
 
         public ResultService(
             Causality.Shared.Models.ResultService.ResultServiceClient resultService,
             IndexedDBManager indexedDBManager,
-            OnlineStateService onlineState,
-            Causality.Shared.Models.MetaService.MetaServiceClient metaService)
+            OnlineStateService onlineState)
         {
             _resultService = resultService;
             _indexedDBManager = indexedDBManager;
             _onlineState = onlineState;
-            _metaService = metaService;
         }
 
         public async Task TryDelete(int id, Action<string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
@@ -67,7 +64,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Meta), OrderBy (Id, EventId, ProcessId, CauseId, ClassId, UserId, Value, UpdatedDate)
+        /// TryGet, Includes (Metas), OrderBy (Id, EventId, ProcessId, CauseId, ClassId, UserId, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -141,7 +138,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Meta)
+        /// TryGetById, Includes (Metas)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="includeProperties"></param>
@@ -289,7 +286,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                ResultRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Meta" };
+                ResultRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Metas" };
                 await _resultService.GetAsync(req);
             }
         }

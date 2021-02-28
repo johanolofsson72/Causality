@@ -42,7 +42,7 @@ namespace Causality.Server.Data
             return await Delete(entityToDelete);
         }
 
-        public virtual async Task<IEnumerable<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null)
+        public virtual async Task<IEnumerable<TEntity>> Get(Expression<Func<TEntity, bool>> filter = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, string includeProperties = null)
         {
             try
             {
@@ -53,6 +53,15 @@ namespace Causality.Server.Data
                 if (filter != null)
                 {
                     query = query.Where(filter);
+                }
+
+                // Includes
+                if (includeProperties is not null)
+                {
+                    foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        query = query.Include(includeProperty);
+                    }
                 }
 
                 // Sort
@@ -75,7 +84,7 @@ namespace Causality.Server.Data
             }
         }
 
-        public async Task<TEntity> GetById(object id)
+        public async Task<TEntity> GetById(object id, string includeProperties = null)
         {
             return await dbSet.FindAsync(id);
         }

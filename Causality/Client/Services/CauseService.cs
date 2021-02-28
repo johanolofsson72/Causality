@@ -20,21 +20,16 @@ namespace Causality.Client.Services
 {
     public class CauseService
     {
-        readonly Causality.Shared.Models.EffectService.EffectServiceClient _effectService;
         readonly Causality.Shared.Models.CauseService.CauseServiceClient _causeService;
-        readonly Causality.Shared.Models.ExcludeService.ExcludeServiceClient _excludeService;
         readonly IndexedDBManager _indexedDBManager;
         readonly OnlineStateService _onlineState;
 
-        public CauseService(Causality.Shared.Models.EffectService.EffectServiceClient effectService,
+        public CauseService(
             Causality.Shared.Models.CauseService.CauseServiceClient causeService,
-            Causality.Shared.Models.ExcludeService.ExcludeServiceClient excludeService,
             IndexedDBManager indexedDBManager,
             OnlineStateService onlineState)
         {
-            _effectService = effectService;
             _causeService = causeService;
-            _excludeService = excludeService;
             _indexedDBManager = indexedDBManager;
             _onlineState = onlineState;
         }
@@ -69,7 +64,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Effect, Exclude, Meta), OrderBy (Id, EventId, ClassId, Order, Value, UpdatedDate)
+        /// TryGet, Includes (Effects, Excludes, Metas), OrderBy (Id, EventId, ClassId, Order, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -143,7 +138,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Effect, Exclude, Meta)
+        /// TryGetById, Includes (Effects, Excludes, Metas)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="includeProperties"></param>
@@ -291,7 +286,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                CauseRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Effect,Exclude,Meta" };
+                CauseRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Effects,Excludes,Metas" };
                 await _causeService.GetAsync(req);
             }
         }

@@ -11,6 +11,7 @@ using Causality.Server.Data;
 using Causality.Shared.Models;
 using Causality.Shared.Data;
 using Mapster;
+using Microsoft.EntityFrameworkCore;
 
 /// <summary>
 /// Can be copied when adding new service
@@ -22,22 +23,16 @@ namespace Causality.Server.Services
     {
 
         Repository<User, ApplicationDbContext> _user;
-        Repository<Exclude, ApplicationDbContext> _exclude;
-        Repository<Meta, ApplicationDbContext> _meta;
-        ApplicationDbContext _context;
         IConfiguration _config;
         IMemoryCache _cache;
         int _cacheTimeInSeconds;
 
-        public UserService(Repository<User, ApplicationDbContext> user, ApplicationDbContext context, IMemoryCache cache, IConfiguration config, Repository<Exclude, ApplicationDbContext> exclude, Repository<Meta, ApplicationDbContext> meta)
+        public UserService(Repository<User, ApplicationDbContext> user, IMemoryCache cache, IConfiguration config)
         {
             _user = user;
-            _context = context;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
-            _exclude = exclude;
-            _meta = meta;
         }
 
         public override async Task<UserResponseGet> Get(UserRequestGet request, ServerCallContext context)
@@ -52,25 +47,7 @@ namespace Causality.Server.Services
                 {
                     Expression<Func<User, bool>> filter = ExpressionBuilder.BuildFilter<User>(request.Filter);
                     Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = ExpressionBuilder.BuildOrderBy<User>(request.OrderBy, request.Ascending);
-                    cacheEntry = await _user.Get(filter, orderBy);
-
-                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        foreach (var item in cacheEntry)
-                        {
-                            if (includeProperty.ToLower().Equals("exclude"))
-                            {
-                                var _ret = await _exclude.Get(e => e.UserId == item.Id, e => e.OrderBy("Id ASC"));
-                                item.Excludes.Add(_ret);
-                            }
-                            if (includeProperty.ToLower().Equals("meta"))
-                            {
-                                var _ret = await _meta.Get(m => m.UserId == item.Id, m => m.OrderBy("Id ASC"));
-                                item.Metas.AddRange(_ret);
-                            }
-                        }
-                    }
-
+                    cacheEntry = await _user.Get(filter, orderBy, request.IncludeProperties);
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -100,22 +77,7 @@ namespace Causality.Server.Services
             {
                 if (!_cache.TryGetValue<User>(cacheKey, out cacheEntry))
                 {
-                    cacheEntry = await _user.GetById(request.Id);
-
-                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (includeProperty.ToLower().Equals("exclude"))
-                        {
-                            var _ret = await _exclude.Get(e => e.UserId == cacheEntry.Id, e => e.OrderBy("Id ASC"));
-                            cacheEntry.Excludes.Add(_ret);
-                        }
-                        if (includeProperty.ToLower().Equals("meta"))
-                        {
-                            var _ret = await _meta.Get(m => m.UserId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
-                            cacheEntry.Metas.AddRange(_ret);
-                        }
-                    }
-
+                    cacheEntry = (await _user.Get(x => x.Id == request.Id, x => x.OrderBy(x => x.Id), request.IncludeProperties)).FirstOrDefault<User>();
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -210,25 +172,9 @@ namespace Causality.Server.Services
             var response = new UserResponseDelete();
             try
             {
-                var list = await _user.Get(x => x.Id == request.Id);
+                var list = await _user.Get(x => x.Id == request.Id, orderBy: x => x.OrderBy(x => x.Id), "Metas,Excludes");
                 if (list != null)
                 {
-                    foreach (var item in await _meta.Get(x => x.UserId == request.Id))
-                    {
-                        if (! await _meta.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
-                    foreach (var item in await _exclude.Get(x => x.UserId == request.Id))
-                    {
-                        if (!await _exclude.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
                     var first = list.First();
                     var success = await _user.Delete(first);
                     if (success)

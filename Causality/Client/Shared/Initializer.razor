@@ -38,11 +38,11 @@
         services.Add(classService.WarmUp());
         services.Add(excludeService.WarmUp());
         services.Add(effectService.WarmUp());
-        services.Add(userService.WarmUp());
-        services.Add(metaService.WarmUp());
         services.Add(processService.WarmUp());
         services.Add(stateService.WarmUp());
         services.Add(resultService.WarmUp());
+        services.Add(metaService.WarmUp());
+        services.Add(userService.WarmUp());
         await Task.WhenAll(services);
 
         StateProvider.AppState.UpdateWarmedUp(this, true);

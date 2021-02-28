@@ -61,7 +61,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Meta), OrderBy (Id, EventId, CauseId, UserId, Value, UpdatedDate)
+        /// TryGet, Includes (Metas), OrderBy (Id, EventId, CauseId, UserId, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -135,7 +135,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Meta)
+        /// TryGetById, Includes (Metas)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="onSuccess"></param>
@@ -282,7 +282,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                ExcludeRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Meta" };
+                ExcludeRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Metas" };
                 await _excludeService.GetAsync(req);
             }
         }

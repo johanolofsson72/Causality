@@ -21,15 +21,13 @@ namespace Causality.Server.Services
     {
 
         Repository<Meta, ApplicationDbContext> _manager;
-        ApplicationDbContext _context;
         IConfiguration _config;
         IMemoryCache _cache;
         int _cacheTimeInSeconds;
 
-        public MetaService(Repository<Meta, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config)
+        public MetaService(Repository<Meta, ApplicationDbContext> manager, IMemoryCache cache, IConfiguration config)
         {
             _manager = manager;
-            _context = context;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");

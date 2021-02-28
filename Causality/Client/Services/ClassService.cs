@@ -20,21 +20,15 @@ namespace Causality.Client.Services
 {
     public class ClassService
     { 
-        Causality.Shared.Models.EffectService.EffectServiceClient _effectService;
-        Causality.Shared.Models.CauseService.CauseServiceClient _causeService;
         Causality.Shared.Models.ClassService.ClassServiceClient _classService;
         IndexedDBManager _indexedDBManager;
         OnlineStateService _onlineState;
 
-        public ClassService(Causality.Shared.Models.EffectService.EffectServiceClient effectService,
-            Causality.Shared.Models.CauseService.CauseServiceClient causeService,
-            Causality.Shared.Models.ClassService.ClassServiceClient classService,
+        public ClassService(Causality.Shared.Models.ClassService.ClassServiceClient classService,
             IndexedDBManager indexedDBManager,
             OnlineStateService onlineState)
         {
             _classService = classService;
-            _effectService = effectService;
-            _causeService = causeService;
             _indexedDBManager = indexedDBManager;
             _onlineState = onlineState;
         }
@@ -69,7 +63,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGet, Includes (Cause, Effect, Meta), OrderBy (Id, EventId, Order, Value, UpdatedDate)
+        /// TryGet, Includes (Causes, Effects, Metas), OrderBy (Id, EventId, Order, Value, UpdatedDate)
         /// </summary>
         /// <param name="filter"></param>
         /// <param name="orderby"></param>
@@ -143,7 +137,7 @@ namespace Causality.Client.Services
         }
 
         /// <summary>
-        /// TryGetById, Includes (Cause, Effect Meta)
+        /// TryGetById, Includes (Causes, Effects, Metas)
         /// </summary>
         /// <param name="id"></param>
         /// <param name="onSuccess"></param>
@@ -290,7 +284,7 @@ namespace Causality.Client.Services
         {
             if (await _onlineState.IsOnline())
             {
-                ClassRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Cause,Effect,Meta" };
+                ClassRequestGet req = new() { Filter = "c => c.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Causes,Effects,Metas" };
                 await _classService.GetAsync(req);
             }
         }

@@ -21,24 +21,16 @@ namespace Causality.Server.Services
     {
 
         Repository<Cause, ApplicationDbContext> _manager;
-        Repository<Effect, ApplicationDbContext> _effect;
-        Repository<Exclude, ApplicationDbContext> _exclude;
-        Repository<Meta, ApplicationDbContext> _meta;
-        ApplicationDbContext _context;
         IConfiguration _config;
         IMemoryCache _cache;
         int _cacheTimeInSeconds;
 
-        public CauseService(Repository<Cause, ApplicationDbContext> manager, ApplicationDbContext context, IMemoryCache cache, IConfiguration config, Repository<Effect, ApplicationDbContext> effect, Repository<Exclude, ApplicationDbContext> exclude, Repository<Meta, ApplicationDbContext> meta)
+        public CauseService(Repository<Cause, ApplicationDbContext> manager, IMemoryCache cache, IConfiguration config)
         {
             _manager = manager;
-            _context = context;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
-            _effect = effect;
-            _exclude = exclude;
-            _meta = meta;
         }
 
         public override async Task<CauseResponseGet> Get(CauseRequestGet request, ServerCallContext context)
@@ -53,30 +45,7 @@ namespace Causality.Server.Services
                 {
                     Expression<Func<Cause, bool>> filter = ExpressionBuilder.BuildFilter<Cause>(request.Filter);
                     Func<IQueryable<Cause>, IOrderedQueryable<Cause>> orderBy = ExpressionBuilder.BuildOrderBy<Cause>(request.OrderBy, request.Ascending);
-                    cacheEntry = await _manager.Get(filter, orderBy);
-
-                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        foreach (var item in cacheEntry)
-                        {
-                            if (includeProperty.ToLower().Equals("effect"))
-                            {
-                                var _ret = await _effect.Get(m => m.CauseId == item.Id, m => m.OrderBy("Id ASC"));
-                                item.Effects.AddRange(_ret);
-                            }
-                            if (includeProperty.ToLower().Equals("exclude"))
-                            {
-                                var _ret = await _exclude.Get(m => m.CauseId == item.Id, m => m.OrderBy("Id ASC"));
-                                item.Excludes.AddRange(_ret);
-                            }
-                            if (includeProperty.ToLower().Equals("meta"))
-                            {
-                                var _ret = await _meta.Get(m => m.CauseId == item.Id, m => m.OrderBy("Id ASC"));
-                                item.Metas.AddRange(_ret);
-                            }
-                        }
-                    }
-
+                    cacheEntry = await _manager.Get(filter, orderBy, request.IncludeProperties);
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -106,27 +75,7 @@ namespace Causality.Server.Services
             {
                 if (!_cache.TryGetValue<Cause>(cacheKey, out cacheEntry))
                 {
-                    cacheEntry = await _manager.GetById(request.Id);
-
-                    foreach (var includeProperty in request.IncludeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        if (includeProperty.ToLower().Equals("effect"))
-                        {
-                            var _ret = await _effect.Get(m => m.CauseId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
-                            cacheEntry.Effects.AddRange(_ret);
-                        }
-                        if (includeProperty.ToLower().Equals("exclude"))
-                        {
-                            var _ret = await _exclude.Get(m => m.CauseId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
-                            cacheEntry.Excludes.AddRange(_ret);
-                        }
-                        if (includeProperty.ToLower().Equals("meta"))
-                        {
-                            var _ret = await _meta.Get(m => m.CauseId == cacheEntry.Id, m => m.OrderBy("Id ASC"));
-                            cacheEntry.Metas.AddRange(_ret);
-                        }
-                    }
-
+                    cacheEntry = (await _manager.Get(x => x.Id == request.Id, x => x.OrderBy(x => x.Id), request.IncludeProperties)).FirstOrDefault<Cause>();
                     var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(_cacheTimeInSeconds));
                     _cache.Set(cacheKey, cacheEntry, cacheEntryOptions);
                     IsCached = false;
@@ -221,33 +170,9 @@ namespace Causality.Server.Services
             var response = new CauseResponseDelete();
             try
             {
-                var list = await _manager.Get(x => x.Id == request.Id);
+                var list = await _manager.Get(x => x.Id == request.Id, x => x.OrderBy(x => x.Id), "Effects,Excludes,Metas");
                 if (list != null)
                 {
-                    foreach (var item in await _effect.Get(x => x.CauseId == request.Id))
-                    {
-                        if (!await _effect.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
-                    foreach (var item in await _exclude.Get(x => x.CauseId == request.Id))
-                    {
-                        if (!await _exclude.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
-                    foreach (var item in await _meta.Get(x => x.CauseId == request.Id))
-                    {
-                        if (!await _meta.Delete(item))
-                        {
-                            throw new Exception("Could not delete " + nameof(item.GetType));
-                        }
-                    }
-
                     var first = list.First();
                     var success = await _manager.Delete(first);
                     if (success)
