@@ -8,14 +8,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Causality.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210225114910_Init")]
+    [Migration("20210302142420_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "5.0.2");
+                .HasAnnotation("ProductVersion", "5.0.3");
 
             modelBuilder.Entity("Causality.Shared.Models.Cause", b =>
                 {
@@ -254,6 +254,24 @@ namespace Causality.Server.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("Id", "CauseId");
+
+                    b.HasIndex("Id", "ClassId");
+
+                    b.HasIndex("Id", "EffectId");
+
+                    b.HasIndex("Id", "EventId");
+
+                    b.HasIndex("Id", "ExcludeId");
+
+                    b.HasIndex("Id", "ProcessId");
+
+                    b.HasIndex("Id", "ResultId");
+
+                    b.HasIndex("Id", "StateId");
+
+                    b.HasIndex("Id", "UserId");
+
                     b.ToTable("Meta");
                 });
 
@@ -272,6 +290,9 @@ namespace Causality.Server.Migrations
                     b.Property<string>("UpdatedDate")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Value")
                         .IsRequired()

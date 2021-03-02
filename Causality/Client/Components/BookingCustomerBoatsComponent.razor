@@ -1,5 +1,68 @@
 ﻿@inherits BookingCustomerBoatsViewModel
 
-<h1>pop</h1>
 <h5>@Title</h5>
 
+<TelerikGrid Data=@list
+             EditMode="@GridEditMode.Popup"
+             Sortable="true"
+             OnCreate="@CreateHandler"
+             OnUpdate="@UpdateHandler"
+             OnDelete="@DeleteHandler">
+    <GridToolBar>
+        <div style="width: 100%; display: flex; justify-content: center;">
+            <GridCommandButton Command="Add" Icon="add">Add Boat</GridCommandButton>
+        </div>
+    </GridToolBar>
+    <GridColumns>
+
+        @if (IsMedium)
+        {
+            <GridColumn Field=@nameof(BookingBoat.Type) Width="30%" />
+            <GridColumn Field=@nameof(BookingBoat.Length) Title="Length (cm)" Width="15%" />
+            <GridColumn Field=@nameof(BookingBoat.Width) Title="Width (cm)" Width="15%" />
+            <GridColumn Field=@nameof(BookingBoat.Depth) Title="Depth (cm)" Width="15%" />
+
+            <GridCommandColumn Width="85px">
+                <div style="display: flex; flex-direction: row;">
+                    <GridCommandButton Command="Edit" Icon="edit"></GridCommandButton>
+                    <div>&nbsp;</div>
+                    <GridCommandButton Command="Delete" Icon="delete"></GridCommandButton>
+                </div>
+            </GridCommandColumn>
+        }
+        else if (IsSmall)
+        {
+            <GridColumn Field=@nameof(BookingBoat.Type) />
+            <GridColumn Field=@nameof(BookingBoat.Length) Title="Length (cm)" Width="0.01%" />
+            <GridColumn Field=@nameof(BookingBoat.Width) Title="Width (cm)" Width="0.01%" />
+            <GridColumn Field=@nameof(BookingBoat.Depth) Title="Depth (cm)" Width="0.01%" />
+
+            <GridCommandColumn Width="85px">
+                <div style="display: flex; flex-direction: row;">
+                    <GridCommandButton Command="Edit" Icon="edit"></GridCommandButton>
+                    <div>&nbsp;</div>
+                    <GridCommandButton Command="Delete" Icon="delete"></GridCommandButton>
+                </div>
+            </GridCommandColumn>
+        }
+        else
+        {
+            <GridColumn Field=@nameof(BookingBoat.Type) Width="30%" />
+            <GridColumn Field=@nameof(BookingBoat.Length) Title="Length (cm)" Width="15%" />
+            <GridColumn Field=@nameof(BookingBoat.Width) Title="Width (cm)" Width="15%" />
+            <GridColumn Field=@nameof(BookingBoat.Depth) Title="Depth (cm)" Width="15%" />
+
+            <GridCommandColumn Width="185px">
+                <div style="display: flex; flex-direction: row;">
+                    <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+                    <div>&nbsp;</div>
+                    <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                </div>
+            </GridCommandColumn>
+        }
+
+    </GridColumns>
+</TelerikGrid>
+
+<MediaQuery Media="@Breakpoints.OnlyMedium" @bind-Matches="IsMedium" />
+<MediaQuery Media="@Breakpoints.SmallDown" @bind-Matches="IsSmall" />

@@ -36,9 +36,4 @@
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
-  <ItemGroup>
-    <None Update="Data\Causality.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
 </Project>

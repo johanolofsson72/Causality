@@ -1,5 +1,4 @@
-﻿
-            // Fill the database with demodata
+﻿// Fill the database with demodata
             migrationBuilder.InsertData(
                 table: "User",
                 columns: new[] { "UID", "IP", "Name", "Email", "UpdatedDate" },
@@ -60,18 +59,18 @@
                 columns: new[] { "EventId", "CauseId", "ClassId", "UserId", "Value", "UpdatedDate" },
                 values: new object[] { 1, 3, 2, 1, "Ja, det som rockar!", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
 
-            for (int i = 1; i < 4; i++)
-            {
-                migrationBuilder.InsertData(
-                    table: "Meta",
-                    columns: new[] { "Key", "Value", "UpdatedDate" },
-                    values: new object[] { "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-            }
+            //for (int i = 1; i < 4; i++)
+            //{
+            //    migrationBuilder.InsertData(
+            //        table: "Meta",
+            //        columns: new[] { "Key", "Value", "UpdatedDate" },
+            //        values: new object[] { "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
+            //}
 
             for (int i = 1; i < 4; i++)
             {
                 migrationBuilder.InsertData(
                     table: "Meta",
-                    columns: new[] { "UserId", "Key", "Value", "UpdatedDate" },
-                    values: new object[] { 1, "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
+                    columns: new[] { "EventId", "CauseId", "ClassId", "EffectId", "ExcludeId", "UserId", "ProcessId", "StateId", "ResultId", "Key", "Value", "UpdatedDate" },
+                    values: new object[] { 1, 0, 0, 0, 0, 1, 0, 0, 0, "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
             }

@@ -840,10 +840,11 @@ message Process {
   // base class members
   int32 id = 1;
   int32 eventId = 2;
-  int32 order = 3;
-  string value = 4;
-  string updatedDate = 5;
-  repeated Meta metas = 6;
+  int32 userId = 3;
+  int32 order = 4;
+  string value = 5;
+  string updatedDate = 6;
+  repeated Meta metas = 7;
 
 }
 // Type class

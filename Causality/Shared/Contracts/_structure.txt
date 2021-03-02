@@ -43,6 +43,7 @@ Effect											Answer				Svar						används ej
 Process																Entity						Boat (Storebro34)
 - Id				(int)		(pk)
 - EventId			(int)		(fk)
+- UserId			(int)		(fk)
 - Order				(int)
 - Value				(string)
 - UpdatedDate		(string)

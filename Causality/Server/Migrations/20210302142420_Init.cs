@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Causality.Server.Migrations
 {
@@ -29,6 +29,7 @@ namespace Causality.Server.Migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
                     Order = table.Column<int>(type: "INTEGER", nullable: false),
                     Value = table.Column<string>(type: "TEXT", nullable: false),
                     UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
@@ -220,15 +221,15 @@ namespace Causality.Server.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    EventId = table.Column<int>(type: "INTEGER", nullable: true),
-                    CauseId = table.Column<int>(type: "INTEGER", nullable: true),
-                    ClassId = table.Column<int>(type: "INTEGER", nullable: true),
-                    EffectId = table.Column<int>(type: "INTEGER", nullable: true),
-                    ExcludeId = table.Column<int>(type: "INTEGER", nullable: true),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: true),
-                    ProcessId = table.Column<int>(type: "INTEGER", nullable: true),
-                    StateId = table.Column<int>(type: "INTEGER", nullable: true),
-                    ResultId = table.Column<int>(type: "INTEGER", nullable: true),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CauseId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ClassId = table.Column<int>(type: "INTEGER", nullable: false),
+                    EffectId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ExcludeId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProcessId = table.Column<int>(type: "INTEGER", nullable: false),
+                    StateId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ResultId = table.Column<int>(type: "INTEGER", nullable: false),
                     Key = table.Column<string>(type: "TEXT", nullable: false),
                     Value = table.Column<string>(type: "TEXT", nullable: false),
                     UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
@@ -413,6 +414,51 @@ namespace Causality.Server.Migrations
                 column: "Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Meta_Id_CauseId",
+                table: "Meta",
+                columns: new[] { "Id", "CauseId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_Id_ClassId",
+                table: "Meta",
+                columns: new[] { "Id", "ClassId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_Id_EffectId",
+                table: "Meta",
+                columns: new[] { "Id", "EffectId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_Id_EventId",
+                table: "Meta",
+                columns: new[] { "Id", "EventId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_Id_ExcludeId",
+                table: "Meta",
+                columns: new[] { "Id", "ExcludeId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_Id_ProcessId",
+                table: "Meta",
+                columns: new[] { "Id", "ProcessId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_Id_ResultId",
+                table: "Meta",
+                columns: new[] { "Id", "ResultId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_Id_StateId",
+                table: "Meta",
+                columns: new[] { "Id", "StateId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Meta_Id_UserId",
+                table: "Meta",
+                columns: new[] { "Id", "UserId" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Meta_ProcessId",
                 table: "Meta",
                 column: "ProcessId");
@@ -466,6 +512,7 @@ namespace Causality.Server.Migrations
                 name: "IX_User_Id",
                 table: "User",
                 column: "Id");
+
 
             // Fill the database with demodata
             migrationBuilder.InsertData(
@@ -543,7 +590,6 @@ namespace Causality.Server.Migrations
                     columns: new[] { "EventId", "CauseId", "ClassId", "EffectId", "ExcludeId", "UserId", "ProcessId", "StateId", "ResultId", "Key", "Value", "UpdatedDate" },
                     values: new object[] { 1, 0, 0, 0, 0, 1, 0, 0, 0, "Meta " + i.ToString(), i.ToString(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
             }
-
 
         }
 

@@ -168,7 +168,7 @@ namespace Causality.Client.ViewModels
             var CustomerId = 0;
             var UID = new Guid().ToString();
             var IP = "_";// await IpifyIp.GetPublicIpAsync();
-            var Name = "new_customer";
+            var Name = "approved_customer";
             var Email = selectedItem.EmailAddress;
             var UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
             var Firstname = selectedItem.FirstName;

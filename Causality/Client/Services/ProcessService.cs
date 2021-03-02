@@ -115,7 +115,7 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    ProcessRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
+                    ProcessRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
                     ProcessResponseGet ret = await _processService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
@@ -188,7 +188,7 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    ProcessRequestGetById req = new() { Id = id };
+                    ProcessRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
                     ProcessResponseGetById ret = await _processService.GetByIdAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
