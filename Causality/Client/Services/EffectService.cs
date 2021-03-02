@@ -12,6 +12,7 @@ using Causality.Client.Shared;
 using System.Linq.Expressions;
 using Serialize.Linq.Serializers;
 using System.Text;
+using Grpc.Core;
 
 /// <summary>
 /// Can be copied when adding new service
@@ -39,7 +40,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     EffectRequestDelete req = new() { Id = id };
-                    EffectResponseDelete ret = await _effectService.DeleteAsync(req);
+                    EffectResponseDelete ret = await _effectService.DeleteAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (!ret.Success)
                     {
                         throw new Exception(RequestCodes.FIVE_ZERO_ZERO);
@@ -54,6 +55,10 @@ namespace Causality.Client.Services
 
                 onSuccess(RequestCodes.TWO_ZERO_ZERO);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -110,7 +115,7 @@ namespace Causality.Client.Services
                 if (getFromServer)
                 {
                     EffectRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
-                    EffectResponseGet ret = await _effectService.GetAsync(req);
+                    EffectResponseGet ret = await _effectService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         data = ret.Effects.ToList();
@@ -128,6 +133,10 @@ namespace Causality.Client.Services
 
                 onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived " + data.Count.ToString() + " record from " + source);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -178,7 +187,7 @@ namespace Causality.Client.Services
                 if (getFromServer)
                 {
                     EffectRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
-                    EffectResponseGetById ret = await _effectService.GetByIdAsync(req);
+                    EffectResponseGetById ret = await _effectService.GetByIdAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         data = ret.Effect;
@@ -197,6 +206,10 @@ namespace Causality.Client.Services
                 onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived 1 record from " + source);
 
             }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+            }
             catch (Exception e)
             {
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
@@ -211,7 +224,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     EffectRequestInsert req = new() { Effect = Effect };
-                    EffectResponseInsert ret = await _effectService.InsertAsync(req);
+                    EffectResponseInsert ret = await _effectService.InsertAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         Effect = ret.Effect;
@@ -234,6 +247,10 @@ namespace Causality.Client.Services
 
                 onSuccess(Effect, status);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -249,7 +266,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     EffectRequestUpdate req = new() { Effect = Effect };
-                    EffectResponseUpdate ret = await _effectService.UpdateAsync(req);
+                    EffectResponseUpdate ret = await _effectService.UpdateAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         Effect = ret.Effect;
@@ -273,6 +290,10 @@ namespace Causality.Client.Services
                 onSuccess(Effect, status);
 
             }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+            }
             catch (Exception e)
             {
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
@@ -284,7 +305,7 @@ namespace Causality.Client.Services
             if (await _onlineState.IsOnline())
             {
                 EffectRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Metas" };
-                await _effectService.GetAsync(req);
+                await _effectService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
             }
         }
 

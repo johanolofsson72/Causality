@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Components;
 using Causality.Client.Shared;
 using Serialize.Linq.Serializers;
 using System.Linq.Expressions;
+using Grpc.Core;
 
 /// <summary>
 /// Can be copied when adding new service
@@ -38,7 +39,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     MetaRequestDelete req = new() { Id = id };
-                    MetaResponseDelete ret = await _metaService.DeleteAsync(req);
+                    MetaResponseDelete ret = await _metaService.DeleteAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (!ret.Success)
                     {
                         throw new Exception(RequestCodes.FIVE_ZERO_ZERO);
@@ -53,6 +54,10 @@ namespace Causality.Client.Services
 
                 onSuccess(RequestCodes.TWO_ZERO_ZERO);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -109,7 +114,7 @@ namespace Causality.Client.Services
                 if (getFromServer)
                 {
                     MetaRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
-                    MetaResponseGet ret = await _metaService.GetAsync(req);
+                    MetaResponseGet ret = await _metaService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         data = ret.Metas.ToList();
@@ -127,6 +132,10 @@ namespace Causality.Client.Services
 
                 onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived " + data.Count.ToString() + " record from " + source);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -177,7 +186,7 @@ namespace Causality.Client.Services
                 if (getFromServer)
                 {
                     MetaRequestGetById req = new() { Id = id };
-                    MetaResponseGetById ret = await _metaService.GetByIdAsync(req);
+                    MetaResponseGetById ret = await _metaService.GetByIdAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         data = ret.Meta;
@@ -196,6 +205,10 @@ namespace Causality.Client.Services
                 onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived 1 record from " + source);
 
             }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+            }
             catch (Exception e)
             {
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
@@ -210,7 +223,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     MetaRequestInsert req = new() { Meta = meta };
-                    MetaResponseInsert ret = await _metaService.InsertAsync(req);
+                    MetaResponseInsert ret = await _metaService.InsertAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         meta = ret.Meta;
@@ -233,6 +246,10 @@ namespace Causality.Client.Services
 
                 onSuccess(meta, status);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -248,7 +265,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     MetaRequestUpdate req = new() { Meta = meta };
-                    MetaResponseUpdate ret = await _metaService.UpdateAsync(req);
+                    MetaResponseUpdate ret = await _metaService.UpdateAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         meta = ret.Meta;
@@ -272,6 +289,10 @@ namespace Causality.Client.Services
                 onSuccess(meta, status);
 
             }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+            }
             catch (Exception e)
             {
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
@@ -283,7 +304,7 @@ namespace Causality.Client.Services
             if (await _onlineState.IsOnline())
             {
                 MetaRequestGet req = new() { Filter = "m => m.Id > 0", OrderBy = "", Ascending = true };
-                await _metaService.GetAsync(req);
+                await _metaService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
             }
         }
 

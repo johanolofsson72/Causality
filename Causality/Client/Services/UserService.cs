@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Components;
 using Causality.Client.Shared;
 using Serialize.Linq.Serializers;
 using System.Linq.Expressions;
+using Grpc.Core;
 
 /// <summary>
 /// Can be copied when adding new service
@@ -42,7 +43,7 @@ namespace Causality.Client.Services
                     if (await _onlineState.IsOnline())
                     {
                         UserRequestDelete req = new() { Id = id };
-                        UserResponseDelete ret = await _userService.DeleteAsync(req);
+                        UserResponseDelete ret = await _userService.DeleteAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
 
                         if (!ret.Success)
                         {
@@ -65,7 +66,7 @@ namespace Causality.Client.Services
                 else if (await _onlineState.IsOnline())
                 {
                     UserRequestDelete req = new() { Id = id };
-                    UserResponseDelete ret = await _userService.DeleteAsync(req);
+                    UserResponseDelete ret = await _userService.DeleteAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
 
                     if (!ret.Success)
                     {
@@ -76,6 +77,10 @@ namespace Causality.Client.Services
                     onSuccess(ret.Status);
                     return;
                 }
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -132,7 +137,7 @@ namespace Causality.Client.Services
                 if (getFromServer)
                 {
                     UserRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
-                    UserResponseGet ret = await _userService.GetAsync(req);
+                    UserResponseGet ret = await _userService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         data = ret.Users.ToList();
@@ -150,6 +155,10 @@ namespace Causality.Client.Services
 
                 onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived " + data.Count.ToString() + " record from " + source);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -200,7 +209,7 @@ namespace Causality.Client.Services
                 if (getFromServer)
                 {
                     UserRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
-                    UserResponseGetById ret = await _userService.GetByIdAsync(req);
+                    UserResponseGetById ret = await _userService.GetByIdAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         data = ret.User;
@@ -219,6 +228,10 @@ namespace Causality.Client.Services
                 onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived 1 record from " + source);
 
             }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+            }
             catch (Exception e)
             {
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
@@ -233,7 +246,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     UserRequestInsert req = new() { User = User };
-                    UserResponseInsert ret = await _userService.InsertAsync(req);
+                    UserResponseInsert ret = await _userService.InsertAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         User = ret.User;
@@ -256,6 +269,10 @@ namespace Causality.Client.Services
 
                 onSuccess(User, status);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -271,7 +288,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     UserRequestUpdate req = new() { User = User };
-                    UserResponseUpdate ret = await _userService.UpdateAsync(req);
+                    UserResponseUpdate ret = await _userService.UpdateAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         User = ret.User;
@@ -295,6 +312,10 @@ namespace Causality.Client.Services
                 onSuccess(User, status);
 
             }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+            }
             catch (Exception e)
             {
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
@@ -306,7 +327,7 @@ namespace Causality.Client.Services
             if (await _onlineState.IsOnline())
             {
                 UserRequestGet req = new() { Filter = "u => u.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Metas,Excludes"};
-                await _userService.GetAsync(req);
+                await _userService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
             }
         }
 

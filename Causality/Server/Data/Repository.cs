@@ -70,11 +70,12 @@ namespace Causality.Server.Data
                     query = orderBy(query);
                 }
 
-                System.Diagnostics.Debug.WriteLine("");
-                System.Diagnostics.Debug.WriteLine("== SQL ===================");
-                System.Diagnostics.Debug.WriteLine(query.ToQueryString());
-                System.Diagnostics.Debug.WriteLine("==========================");
-                System.Diagnostics.Debug.WriteLine("");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("");
+                Console.WriteLine("== SQL ===================");
+                Console.WriteLine(query.ToQueryString());
+                Console.WriteLine("==========================");
+                Console.WriteLine("");
                 return await query.ToListAsync();
             }
             catch (Exception ex)

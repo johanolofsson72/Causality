@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Components;
 using Causality.Client.Shared;
 using Serialize.Linq.Serializers;
 using System.Linq.Expressions;
+using Grpc.Core;
 
 /// <summary>
 /// Can be copied when adding new service
@@ -38,7 +39,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     ExcludeRequestDelete req = new() { Id = id };
-                    ExcludeResponseDelete ret = await _excludeService.DeleteAsync(req);
+                    ExcludeResponseDelete ret = await _excludeService.DeleteAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (!ret.Success)
                     {
                         throw new Exception(RequestCodes.FIVE_ZERO_ZERO);
@@ -53,6 +54,10 @@ namespace Causality.Client.Services
 
                 onSuccess(RequestCodes.TWO_ZERO_ZERO);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -109,7 +114,7 @@ namespace Causality.Client.Services
                 if (getFromServer)
                 {
                     ExcludeRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
-                    ExcludeResponseGet ret = await _excludeService.GetAsync(req);
+                    ExcludeResponseGet ret = await _excludeService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         data = ret.Excludes.ToList();
@@ -127,6 +132,10 @@ namespace Causality.Client.Services
 
                 onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived " + data.Count.ToString() + " record from " + source);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -177,7 +186,7 @@ namespace Causality.Client.Services
                 if (getFromServer)
                 {
                     ExcludeRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
-                    ExcludeResponseGetById ret = await _excludeService.GetByIdAsync(req);
+                    ExcludeResponseGetById ret = await _excludeService.GetByIdAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         data = ret.Exclude;
@@ -196,6 +205,10 @@ namespace Causality.Client.Services
                 onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived 1 record from " + source);
 
             }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+            }
             catch (Exception e)
             {
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
@@ -210,7 +223,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     ExcludeRequestInsert req = new() { Exclude = Exclude };
-                    ExcludeResponseInsert ret = await _excludeService.InsertAsync(req);
+                    ExcludeResponseInsert ret = await _excludeService.InsertAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         Exclude = ret.Exclude;
@@ -233,6 +246,10 @@ namespace Causality.Client.Services
 
                 onSuccess(Exclude, status);
 
+            }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
@@ -248,7 +265,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     ExcludeRequestUpdate req = new() { Exclude = Exclude };
-                    ExcludeResponseUpdate ret = await _excludeService.UpdateAsync(req);
+                    ExcludeResponseUpdate ret = await _excludeService.UpdateAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
                         Exclude = ret.Exclude;
@@ -272,6 +289,10 @@ namespace Causality.Client.Services
                 onSuccess(Exclude, status);
 
             }
+            catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+            {
+                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+            }
             catch (Exception e)
             {
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
@@ -283,7 +304,7 @@ namespace Causality.Client.Services
             if (await _onlineState.IsOnline())
             {
                 ExcludeRequestGet req = new() { Filter = "e => e.Id > 0", OrderBy = "", Ascending = true, IncludeProperties = "Metas" };
-                await _excludeService.GetAsync(req);
+                await _excludeService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
             }
         }
 
