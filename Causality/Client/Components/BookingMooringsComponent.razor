@@ -1,0 +1,72 @@
+﻿@inherits BookingMooringsViewModel
+
+<style>
+    .k-window .k-edit-form-container {
+        max-height: 80vh;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+</style>
+
+<div class="irx-container">
+    <h5>@Title</h5>
+    <TelerikGrid Data=@list
+                 EditMode="@GridEditMode.Popup"
+                 Sortable="true"
+                 OnUpdate="@UpdateHandler">
+        <GridToolBar>
+            <div style="display: flex; justify-content: center;">
+                <TelerikButton Icon="plus" @onclick="() => AutoCreate()">Create Moorings (will delete existing)</TelerikButton>
+            </div>
+        </GridToolBar>
+        <GridColumns>
+
+            @if (IsMedium)
+            {
+                <GridColumn Field=@nameof(BookingMooring.Name) Width="20%" />
+                <GridColumn Field=@nameof(BookingMooring.Type) Width="20%" Editable="false" />
+                <GridColumn Field=@nameof(BookingMooring.Length) Width="20%" />
+                <GridColumn Field=@nameof(BookingMooring.Width) Width="20%" />
+                <GridColumn Field=@nameof(BookingMooring.Depth) Width="20%" />
+
+                <GridCommandColumn Width="70px">
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit">E</GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
+            else if (IsSmall)
+            {
+                <GridColumn Field=@nameof(BookingMooring.Name)/>
+                <GridColumn Field=@nameof(BookingMooring.Type) Editable="false"/>
+                <GridColumn Field=@nameof(BookingMooring.Length) Width="0.01%" />
+                <GridColumn Field=@nameof(BookingMooring.Width) Width="0.01%" />
+                <GridColumn Field=@nameof(BookingMooring.Depth) Width="0.01%" />
+
+                <GridCommandColumn Width="70px">
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit"></GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
+            else
+            {
+                <GridColumn Field=@nameof(BookingMooring.Name) Width="20%" />
+                <GridColumn Field=@nameof(BookingMooring.Type) Width="20%" Editable="false" />
+                <GridColumn Field=@nameof(BookingMooring.Length) Width="20%" />
+                <GridColumn Field=@nameof(BookingMooring.Width) Width="20%" />
+                <GridColumn Field=@nameof(BookingMooring.Depth) Width="20%" />
+
+                <GridCommandColumn Width="120px">
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
+
+        </GridColumns>
+    </TelerikGrid>
+
+    <MediaQuery Media="@Breakpoints.OnlyMedium" @bind-Matches="IsMedium" />
+    <MediaQuery Media="@Breakpoints.SmallDown" @bind-Matches="IsSmall" />
+</div>

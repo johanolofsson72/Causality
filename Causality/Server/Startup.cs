@@ -9,9 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Causality.Shared.Models;
-using System.Net.Http;
-using Microsoft.AspNetCore.Components;
-using System;
 
 namespace Causality.Server
 {

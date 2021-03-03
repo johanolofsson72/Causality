@@ -1,0 +1,27 @@
+﻿@page "/bookingmoorings"
+
+<BookingMooringsComponent NotifyParent="Notify" />
+
+<div class="notification-parent">
+    <TelerikNotification @ref="NotificationComponent"
+                         Class="demo-notification"
+                         HorizontalPosition="@NotificationHorizontalPosition.Right"
+                         VerticalPosition="@NotificationVerticalPosition.Bottom">
+    </TelerikNotification>
+</div>
+
+@code
+{
+    protected TelerikNotification NotificationComponent { get; set; }
+
+    public async void Notify(Dictionary<string, string> parameters)
+    {
+        await Task.Delay(0);
+        NotificationComponent.Show(new NotificationModel
+        {
+            Text = parameters["text"],
+            ThemeColor = parameters["theme"],
+            CloseAfter = 5000
+        });
+    }
+}

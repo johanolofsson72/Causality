@@ -1,4 +1,5 @@
-﻿using Causality.Shared.Models;
+﻿using System;
+using Causality.Shared.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,11 @@ namespace Causality.Server.Data
         public DbSet<Process> Process { get; set; }
         public DbSet<State> State { get; set; }
         public DbSet<Result> Result { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            //optionsBuilder.LogTo(Console.WriteLine);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

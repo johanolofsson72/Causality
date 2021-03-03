@@ -31,7 +31,7 @@
         StateProvider.AppState.UpdateUseIndexedDB(this, true);
         Console.WriteLine("AppState.UpdateUseIndexedDB to true...");
 
-        Console.WriteLine("Services is warming up...");
+        @*Console.WriteLine("Services is warming up...");
         List<Task> services = new();
         services.Add(eventService.WarmUp());
         services.Add(causeService.WarmUp());
@@ -43,7 +43,7 @@
         services.Add(resultService.WarmUp());
         services.Add(metaService.WarmUp());
         services.Add(userService.WarmUp());
-        await Task.WhenAll(services);
+        await Task.WhenAll(services);*@
 
         StateProvider.AppState.UpdateWarmedUp(this, true);
         Console.WriteLine("Services is warm and hot...");
