@@ -8,6 +8,8 @@ using Causality.Shared.Models;
 using Ipify;
 using Microsoft.AspNetCore.Components;
 using Telerik.Blazor.Components;
+using Microsoft.JSInterop;
+using Microsoft.JSInterop.WebAssembly;
 
 namespace Causality.Client.ViewModels
 {
@@ -54,6 +56,7 @@ namespace Causality.Client.ViewModels
         [Inject] Services.UserService UserManager { get; set; }
         [Inject] Services.MetaService MetaManager { get; set; }
         [Inject] NavigationManager NavigationManager { get; set; }
+        [Inject] IJSRuntime JSRuntime { get; set; }
 
         protected bool IsMedium = false;
         protected bool IsSmall = false;
@@ -143,6 +146,9 @@ namespace Causality.Client.ViewModels
         {
             // Get the reference
             selectedItem = (BookingCustomer)args.Item;
+
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete '{selectedItem.FirstName} {selectedItem.LastName}'?"))
+                return;
 
             // Delete all objects
             await UserManager.TryDelete(selectedItem.Id, async (String s) =>

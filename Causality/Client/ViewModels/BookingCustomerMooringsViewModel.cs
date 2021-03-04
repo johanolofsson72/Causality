@@ -8,6 +8,8 @@ using Causality.Shared.Models;
 using Ipify;
 using Microsoft.AspNetCore.Components;
 using Telerik.Blazor.Components;
+using Microsoft.JSInterop;
+using Microsoft.JSInterop.WebAssembly;
 
 namespace Causality.Client.ViewModels
 {
@@ -59,8 +61,8 @@ namespace Causality.Client.ViewModels
         protected bool IsMedium = false;
         protected bool IsSmall = false;
         protected string Title = "Moorings";
-        protected List<BookingCustomer> list = new();
-        protected BookingCustomer BookingCustomer = new();
+        protected List<BookingMooring> list = new();
+        protected BookingMooring BookingMooring = new();
 
         private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
         {

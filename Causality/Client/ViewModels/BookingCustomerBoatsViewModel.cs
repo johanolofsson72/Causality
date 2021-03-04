@@ -8,6 +8,8 @@ using Causality.Shared.Models;
 using Ipify;
 using Microsoft.AspNetCore.Components;
 using Telerik.Blazor.Components;
+using Microsoft.JSInterop;
+using Microsoft.JSInterop.WebAssembly;
 
 namespace Causality.Client.ViewModels
 {

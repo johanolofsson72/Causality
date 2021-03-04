@@ -7,6 +7,7 @@ using Causality.Client.Shared;
 using Causality.Shared.Models;
 using Ipify;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Telerik.Blazor.Components;
 
 namespace Causality.Client.ViewModels
@@ -55,10 +56,11 @@ namespace Causality.Client.ViewModels
         [Inject] Services.ClassService ClassManager { get; set; }
         [Inject] Services.MetaService MetaManager { get; set; }
         [Inject] NavigationManager NavigationManager { get; set; }
+        [Inject] IJSRuntime JSRuntime { get; set; }
 
         protected bool IsMedium = false;
         protected bool IsSmall = false;
-        protected string Title = "Moorings";
+        protected string Title = "Moorings, Berths, Land Places, etc";
         protected List<BookingMooring> list = new();
         protected BookingMooring selectedItem = new();
 
@@ -105,24 +107,22 @@ namespace Causality.Client.ViewModels
 
         protected async Task AutoCreate()
         {
+            // Delete old mooring data
             await DeleteOldMooringData();
 
-
-            // Create a new Class
+            // Create a new Mooring
             Class c = new()
             {
                 EventId = EventId,
                 Order = 0,
-                Value = "Moorings",
+                Value = "Summer - Mooring - Water",
                 UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
             };
             await ClassManager.TryInsert(c, async (Class q, String s) =>
             {
-                await Task.Delay(10);
+                await Task.Delay(0);
 
                 ClassId = q.Id;
-
-                Notify("success", $"Vi har skapat en ny Class med Id: {ClassId}");
 
                 await CreateMooring("125", "11000", "3500", "2000");
                 await CreateMooring("126", "11000", "3200", "2000");
@@ -130,14 +130,16 @@ namespace Causality.Client.ViewModels
                 await CreateMooring("128", "11000", "2960", "2000");
                 await CreateMooring("129", "11000", "3030", "2000");
 
+
             }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
 
+            await Task.Delay(1000);
 
-
-
+            // Load data
+            await GetAll();
 
             // Invoke StateHasChange
-            //await InvokeAsync(StateHasChanged);
+            await InvokeAsync(StateHasChanged);
         }
 
         private async Task CreateMooring(string number, string length, string width, string depth)
@@ -153,7 +155,7 @@ namespace Causality.Client.ViewModels
             };
             await CauseManager.TryInsert(cause, async (Cause d, String s) =>
             {
-                await Task.Delay(10);
+                await Task.Delay(0);
 
                 Notify("success", s);
 
@@ -173,7 +175,7 @@ namespace Causality.Client.ViewModels
                     Value = length,
                     UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
                 };
-                await MetaManager.TryInsert(LengthParameter, async (Meta m, String s) => { await Task.Delay(10); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(LengthParameter, async (Meta m, String s) => { await Task.Delay(0); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var WidthParameter = new Meta
                 {
@@ -190,7 +192,7 @@ namespace Causality.Client.ViewModels
                     Value = width,
                     UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
                 };
-                await MetaManager.TryInsert(WidthParameter, async (Meta m, String s) => { await Task.Delay(10); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(WidthParameter, async (Meta m, String s) => { await Task.Delay(0); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var DepthParameter = new Meta
                 {
@@ -207,7 +209,7 @@ namespace Causality.Client.ViewModels
                     Value = depth,
                     UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
                 };
-                await MetaManager.TryInsert(DepthParameter, async (Meta m, String s) => { await Task.Delay(10); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(DepthParameter, async (Meta m, String s) => { await Task.Delay(0); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
 
             }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
@@ -215,14 +217,15 @@ namespace Causality.Client.ViewModels
 
         private async Task DeleteOldMooringData()
         {
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this moorings and mooring types?"))
+                return;
+
             List<Int32> _causes = new();
             List<Int32> _classes = new();
 
             // Delete all Causes with Metas
             await CauseManager.TryGet(c => c.EventId == EventId, "Id", true, "", (IEnumerable<Cause> ca, String s) =>
             {
-                Notify("success", $"Vi hittade {ca.Count()} Causes");
-
                 foreach (var cause in ca)
                 {
                     _causes.Add(cause.Id);
@@ -234,8 +237,6 @@ namespace Causality.Client.ViewModels
             // Delete all Classes
             await ClassManager.TryGet(c => c.EventId == EventId, "Id", true, "", (IEnumerable<Class> cl, String s) =>
             {
-                Notify("success", $"Vi hittade {cl.Count()} Classes");
-
                 foreach (var item in cl)
                 {
                     _classes.Add(item.Id);
@@ -244,17 +245,13 @@ namespace Causality.Client.ViewModels
             }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
 
 
-            Notify("success", $"to be deleted {_causes.Count} Causes");
             foreach (var item in _causes)
             {
-                Notify("info", item.ToString());
                 await CauseManager.TryDelete(item, (String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
             }
 
-            Notify("success", $"to be deleted {_classes.Count} Classes");
             foreach (var item in _classes)
             {
-                Notify("info", item.ToString());
                 await ClassManager.TryDelete(item, (String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
             }
         }

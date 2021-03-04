@@ -1,0 +1,68 @@
+﻿@inherits BookingMooringTypesViewModel
+
+<style>
+    .k-window .k-edit-form-container {
+        max-height: 80vh;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+</style>
+
+<div class="irx-container"> 
+    <h5>@Title</h5>
+    <TelerikGrid Data=@list
+                 EditMode="@GridEditMode.Popup"
+                 Sortable="true"
+                 OnCreate="@CreateHandler"
+                 OnDelete="@DeleteHandler"
+                 OnUpdate="@UpdateHandler">
+        <GridToolBar>
+            <div style="display: flex; justify-content: center;">
+                <GridCommandButton Command="Add" Icon="add">Add Mooring Type</GridCommandButton>
+            </div>
+        </GridToolBar>
+        <GridColumns>
+
+            @if (IsMedium)
+            {
+                <GridColumn Field=@nameof(BookingMooringType.Name)/>
+
+                <GridCommandColumn Width="185px">
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+                        <div>&nbsp;</div>
+                        <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
+            else if (IsSmall)
+            {
+                <GridColumn Field=@nameof(BookingMooringType.Name)/>
+
+                <GridCommandColumn Width="100px">
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit"></GridCommandButton>
+                        <div>&nbsp;</div>
+                        <GridCommandButton Command="Delete" Icon="delete"></GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
+            else
+            {
+                <GridColumn Field=@nameof(BookingMooringType.Name)/>
+
+                <GridCommandColumn Width="185px">
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+                        <div>&nbsp;</div>
+                        <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
+
+        </GridColumns>
+    </TelerikGrid>
+
+    <MediaQuery Media="@Breakpoints.OnlyMedium" @bind-Matches="IsMedium" />
+    <MediaQuery Media="@Breakpoints.SmallDown" @bind-Matches="IsSmall" />
+</div>
