@@ -58,15 +58,17 @@ namespace Causality.Client.ViewModels
         [Inject] Services.CauseService CauseManager { get; set; }
         [Inject] Services.ClassService ClassManager { get; set; }
         [Inject] Services.StateService StateManager { get; set; }
+        [Inject] Services.ProcessService ProcessManager { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
 
         protected bool IsMedium = false;
         protected bool IsSmall = false;
         protected string Title = "Queues";
         protected List<BookingQueueItem> list = new();
-        protected BookingQueueItem selectedItem = new();
-        protected List<BookingCustomerDropDown> BookingCustomerData = new();
-        public BookingCustomerDropDown BookingCustomerToEdit { get; set; } = new();
+        protected BookingQueueItem selectedItem;
+        protected List<string> BookingCustomerData = new();
+        protected List<string> BookingBoatData = new();
+
         public int EventId { get; set; } = 1;
 
         private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
@@ -106,18 +108,15 @@ namespace Causality.Client.ViewModels
             await UserManager.TryGet(u => u.Id > 0 && u.Name == "approved_customer", "Id", true, "Metas", async (IEnumerable<User> users, String s) =>
             {
                 await Task.Delay(0);
-                List<BookingCustomerDropDown> _list = new();
                 foreach (var u in users)
                 {
-                    var bookingCustomer = new BookingCustomerDropDown()
-                    {
-                        Value = u.Id,
-                        Text = SeachForProperty("firstname", u.Metas).ToString() + " " + SeachForProperty("lastname", u.Metas).ToString()
-                    };
-                    _list.Add(bookingCustomer);
-                }
+                    string Name = SeachForProperty("firstname", u.Metas).ToString() +
+                                    " " +
+                                    SeachForProperty("lastname", u.Metas).ToString() +
+                                    " (" + u.Id + ")";
 
-                BookingCustomerData = _list.OrderBy(x => x.Text).ToList();
+                    BookingCustomerData.Add(Name);
+                }
 
                 Notify("info", s);
 
@@ -132,6 +131,77 @@ namespace Causality.Client.ViewModels
             // Invoke StateHasChange
             await InvokeAsync(StateHasChanged);
         }
+
+        public void Save()
+        {
+            _ = "";
+        }
+
+        protected async Task OnSelectedItem(BookingQueueItem item)
+        {
+            if (item is null)
+            {
+                selectedItem = new();
+                selectedItem.CustomerName = "";
+            }
+
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
+        }
+
+        public async Task CustomerSelected(string customer)
+        {
+            if (customer.Contains("(") && customer.Contains(")"))
+            {
+                string Id = customer.Substring(customer.IndexOf("("));
+                Id = Id.Replace("(", "").Replace(")", "");
+
+                var userId = Int32.Parse(Id);
+                if (userId > 0)
+                {
+                    selectedItem.CustomerName = customer;
+
+                    await ProcessManager.TryGet(p => p.UserId == userId, "Id", true, "Metas", async (IEnumerable<Process> p, String s) =>
+                    {
+                        await Task.Delay(0);
+                        BookingBoatData = new();
+                        foreach (var b in p)
+                        {
+                            string boat = b.Value + " " + 
+                                SeachForProperty("length", b.Metas).ToString() + "/" + 
+                                SeachForProperty("width", b.Metas).ToString() + "/" + 
+                                SeachForProperty("depth", b.Metas).ToString() + " (" + b.Id.ToString() + ")";
+
+                            BookingBoatData.Add(boat);
+                        }
+
+                        Notify("info", "båten finns");
+
+                        // Invoke StateHasChange
+                        await InvokeAsync(StateHasChanged);
+
+                    }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+                }
+                else
+                {
+                    selectedItem.CustomerName = "";
+                }
+            }
+            else
+            {
+                selectedItem.CustomerName = "";
+            }
+        }
+
+        public void BoatSelected(string boat)
+        {
+            if (boat.Contains("(") && boat.Contains(")"))
+            { 
+            
+            }
+        }
+
+
 
         protected async Task GetAll()
         {
@@ -167,11 +237,6 @@ namespace Causality.Client.ViewModels
 
             }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
 
-        }
-
-        public void SetSelectedCustomer(string c)
-        {
-            string pop = "";
         }
 
         protected async Task DeleteHandler(GridCommandEventArgs args)

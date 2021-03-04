@@ -10,6 +10,43 @@
 
 <div class="irx-container">
     <h5>@Title</h5>
+
+    @if (selectedItem != null)
+    {
+        <hr />
+        <div class="mb-sm">
+            <label class="k-label" for="customer">
+                Please select a customer<br />
+            </label>
+            <TelerikDropDownList Id="customer" Value="@selectedItem.CustomerName" Data="@BookingCustomerData"
+                                 PopupHeight="auto" Width="100%"
+                                 ValueChanged="@( (string c) => CustomerSelected(c) )">
+            </TelerikDropDownList>
+        </div>
+        <div class="mb-sm">
+            <label class="k-label" for="boat">
+                Then select a boat<br />
+            </label>
+            <TelerikDropDownList Id="boat" Value="@selectedItem.BoatName" Data="@BookingBoatData"
+                                 PopupHeight="auto" Width="100%"
+                                 Enabled="@(!string.IsNullOrWhiteSpace(selectedItem.CustomerName))"
+                                 ValueChanged="@( (string c) => BoatSelected(c) )">
+            </TelerikDropDownList>
+        </div>
+        <div class="mb-sm">
+            <label class="k-label" for="comment">
+                Then select a boat<br />
+            </label>
+            <input class="k-textbox" @bind="@selectedItem.Comment" id="comment" name="name" type="text" />
+        </div>
+        <div class="mb-sm">
+            <div>
+                <TelerikButton Icon="save" Class="k-primary mr-sm" OnClick="@Save">Save</TelerikButton>
+            </div>
+        </div>
+    }
+
+
     <TelerikGrid Data=@list
                  EditMode="@GridEditMode.Popup"
                  Sortable="true"
@@ -18,27 +55,18 @@
                  OnUpdate="@UpdateHandler">
         <GridToolBar>
             <div style="display: flex; justify-content: center;">
-                <GridCommandButton Command="Add" Icon="add">Add Queue Item</GridCommandButton>
+                <GridCommandButton OnClick="@((args)=> OnSelectedItem(args.Item as BookingQueueItem))" Icon="add">Add Queue Item</GridCommandButton>
             </div>
         </GridToolBar>
         <GridColumns>
 
             <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat">
-                <EditorTemplate>
-                    @{ selectedItem = context as BookingQueueItem;
-
-                        <TelerikDropDownList Data="@BookingCustomerData" @bind-Value="@BookingCustomerToEdit.Value"
-                                             Width="170px"
-                                             TextField="Text"
-                                             ValueField="Value">
-                        </TelerikDropDownList> }
-                </EditorTemplate>
             </GridColumn>
-            <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false" >
+            <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false">
             </GridColumn>
-            <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Editable="false" >
+            <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Editable="false">
             </GridColumn>
-            <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Editable="false" >
+            <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Editable="false">
             </GridColumn>
             <GridColumn Field=@nameof(BookingQueueItem.Comment)>
             </GridColumn>
