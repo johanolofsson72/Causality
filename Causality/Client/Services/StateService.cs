@@ -116,7 +116,7 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    StateRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending };
+                    StateRequestGet req = new() { Filter = filterString, OrderBy = orderby, Ascending = ascending, IncludeProperties = includeProperties };
                     StateResponseGet ret = await _stateService.GetAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {
@@ -189,7 +189,7 @@ namespace Causality.Client.Services
 
                 if (getFromServer)
                 {
-                    StateRequestGetById req = new() { Id = id };
+                    StateRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
                     StateResponseGetById ret = await _stateService.GetByIdAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
                     if (ret.Success)
                     {

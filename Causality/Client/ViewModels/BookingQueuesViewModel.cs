@@ -132,9 +132,134 @@ namespace Causality.Client.ViewModels
             await InvokeAsync(StateHasChanged);
         }
 
-        public void Save()
+        public async Task Save()
         {
-            _ = "";
+            var eventId = EventId;
+            var userId = selectedItem.UserId;
+            var userName = selectedItem.CustomerName;
+            var boatId = selectedItem.ProcessId;
+            var boatName = selectedItem.BoatName;
+            var boatLength = selectedItem.BoatLength;
+            var boatWidth = selectedItem.BoatWidth;
+            var boatDepth = selectedItem.BoatDepth;
+            var comment = selectedItem.Comment;
+            var queuedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+            var updatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+
+            State queue = new()
+            {
+                EventId = eventId,
+                ProcessId = boatId,
+                UserId = userId,
+                Value = comment,
+                UpdatedDate = updatedDate
+            };
+            await StateManager.TryInsert(queue, async (State st, String s) =>
+            {
+                // lägg till alla meta fält...
+                var boatNameParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = st.EventId,
+                    ExcludeId = 0,
+                    ProcessId = st.ProcessId,
+                    StateId = st.Id,
+                    ResultId = 0,
+                    UserId = st.UserId,
+                    Key = "BoatName",
+                    Value = boatName,
+                    UpdatedDate = st.UpdatedDate
+                };
+                await MetaManager.TryInsert(boatNameParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var boatLengthParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = st.EventId,
+                    ExcludeId = 0,
+                    ProcessId = st.ProcessId,
+                    StateId = st.Id,
+                    ResultId = 0,
+                    UserId = st.UserId,
+                    Key = "BoatLength",
+                    Value = boatLength.ToString(),
+                    UpdatedDate = st.UpdatedDate
+                };
+                await MetaManager.TryInsert(boatLengthParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var boatWidthParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = st.EventId,
+                    ExcludeId = 0,
+                    ProcessId = st.ProcessId,
+                    StateId = st.Id,
+                    ResultId = 0,
+                    UserId = st.UserId,
+                    Key = "BoatWidth",
+                    Value = boatWidth.ToString(),
+                    UpdatedDate = st.UpdatedDate
+                };
+                await MetaManager.TryInsert(boatWidthParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var boatDepthParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = st.EventId,
+                    ExcludeId = 0,
+                    ProcessId = st.ProcessId,
+                    StateId = st.Id,
+                    ResultId = 0,
+                    UserId = st.UserId,
+                    Key = "BoatDepth",
+                    Value = boatDepth.ToString(),
+                    UpdatedDate = st.UpdatedDate
+                };
+                await MetaManager.TryInsert(boatDepthParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                var queuedDateParameter = new Meta
+                {
+                    CauseId = 0,
+                    ClassId = 0,
+                    EffectId = 0,
+                    EventId = st.EventId,
+                    ExcludeId = 0,
+                    ProcessId = st.ProcessId,
+                    StateId = st.Id,
+                    ResultId = 0,
+                    UserId = st.UserId,
+                    Key = "QueuedDate",
+                    Value = queuedDate,
+                    UpdatedDate = st.UpdatedDate
+                };
+                await MetaManager.TryInsert(queuedDateParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+
+                selectedItem = null;
+
+                // Load data
+                await GetAll();
+
+                // Invoke StateHasChange
+                await InvokeAsync(StateHasChanged);
+
+            }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+
+        }
+
+        public async Task Cancel()
+        {
+            selectedItem = null;
+
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
         }
 
         protected async Task OnSelectedItem(BookingQueueItem item)
@@ -143,6 +268,7 @@ namespace Causality.Client.ViewModels
             {
                 selectedItem = new();
                 selectedItem.CustomerName = "";
+                selectedItem.Comment = "";
             }
 
             // Invoke StateHasChange
@@ -159,6 +285,7 @@ namespace Causality.Client.ViewModels
                 var userId = Int32.Parse(Id);
                 if (userId > 0)
                 {
+                    selectedItem.UserId = userId;
                     selectedItem.CustomerName = customer;
 
                     await ProcessManager.TryGet(p => p.UserId == userId, "Id", true, "Metas", async (IEnumerable<Process> p, String s) =>
@@ -193,15 +320,37 @@ namespace Causality.Client.ViewModels
             }
         }
 
-        public void BoatSelected(string boat)
+        public async Task BoatSelected(string boat)
         {
             if (boat.Contains("(") && boat.Contains(")"))
-            { 
-            
+            {
+                string Id = boat.Substring(boat.IndexOf("("));
+                Id = Id.Replace("(", "").Replace(")", "");
+
+                var boatId = Int32.Parse(Id);
+                if (boatId > 0)
+                {
+                    await ProcessManager.TryGetById(boatId, "Metas", async (Process p, String s) =>
+                    {
+                        await Task.Delay(0);
+
+                        selectedItem.BoatName = p.Value;
+                        selectedItem.ProcessId = p.Id;
+                        selectedItem.BoatLength = Int32.Parse(SeachForProperty("length", p.Metas).ToString());
+                        selectedItem.BoatWidth = Int32.Parse(SeachForProperty("width", p.Metas).ToString());
+                        selectedItem.BoatDepth = Int32.Parse(SeachForProperty("depth", p.Metas).ToString());
+
+                        Notify("info", "båten uppdaterad");
+
+                        // Invoke StateHasChange
+                        await InvokeAsync(StateHasChanged);
+
+                    }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+                }
+                    
+
             }
         }
-
-
 
         protected async Task GetAll()
         {
@@ -216,15 +365,14 @@ namespace Causality.Client.ViewModels
                     {
                         Id = st.Id,
                         EventId = EventId,
-                        CauseId = st.CauseId,
-                        ClassId = st.ClassId,
+                        ProcessId = st.ProcessId,
                         UserId = st.UserId,
-                        BoatName = "", // SeachForProperty("boatname", st.Metas).ToString(),
-                        BoatLength = 0, // Int32.Parse(SeachForProperty("boatlength", st.Metas).ToString()),
-                        BoatWidth = 0, // Int32.Parse(SeachForProperty("boatwidth", st.Metas).ToString()),
-                        BoatDepth = 0, //Int32.Parse(SeachForProperty("boatdepth", st.Metas).ToString()),
+                        BoatName = SeachForProperty("boatname", st.Metas).ToString(),
+                        BoatLength = Int32.Parse(SeachForProperty("boatlength", st.Metas).ToString()),
+                        BoatWidth = Int32.Parse(SeachForProperty("boatwidth", st.Metas).ToString()),
+                        BoatDepth = Int32.Parse(SeachForProperty("boatdepth", st.Metas).ToString()),
                         Comment = st.Value,
-                        QueuedDate = DateTime.Now, // Convert.ToDateTime(SeachForProperty("queueddate", st.Metas).ToString()),
+                        QueuedDate = Convert.ToDateTime(SeachForProperty("queueddate", st.Metas).ToString()),
                         UpdatedDate = Convert.ToDateTime(st.UpdatedDate)
                     };
                     _list.Add(bookingQueueItem);
@@ -242,13 +390,13 @@ namespace Causality.Client.ViewModels
         protected async Task DeleteHandler(GridCommandEventArgs args)
         {
             // Get the reference
-            selectedItem = (BookingQueueItem)args.Item;
+            var Item = (BookingQueueItem)args.Item;
 
-            if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the queue item for '{selectedItem.BoatName} and {selectedItem.CustomerName}'?"))
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the queue item for '{Item.BoatName} and {Item.CustomerName}'?"))
                 return;
 
             // Delete all objects
-            await StateManager.TryDelete(selectedItem.Id, async (string s) =>
+            await StateManager.TryDelete(Item.Id, async (string s) =>
             {
                 // Load data
                 await GetAll();
@@ -259,138 +407,8 @@ namespace Causality.Client.ViewModels
                 // Invoke StateHasChange
                 await InvokeAsync(StateHasChanged);
 
-            }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
 
-
-        }
-
-        protected async Task CreateHandler(GridCommandEventArgs args)
-        {
-            // Get the reference
-            selectedItem = (BookingQueueItem)args.Item;
-
-            var stateId = 0;
-            var eventId = EventId;
-            var causeId = selectedItem.CauseId;
-            var classId = selectedItem.ClassId;
-            var userId = selectedItem.UserId;
-            var BoatName = selectedItem.BoatName;
-            var BoatLength = selectedItem.BoatLength;
-            var BoatWidth = selectedItem.BoatWidth;
-            var BoatDepth = selectedItem.BoatDepth;
-            var Comment = selectedItem.Comment;
-            var QueuedDate = selectedItem.UpdatedDate.ToString("yyyy-MM-dd hh:mm:ss");
-            var UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-
-            var item = new State
-            {
-                EventId = eventId,
-                CauseId = causeId,
-                ClassId = classId,
-                UserId = userId,
-                Value = Comment,
-                UpdatedDate = UpdatedDate
-            };
-            await StateManager.TryInsert(item, async (State state, String s) =>
-            {
-                stateId = state.Id;
-
-                // lägg till alla meta fält...
-                var BoatNameParameter = new Meta
-                {
-                    CauseId = causeId,
-                    ClassId = classId,
-                    EffectId = 0,
-                    EventId = eventId,
-                    ExcludeId = 0,
-                    ProcessId = 0,
-                    StateId = stateId,
-                    ResultId = 0,
-                    UserId = userId,
-                    Key = "BoatName",
-                    Value = BoatName,
-                    UpdatedDate = UpdatedDate
-                };
-                await MetaManager.TryInsert(BoatNameParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
-
-                var BoatLengthParameter = new Meta
-                {
-                    CauseId = causeId,
-                    ClassId = classId,
-                    EffectId = 0,
-                    EventId = eventId,
-                    ExcludeId = 0,
-                    ProcessId = 0,
-                    StateId = stateId,
-                    ResultId = 0,
-                    UserId = userId,
-                    Key = "BoatLength",
-                    Value = BoatLength.ToString(),
-                    UpdatedDate = UpdatedDate
-                };
-                await MetaManager.TryInsert(BoatLengthParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
-
-                var BoatWidthParameter = new Meta
-                {
-                    CauseId = causeId,
-                    ClassId = classId,
-                    EffectId = 0,
-                    EventId = eventId,
-                    ExcludeId = 0,
-                    ProcessId = 0,
-                    StateId = stateId,
-                    ResultId = 0,
-                    UserId = userId,
-                    Key = "BoatWidth",
-                    Value = BoatWidth.ToString(),
-                    UpdatedDate = UpdatedDate
-                };
-                await MetaManager.TryInsert(BoatWidthParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
-
-                var BoatDepthParameter = new Meta
-                {
-                    CauseId = causeId,
-                    ClassId = classId,
-                    EffectId = 0,
-                    EventId = eventId,
-                    ExcludeId = 0,
-                    ProcessId = 0,
-                    StateId = stateId,
-                    ResultId = 0,
-                    UserId = userId,
-                    Key = "BoatDepth",
-                    Value = BoatDepth.ToString(),
-                    UpdatedDate = UpdatedDate
-                };
-                await MetaManager.TryInsert(BoatDepthParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
-
-                var QueuedDateParameter = new Meta
-                {
-                    CauseId = causeId,
-                    ClassId = classId,
-                    EffectId = 0,
-                    EventId = eventId,
-                    ExcludeId = 0,
-                    ProcessId = 0,
-                    StateId = stateId,
-                    ResultId = 0,
-                    UserId = userId,
-                    Key = "QueuedDate",
-                    Value = QueuedDate,
-                    UpdatedDate = UpdatedDate
-                };
-                await MetaManager.TryInsert(QueuedDateParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
-
-                // Load data
-                await GetAll();
-
-                // Notify
-                Notify("success", s);
-
-                // Invoke StateHasChange
-                await InvokeAsync(StateHasChanged);
-
-            }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
 
         }
 
@@ -401,8 +419,7 @@ namespace Causality.Client.ViewModels
 
             var stateId = selectedItem.Id;
             var eventId = selectedItem.EventId;
-            var causeId = selectedItem.CauseId;
-            var classId = selectedItem.ClassId;
+            var processId = selectedItem.ProcessId;
             var userId = selectedItem.UserId;
             var BoatName = selectedItem.BoatName;
             var BoatLength = selectedItem.BoatLength;

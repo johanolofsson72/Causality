@@ -853,12 +853,11 @@ message State {
   // base class members
   int32 id = 1;
   int32 eventId = 2;
-  int32 causeId = 3;
-  int32 classId = 4;
-  int32 userId = 5;
-  string value = 6;
-  string updatedDate = 7;
-  repeated Meta metas = 8;
+  int32 processId = 3;
+  int32 userId = 4;
+  string value = 5;
+  string updatedDate = 6;
+  repeated Meta metas = 7;
 
 }
 // Type class

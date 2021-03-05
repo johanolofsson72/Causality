@@ -23,9 +23,7 @@ namespace Causality.Shared.Models
 
         public int EventId { get; set; } = 0;                           // 1
 
-        public int CauseId { get; set; } = 0;                           // 1
-
-        public int ClassId { get; set; } = 0;                           // 1
+        public int ProcessId { get; set; } = 0;                         // 1
 
         public int UserId { get; set; } = 0;                            // 1
 

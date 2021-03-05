@@ -106,7 +106,7 @@ namespace Causality.Server.Data
                 f.HasKey(e => e.Id);
                 f.ToTable(nameof(State));
                 f.HasIndex(e => new { e.Id });
-                f.HasIndex(e => new { e.Id, e.EventId, e.CauseId, e.ClassId, e.UserId });
+                f.HasIndex(e => new { e.Id, e.EventId, e.ProcessId });
                 f.Property("Value").IsRequired();
                 f.Property("UpdatedDate").IsRequired();
             });

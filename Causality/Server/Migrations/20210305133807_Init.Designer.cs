@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Causality.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210302142420_Init")]
+    [Migration("20210305133807_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -351,13 +351,10 @@ namespace Causality.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CauseId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ClassId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("EventId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProcessId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UpdatedDate")
@@ -375,7 +372,7 @@ namespace Causality.Server.Migrations
 
                     b.HasIndex("Id");
 
-                    b.HasIndex("Id", "EventId", "CauseId", "ClassId", "UserId");
+                    b.HasIndex("Id", "EventId", "ProcessId");
 
                     b.ToTable("State");
                 });

@@ -349,13 +349,10 @@ namespace Causality.Server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CauseId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ClassId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("EventId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ProcessId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("UpdatedDate")
@@ -373,7 +370,7 @@ namespace Causality.Server.Migrations
 
                     b.HasIndex("Id");
 
-                    b.HasIndex("Id", "EventId", "CauseId", "ClassId", "UserId");
+                    b.HasIndex("Id", "EventId", "ProcessId");
 
                     b.ToTable("State");
                 });

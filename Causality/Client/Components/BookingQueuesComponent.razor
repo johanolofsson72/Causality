@@ -35,13 +35,14 @@
         </div>
         <div class="mb-sm">
             <label class="k-label" for="comment">
-                Then select a boat<br />
+                Type a comment or wish<br />
             </label>
             <input class="k-textbox" @bind="@selectedItem.Comment" id="comment" name="name" type="text" />
         </div>
         <div class="mb-sm">
             <div>
                 <TelerikButton Icon="save" Class="k-primary mr-sm" OnClick="@Save">Save</TelerikButton>
+                <TelerikButton Icon="cancel" Class="k-primary mr-sm" OnClick="@Cancel">Cancel</TelerikButton>
             </div>
         </div>
     }
@@ -50,7 +51,6 @@
     <TelerikGrid Data=@list
                  EditMode="@GridEditMode.Popup"
                  Sortable="true"
-                 OnCreate="@CreateHandler"
                  OnDelete="@DeleteHandler"
                  OnUpdate="@UpdateHandler">
         <GridToolBar>
@@ -71,9 +71,11 @@
             <GridColumn Field=@nameof(BookingQueueItem.Comment)>
             </GridColumn>
 
-            <GridCommandColumn Width="120px">
+           <GridCommandColumn Width="185px">
                 <div style="display: flex; flex-direction: row;">
                     <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+                    <div>&nbsp;</div>
+                    <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
                 </div>
             </GridCommandColumn>
 
