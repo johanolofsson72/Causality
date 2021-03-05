@@ -68,6 +68,7 @@ namespace Causality.Client.ViewModels
         protected BookingQueueItem selectedItem;
         protected List<string> BookingCustomerData = new();
         protected List<string> BookingBoatData = new();
+        protected bool CustomerDropDownLoaded = false;
 
         public int EventId { get; set; } = 1;
 
@@ -107,7 +108,6 @@ namespace Causality.Client.ViewModels
         {
             await UserManager.TryGet(u => u.Id > 0 && u.Name == "approved_customer", "Id", true, "Metas", async (IEnumerable<User> users, String s) =>
             {
-                await Task.Delay(0);
                 foreach (var u in users)
                 {
                     string Name = SeachForProperty("firstname", u.Metas).ToString() +
@@ -118,7 +118,14 @@ namespace Causality.Client.ViewModels
                     BookingCustomerData.Add(Name);
                 }
 
+                await Task.Delay(10);
+
+                CustomerDropDownLoaded = true;
+
                 Notify("info", s);
+
+                // Invoke StateHasChange
+                await InvokeAsync(StateHasChanged);
 
             }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
         }
@@ -142,7 +149,7 @@ namespace Causality.Client.ViewModels
             var boatLength = selectedItem.BoatLength;
             var boatWidth = selectedItem.BoatWidth;
             var boatDepth = selectedItem.BoatDepth;
-            var comment = selectedItem.Comment;
+            var comment = selectedItem.Comment.Equals(String.Empty) ? "no comment" : selectedItem.Comment;
             var queuedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
             var updatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
 
@@ -268,6 +275,7 @@ namespace Causality.Client.ViewModels
             {
                 selectedItem = new();
                 selectedItem.CustomerName = "";
+                selectedItem.BoatName = "";
                 selectedItem.Comment = "";
             }
 
@@ -285,29 +293,35 @@ namespace Causality.Client.ViewModels
                 var userId = Int32.Parse(Id);
                 if (userId > 0)
                 {
-                    selectedItem.UserId = userId;
-                    selectedItem.CustomerName = customer;
-
                     await ProcessManager.TryGet(p => p.UserId == userId, "Id", true, "Metas", async (IEnumerable<Process> p, String s) =>
                     {
-                        await Task.Delay(0);
                         BookingBoatData = new();
                         foreach (var b in p)
                         {
-                            string boat = b.Value + " " + 
-                                SeachForProperty("length", b.Metas).ToString() + "/" + 
-                                SeachForProperty("width", b.Metas).ToString() + "/" + 
-                                SeachForProperty("depth", b.Metas).ToString() + " (" + b.Id.ToString() + ")";
+                            // Check if boat already is in queue
+                            await StateManager.TryGet(s => s.ProcessId == b.Id, "Id", true, "", async (IEnumerable<State> st, String s) =>
+                            {
+                                if (!st.Any())
+                                {
+                                    string boat = b.Value + " " +
+                                        SeachForProperty("length", b.Metas).ToString() + "/" +
+                                        SeachForProperty("width", b.Metas).ToString() + "/" +
+                                        SeachForProperty("depth", b.Metas).ToString() + " (" + b.Id.ToString() + ")";
 
-                            BookingBoatData.Add(boat);
+                                    BookingBoatData.Add(boat);
+
+                                    Notify("info", "Båt tillagd i BookingBoatData");
+                                }
+                            
+                            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+
                         }
 
-                        Notify("info", "båten finns");
+                        selectedItem.UserId = userId;
+                        selectedItem.CustomerName = customer;
 
-                        // Invoke StateHasChange
-                        await InvokeAsync(StateHasChanged);
+                    }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
 
-                    }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
                 }
                 else
                 {
@@ -318,6 +332,14 @@ namespace Causality.Client.ViewModels
             {
                 selectedItem.CustomerName = "";
             }
+
+            await Task.Delay(100);
+
+            BookingBoatData = BookingBoatData.ToList();
+            Notify("info", $"BookingBoatData innehåller {BookingBoatData.Count} båtar");
+
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
         }
 
         public async Task BoatSelected(string boat)
@@ -392,41 +414,29 @@ namespace Causality.Client.ViewModels
             // Get the reference
             var Item = (BookingQueueItem)args.Item;
 
-            if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the queue item for '{Item.BoatName} and {Item.CustomerName}'?"))
+            // Ask the user
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete the queue item for {Item.BoatName}?"))
                 return;
 
             // Delete all objects
-            await StateManager.TryDelete(Item.Id, async (string s) =>
-            {
-                // Load data
-                await GetAll();
+            await StateManager.TryDelete(Item.Id, (string s) => { Notify("success", s); }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
 
-                // Notify
-                Notify("success", s);
+            await Task.Delay(10);
 
-                // Invoke StateHasChange
-                await InvokeAsync(StateHasChanged);
+            // Load data
+            await GetAll();
 
-            }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
-
-
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
         }
 
         protected async Task UpdateHandler(GridCommandEventArgs args)
         {
             // Get the reference
-            selectedItem = (BookingQueueItem)args.Item;
+            var Item = (BookingQueueItem)args.Item;
 
-            var stateId = selectedItem.Id;
-            var eventId = selectedItem.EventId;
-            var processId = selectedItem.ProcessId;
-            var userId = selectedItem.UserId;
-            var BoatName = selectedItem.BoatName;
-            var BoatLength = selectedItem.BoatLength;
-            var BoatWidth = selectedItem.BoatWidth;
-            var BoatDepth = selectedItem.BoatDepth;
-            var Comment = selectedItem.Comment;
-            var QueuedDate = selectedItem.UpdatedDate.ToString("yyyy-MM-dd hh:mm:ss");
+            var stateId = Item.Id;
+            var Comment = Item.Comment;
             var UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
 
             await StateManager.TryGetById(stateId, "Metas", async (State u, String s) =>
@@ -436,36 +446,6 @@ namespace Causality.Client.ViewModels
 
                 u.Value = Comment;
                 u.UpdatedDate = UpdatedDate;
-
-                foreach (var item in u.Metas)
-                {
-                    bool update = false;
-                    if (item.Key.ToLower().Equals("boatname", StringComparison.Ordinal))
-                    {
-                        item.Value = BoatName;
-                        update = true;
-                    }
-                    else if (item.Key.ToLower().Equals("boatlength", StringComparison.Ordinal))
-                    {
-                        item.Value = BoatLength.ToString();
-                        update = true;
-                    }
-                    else if (item.Key.ToLower().Equals("boatwidth", StringComparison.Ordinal))
-                    {
-                        item.Value = BoatWidth.ToString();
-                        update = true;
-                    }
-                    else if (item.Key.ToLower().Equals("boatdepth", StringComparison.Ordinal))
-                    {
-                        item.Value = BoatDepth.ToString();
-                        update = true;
-                    }
-
-                    if (update)
-                    {
-                        await MetaManager.TryUpdate(item, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
-                    }
-                }
 
                 await StateManager.TryUpdate(u, async (State u, String s) =>
                 {

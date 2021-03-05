@@ -41,7 +41,7 @@
         </div>
         <div class="mb-sm">
             <div>
-                <TelerikButton Icon="save" Class="k-primary mr-sm" OnClick="@Save">Save</TelerikButton>
+                <TelerikButton Icon="save" Class="k-primary mr-sm" OnClick="@Save" Enabled="@(!string.IsNullOrWhiteSpace(selectedItem.BoatName))">Save</TelerikButton>
                 <TelerikButton Icon="cancel" Class="k-primary mr-sm" OnClick="@Cancel">Cancel</TelerikButton>
             </div>
         </div>
@@ -55,12 +55,12 @@
                  OnUpdate="@UpdateHandler">
         <GridToolBar>
             <div style="display: flex; justify-content: center;">
-                <GridCommandButton OnClick="@((args)=> OnSelectedItem(args.Item as BookingQueueItem))" Icon="add">Add Queue Item</GridCommandButton>
+                <GridCommandButton OnClick="@((args)=> OnSelectedItem(args.Item as BookingQueueItem))" Enabled="@CustomerDropDownLoaded" Icon="add">Add Queue Item</GridCommandButton>
             </div>
         </GridToolBar>
         <GridColumns>
 
-            <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat">
+            <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat" Editable="false">
             </GridColumn>
             <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false">
             </GridColumn>
