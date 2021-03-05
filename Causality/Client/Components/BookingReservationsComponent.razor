@@ -1,0 +1,74 @@
+﻿@inherits BookingReservationsViewModel
+
+<style>
+    .k-window .k-edit-form-container {
+        max-height: 80vh;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+</style>
+
+<div class="irx-container">
+    <h5>@Title</h5>
+
+    @if (selectedItem != null)
+    {
+        <hr />
+        <div class="mb-sm">
+            <label class="k-label" for="customer">
+                Please select a boat<br />
+            </label>
+            <TelerikDropDownList Id="boat" Value="@selectedItem.BoatName" Data="@BookingBoatData"
+                                 PopupHeight="auto" Width="100%"
+                                 ValueChanged="@( (string c) => BoatSelected(c) )">
+            </TelerikDropDownList>
+        </div>
+        <div class="mb-sm">
+            <label class="k-label" for="boat">
+                Then select a mooring<br />
+            </label>
+            <TelerikDropDownList Id="mooring" Value="@selectedItem.MooringName" Data="@BookingMooringData"
+                                 PopupHeight="auto" Width="100%"
+                                 Enabled="@(!string.IsNullOrWhiteSpace(selectedItem.BoatName))"
+                                 ValueChanged="@( (string c) => MooringSelected(c) )">
+            </TelerikDropDownList>
+        </div>
+        <div class="mb-sm">
+            <div>
+                <TelerikButton Icon="save" Class="k-primary mr-sm" OnClick="@Save" Enabled="@(!string.IsNullOrWhiteSpace(selectedItem.MooringName))">Save</TelerikButton>
+                <TelerikButton Icon="cancel" Class="k-primary mr-sm" OnClick="@Cancel">Cancel</TelerikButton>
+            </div>
+        </div>
+    }
+
+
+    <TelerikGrid Data=@list
+                 EditMode="@GridEditMode.Popup"
+                 Sortable="true"
+                 OnDelete="@DeleteHandler">
+        <GridToolBar>
+            <div style="display: flex; justify-content: center;">
+                <GridCommandButton OnClick="@((args)=> OnSelectedItem(args.Item as BookingReservation))" Enabled="@BoatDropDownLoaded" Icon="add">Add Reservation</GridCommandButton>
+            </div>
+        </GridToolBar>
+        <GridColumns>
+            
+            <GridColumn Field=@nameof(BookingReservation.MooringName) Title="Mooring" Editable="false">
+            </GridColumn>
+            <GridColumn Field=@nameof(BookingReservation.BoatName) Title="Boat" Editable="false">
+            </GridColumn>
+            <GridColumn Field=@nameof(BookingReservation.CustomerName) Title="Customer" Editable="false">
+            </GridColumn>
+
+           <GridCommandColumn Width="100px">
+                <div style="display: flex; flex-direction: row;">
+                    <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                </div>
+            </GridCommandColumn>
+
+        </GridColumns>
+    </TelerikGrid>
+
+    <MediaQuery Media="@Breakpoints.OnlyMedium" @bind-Matches="IsMedium" />
+    <MediaQuery Media="@Breakpoints.SmallDown" @bind-Matches="IsSmall" />
+</div>

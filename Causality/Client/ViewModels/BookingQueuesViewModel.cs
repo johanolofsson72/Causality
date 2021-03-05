@@ -59,6 +59,7 @@ namespace Causality.Client.ViewModels
         [Inject] Services.ClassService ClassManager { get; set; }
         [Inject] Services.StateService StateManager { get; set; }
         [Inject] Services.ProcessService ProcessManager { get; set; }
+        [Inject] Services.ResultService ResultManager { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
 
         protected bool IsMedium = false;
@@ -68,7 +69,7 @@ namespace Causality.Client.ViewModels
         protected BookingQueueItem selectedItem;
         protected List<string> BookingCustomerData = new();
         protected List<string> BookingBoatData = new();
-        protected bool CustomerDropDownLoaded = false;
+        protected bool CustomerDropDownLoaded { get; set; } = false;
 
         public int EventId { get; set; } = 1;
 
@@ -94,6 +95,12 @@ namespace Causality.Client.ViewModels
 
         protected override async Task OnInitializedAsync()
         {
+            list = new();
+            selectedItem = null;
+            BookingCustomerData = new();
+            BookingBoatData = new();
+            CustomerDropDownLoaded = false;
+
             // Load data
             await GetAll();
 
@@ -102,6 +109,8 @@ namespace Causality.Client.ViewModels
 
             // Invoke StateHasChange
             await InvokeAsync(StateHasChanged);
+
+            Notify("info", "OnInitializedAsync");
         }
 
         private async Task LoadCustomerDropDown()
@@ -298,27 +307,38 @@ namespace Causality.Client.ViewModels
                         BookingBoatData = new();
                         foreach (var b in p)
                         {
-                            // Check if boat already is in queue
-                            await StateManager.TryGet(s => s.ProcessId == b.Id, "Id", true, "", async (IEnumerable<State> st, String s) =>
+                            if (await CheckIfThisNotHaveReservation(b.Id))
                             {
-                                if (!st.Any())
+                                // Check if boat already is in queue
+                                await StateManager.TryGet(s => s.ProcessId == b.Id, "Id", true, "", async (IEnumerable<State> st, String s) =>
                                 {
-                                    string boat = b.Value + " " +
-                                        SeachForProperty("length", b.Metas).ToString() + "/" +
-                                        SeachForProperty("width", b.Metas).ToString() + "/" +
-                                        SeachForProperty("depth", b.Metas).ToString() + " (" + b.Id.ToString() + ")";
+                                    if (!st.Any())
+                                    {
+                                        string boat = b.Value + " " +
+                                            SeachForProperty("length", b.Metas).ToString() + "/" +
+                                            SeachForProperty("width", b.Metas).ToString() + "/" +
+                                            SeachForProperty("depth", b.Metas).ToString() + " (" + b.Id.ToString() + ")";
 
-                                    BookingBoatData.Add(boat);
+                                        BookingBoatData.Add(boat);
 
-                                    Notify("info", "Båt tillagd i BookingBoatData");
-                                }
-                            
-                            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+                                        Notify("info", "Båt tillagd i BookingBoatData");
+                                    }
+
+                                }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+                            }
 
                         }
 
                         selectedItem.UserId = userId;
                         selectedItem.CustomerName = customer;
+
+                        await Task.Delay(100);
+
+                        BookingBoatData = BookingBoatData.ToList();
+                        Notify("info", $"BookingBoatData innehåller {BookingBoatData.Count} båtar");
+
+                        // Invoke StateHasChange
+                        await InvokeAsync(StateHasChanged);
 
                     }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
 
@@ -332,14 +352,21 @@ namespace Causality.Client.ViewModels
             {
                 selectedItem.CustomerName = "";
             }
+        }
 
-            await Task.Delay(100);
-
-            BookingBoatData = BookingBoatData.ToList();
-            Notify("info", $"BookingBoatData innehåller {BookingBoatData.Count} båtar");
-
-            // Invoke StateHasChange
-            await InvokeAsync(StateHasChanged);
+        private async Task<bool> CheckIfThisNotHaveReservation(int processId)
+        {
+            bool ret = true;
+            await ResultManager.TryGet(sm => sm.ProcessId == processId, "Id", true, "", async (IEnumerable<Result> result, String s) =>
+            {
+                await Task.Delay(0);
+                if (result.Any())
+                {
+                    ret = false;
+                }
+            
+            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            return ret;
         }
 
         public async Task BoatSelected(string boat)
