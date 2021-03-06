@@ -107,6 +107,9 @@ namespace Causality.Client.ViewModels
 
         protected async Task AutoCreate()
         {
+            if (!await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this moorings and mooring types?"))
+                return;
+
             // Delete old mooring data
             await DeleteOldMooringData();
 
@@ -217,8 +220,6 @@ namespace Causality.Client.ViewModels
 
         private async Task DeleteOldMooringData()
         {
-            if (!await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this moorings and mooring types?"))
-                return;
 
             List<Int32> _causes = new();
             List<Int32> _classes = new();

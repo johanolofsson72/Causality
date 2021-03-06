@@ -73,7 +73,7 @@ namespace Causality.Server.Data
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("");
                 Console.WriteLine("== SQL ===================");
-                Console.WriteLine(query.ToQueryString());
+                System.Diagnostics.Debug.WriteLine(query.ToQueryString());
                 Console.WriteLine("==========================");
                 Console.WriteLine("");
                 return await query.ToListAsync();

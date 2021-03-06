@@ -21,9 +21,16 @@ namespace Causality.Client.Services
         [JsonProperty] public bool UseIndexedDB { get; private set; } = false;
         [JsonProperty] public bool OfflineMode { get; private set; } = false; 
         [JsonProperty] public bool WarmedUp { get; private set; } = false;
-        [JsonProperty] public int TimeToLiveInSeconds { get; set; } = 30;
+        [JsonProperty] public int TimeToLiveInSeconds { get; set; } = 60;
         [JsonProperty] public DateTime LastAccessed { get; set; } = DateTime.Now;
 
+        [JsonProperty] public byte[] SavedFilter { get; set; }
+
+        public void UpdateSavedFilter(ComponentBase Source, byte[] savedFilter)
+        {
+            this.SavedFilter = savedFilter;
+            NotifyStateChanged(Source, "SavedFilter");
+        }
         public void UpdateWarmedUp(ComponentBase Source, bool warmedup)
         {
             this.WarmedUp = warmedup;

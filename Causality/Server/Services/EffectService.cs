@@ -33,6 +33,7 @@ namespace Causality.Server.Services
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
+            _cacheTimeInSeconds = _cacheTimeInSeconds > 2 ? 2 : _cacheTimeInSeconds;
         }
 
         public override async Task<EffectResponseGet> Get(EffectRequestGet request, ServerCallContext context)

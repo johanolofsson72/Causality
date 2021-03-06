@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components;
 using Telerik.Blazor.Components;
 using Microsoft.JSInterop;
 using Microsoft.JSInterop.WebAssembly;
+using System.Globalization;
 
 namespace Causality.Client.ViewModels
 {
@@ -64,7 +65,7 @@ namespace Causality.Client.ViewModels
 
         protected bool IsMedium = false;
         protected bool IsSmall = false;
-        protected string Title = "Moorings";
+        protected string Title = "Reservations";
         protected List<BookingReservation> list = new();
         protected BookingReservation selectedItem;
         protected List<string> BookingMooringData = new();
@@ -119,14 +120,28 @@ namespace Causality.Client.ViewModels
             await StateManager.TryGet(s => s.EventId == EventId, "Id", true, "Metas", async (IEnumerable<State> states, String s) =>
             {
                 await Task.Delay(0);
+                List<BookingDropDownItem> bdd = new();
                 foreach (var st in states)
                 {
-                    string Name = SeachForProperty("boatname", st.Metas).ToString() +
+                    string Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatname", st.Metas).ToString().ToLower()) +
+                                  " " + CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatlength", st.Metas).ToString().ToLower()) +
+                                  " * " + CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatwidth", st.Metas).ToString().ToLower()) +
+                                  " * " + CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatdepth", st.Metas).ToString().ToLower()) + 
                                   " in queue since: " + 
                                   Convert.ToDateTime(SeachForProperty("queueddate", st.Metas).ToString()).ToString("yyyy-MM-dd") + 
                                   " (" + st.ProcessId + ")";
 
-                    BookingBoatData.Add(Name);
+                    BookingDropDownItem b = new()
+                    {
+                        Text = Name,
+                        Value = SeachForProperty("queueddate", st.Metas).ToString()
+                    };
+                    bdd.Add(b);
+                }
+                bdd = bdd.OrderBy(x => x.Value).ToList();
+                foreach (var item in bdd)
+                {
+                    BookingBoatData.Add(item.Text);
                 }
 
                 await Task.Delay(10);
@@ -154,25 +169,45 @@ namespace Causality.Client.ViewModels
                 selectedItem.UserId = p.UserId;
 
                 // Get all Moorings and check if they can hold the boat and if it's free !!!
-                await CauseManager.TryGet(c => c.EventId == EventId, "Value", true, "Metas", async (IEnumerable<Cause> causes, String s) =>
+                await CauseManager.TryGet(c => c.EventId == EventId && c.Results.All(r => r.CauseId != c.Id), "Id", true, "Metas", async (IEnumerable<Cause> causes, String s) =>
                 {
                     await Task.Delay(0);
+                    List<BookingMooringDropDownItem> bmdd = new();
                     foreach (var cause in causes)
                     {
-                        if (await CheckIfMooringIsFree(cause.Id))
-                        {
-                            int mooringLength = Int32.Parse(SeachForProperty("length", cause.Metas).ToString());
-                            int mooringWidth = Int32.Parse(SeachForProperty("width", cause.Metas).ToString());
-                            int mooringDepth = Int32.Parse(SeachForProperty("depth", cause.Metas).ToString());
+                        int mooringLength = Int32.Parse(SeachForProperty("length", cause.Metas).ToString());
+                        int mooringWidth = Int32.Parse(SeachForProperty("width", cause.Metas).ToString());
+                        int mooringDepth = Int32.Parse(SeachForProperty("depth", cause.Metas).ToString());
 
-                            // This should be, fit the boat to best fitted mooring, not to big, not to small
-                            if (boatLength <= mooringLength && boatWidth <= mooringWidth && boatDepth <= mooringDepth)
+                        // This should be, fit the boat to best fitted mooring, not to big, not to small
+                        if (boatLength <= mooringLength && boatWidth <= mooringWidth && boatDepth <= mooringDepth)
+                        {
+                            string Name = cause.Value + " " + 
+                                          mooringLength.ToString() + " * " +
+                                          mooringWidth.ToString() + " * " +
+                                          mooringDepth.ToString() +
+                                          " (" + cause.Id.ToString() + ")";
+
+                            BookingMooringDropDownItem bm = new()
                             {
-                                string Name = cause.Value + " (" + cause.Id.ToString() + ")";
-                                BookingMooringData.Add(Name);
-                            }
+                                Text = Name,
+                                Value1 = mooringLength,
+                                Value2 = mooringWidth,
+                                Value3 = mooringDepth
+                            };
+                            bmdd.Add(bm);
+
                         }
                     }
+
+                    bmdd = bmdd.OrderBy(x => x.Value2).ThenBy(x => x.Value3).ThenBy(x => x.Value1).ToList();
+
+                    foreach (var item in bmdd)
+                    {
+                        BookingMooringData.Add(item.Text);
+                    }
+
+
 
                     await Task.Delay(10);
 
@@ -189,21 +224,6 @@ namespace Causality.Client.ViewModels
 
             }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
 
-        }
-
-        private async Task<bool> CheckIfMooringIsFree(int causeId)
-        {
-            bool ret = true;
-            await ResultManager.TryGet(r => r.CauseId == causeId, "Id", true, "", async (IEnumerable<Result> Result, String s) =>
-            {
-                await Task.Delay(0);
-                if (Result.Any())
-                {
-                    ret = false;
-                }
-            
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-            return ret;
         }
 
         protected async Task RefreshFromChildControl()
@@ -301,6 +321,7 @@ namespace Causality.Client.ViewModels
                 {
                     selectedItem.ProcessId = processId;
                     selectedItem.BoatName = boat;
+                    BookingMooringData = new();
 
                     // Get all Moorings
                     await LoadMooringDropDown(processId);
@@ -325,6 +346,7 @@ namespace Causality.Client.ViewModels
                 {
                     await CauseManager.TryGetById(causeId, "", async (Cause c, String s) =>
                     {
+                        await Task.Delay(0);
                         selectedItem.ClassId = c.ClassId;
                         selectedItem.CauseId = causeId;
                         selectedItem.MooringName = mooring;

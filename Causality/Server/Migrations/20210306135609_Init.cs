@@ -23,59 +23,6 @@ namespace Causality.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Process",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Order = table.Column<int>(type: "INTEGER", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: false),
-                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Process", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Result",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ProcessId = table.Column<int>(type: "INTEGER", nullable: false),
-                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CauseId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ClassId = table.Column<int>(type: "INTEGER", nullable: false),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: false),
-                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Result", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "State",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ProcessId = table.Column<int>(type: "INTEGER", nullable: false),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: false),
-                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_State", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "User",
                 columns: table => new
                 {
@@ -115,6 +62,35 @@ namespace Causality.Server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Process",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Order = table.Column<int>(type: "INTEGER", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Process", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Process_Event_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Event",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Process_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Cause",
                 columns: table => new
                 {
@@ -139,6 +115,41 @@ namespace Causality.Server.Migrations
                         name: "FK_Cause_Event_EventId",
                         column: x => x.EventId,
                         principalTable: "Event",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "State",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProcessId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_State", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_State_Event_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Event",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_State_Process_ProcessId",
+                        column: x => x.ProcessId,
+                        principalTable: "Process",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_State_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -208,6 +219,55 @@ namespace Causality.Server.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Exclude_User_UserId",
+                        column: x => x.UserId,
+                        principalTable: "User",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Result",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ProcessId = table.Column<int>(type: "INTEGER", nullable: false),
+                    EventId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CauseId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ClassId = table.Column<int>(type: "INTEGER", nullable: false),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Value = table.Column<string>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Result", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Result_Cause_CauseId",
+                        column: x => x.CauseId,
+                        principalTable: "Cause",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Result_Class_ClassId",
+                        column: x => x.ClassId,
+                        principalTable: "Class",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Result_Event_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Event",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Result_Process_ProcessId",
+                        column: x => x.ProcessId,
+                        principalTable: "Process",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Result_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
@@ -478,6 +538,11 @@ namespace Causality.Server.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Process_EventId",
+                table: "Process",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Process_Id",
                 table: "Process",
                 column: "Id");
@@ -486,6 +551,26 @@ namespace Causality.Server.Migrations
                 name: "IX_Process_Id_EventId",
                 table: "Process",
                 columns: new[] { "Id", "EventId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Process_UserId",
+                table: "Process",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Result_CauseId",
+                table: "Result",
+                column: "CauseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Result_ClassId",
+                table: "Result",
+                column: "ClassId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Result_EventId",
+                table: "Result",
+                column: "EventId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Result_Id",
@@ -498,6 +583,21 @@ namespace Causality.Server.Migrations
                 columns: new[] { "Id", "ProcessId", "EventId", "CauseId", "ClassId", "UserId" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Result_ProcessId",
+                table: "Result",
+                column: "ProcessId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Result_UserId",
+                table: "Result",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_State_EventId",
+                table: "State",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_State_Id",
                 table: "State",
                 column: "Id");
@@ -508,6 +608,16 @@ namespace Causality.Server.Migrations
                 columns: new[] { "Id", "EventId", "ProcessId" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_State_ProcessId",
+                table: "State",
+                column: "ProcessId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_State_UserId",
+                table: "State",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_User_Id",
                 table: "User",
                 column: "Id");
@@ -516,7 +626,6 @@ namespace Causality.Server.Migrations
                 table: "Event",
                 columns: new[] { "Order", "Value", "UpdatedDate" },
                 values: new object[] { 1, "Ronneby Motorbåtsklubb", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") });
-
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -531,9 +640,6 @@ namespace Causality.Server.Migrations
                 name: "Exclude");
 
             migrationBuilder.DropTable(
-                name: "Process");
-
-            migrationBuilder.DropTable(
                 name: "Result");
 
             migrationBuilder.DropTable(
@@ -543,10 +649,13 @@ namespace Causality.Server.Migrations
                 name: "Cause");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "Process");
 
             migrationBuilder.DropTable(
                 name: "Class");
+
+            migrationBuilder.DropTable(
+                name: "User");
 
             migrationBuilder.DropTable(
                 name: "Event");

@@ -226,7 +226,7 @@ namespace Causality.Client.Services
                 if (await _onlineState.IsOnline())
                 {
                     ProcessRequestInsert req = new() { Process = Process };
-                    ProcessResponseInsert ret = await _processService.InsertAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
+                    ProcessResponseInsert ret = await _processService.InsertAsync(req, deadline: DateTime.UtcNow.AddSeconds(50));
                     if (ret.Success)
                     {
                         Process = ret.Process;

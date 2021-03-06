@@ -19,18 +19,20 @@ namespace Causality.Server.Services
 {
     public class CauseService : Causality.Shared.Models.CauseService.CauseServiceBase
     {
-
+        ApplicationDbContext _context;
         Repository<Cause, ApplicationDbContext> _manager;
         IConfiguration _config;
         IMemoryCache _cache;
         int _cacheTimeInSeconds;
 
-        public CauseService(Repository<Cause, ApplicationDbContext> manager, IMemoryCache cache, IConfiguration config)
+        public CauseService(Repository<Cause, ApplicationDbContext> manager, IMemoryCache cache, IConfiguration config, ApplicationDbContext context)
         {
             _manager = manager;
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
+            _cacheTimeInSeconds = _cacheTimeInSeconds > 2 ? 2 : _cacheTimeInSeconds;
+            _context = context;
         }
 
         public override async Task<CauseResponseGet> Get(CauseRequestGet request, ServerCallContext context)

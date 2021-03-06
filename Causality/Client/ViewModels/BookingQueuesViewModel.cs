@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components;
 using Telerik.Blazor.Components;
 using Microsoft.JSInterop;
 using Microsoft.JSInterop.WebAssembly;
+using System.Globalization;
 
 namespace Causality.Client.ViewModels
 {
@@ -119,9 +120,9 @@ namespace Causality.Client.ViewModels
             {
                 foreach (var u in users)
                 {
-                    string Name = SeachForProperty("firstname", u.Metas).ToString() +
+                    string Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("firstname", u.Metas).ToString().ToLower()) +
                                     " " +
-                                    SeachForProperty("lastname", u.Metas).ToString() +
+                                    CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("lastname", u.Metas).ToString().ToLower()) +
                                     " (" + u.Id + ")";
 
                     BookingCustomerData.Add(Name);
@@ -302,39 +303,30 @@ namespace Causality.Client.ViewModels
                 var userId = Int32.Parse(Id);
                 if (userId > 0)
                 {
-                    await ProcessManager.TryGet(p => p.UserId == userId, "Id", true, "Metas", async (IEnumerable<Process> p, String s) =>
+                    // Get all boats that's not already in queue...
+                    await ProcessManager.TryGet(p => p.UserId == userId && p.EventId == EventId && p.States.All(st => st.ProcessId != p.Id), "Value", true, "Metas", async (IEnumerable<Process> p, String s) =>
                     {
+                        await Task.Delay(0);
                         BookingBoatData = new();
                         foreach (var b in p)
                         {
-                            if (await CheckIfThisNotHaveReservation(b.Id))
-                            {
-                                // Check if boat already is in queue
-                                await StateManager.TryGet(s => s.ProcessId == b.Id, "Id", true, "", async (IEnumerable<State> st, String s) =>
-                                {
-                                    if (!st.Any())
-                                    {
-                                        string boat = b.Value + " " +
-                                            SeachForProperty("length", b.Metas).ToString() + "/" +
-                                            SeachForProperty("width", b.Metas).ToString() + "/" +
-                                            SeachForProperty("depth", b.Metas).ToString() + " (" + b.Id.ToString() + ")";
 
-                                        BookingBoatData.Add(boat);
+                            string boat = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Value.ToLower()) + " " +
+                                SeachForProperty("length", b.Metas).ToString() + " * " +
+                                SeachForProperty("width", b.Metas).ToString() + " * " +
+                                SeachForProperty("depth", b.Metas).ToString() + " (" + b.Id.ToString() + ")";
 
-                                        Notify("info", "Båt tillagd i BookingBoatData");
-                                    }
+                            BookingBoatData.Add(boat);
 
-                                }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-                            }
+                            Notify("info", "Båt tillagd i BookingBoatData");
 
                         }
 
                         selectedItem.UserId = userId;
                         selectedItem.CustomerName = customer;
 
-                        await Task.Delay(100);
-
                         BookingBoatData = BookingBoatData.ToList();
+
                         Notify("info", $"BookingBoatData innehåller {BookingBoatData.Count} båtar");
 
                         // Invoke StateHasChange
@@ -352,21 +344,6 @@ namespace Causality.Client.ViewModels
             {
                 selectedItem.CustomerName = "";
             }
-        }
-
-        private async Task<bool> CheckIfThisNotHaveReservation(int processId)
-        {
-            bool ret = true;
-            await ResultManager.TryGet(sm => sm.ProcessId == processId, "Id", true, "", async (IEnumerable<Result> result, String s) =>
-            {
-                await Task.Delay(0);
-                if (result.Any())
-                {
-                    ret = false;
-                }
-            
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-            return ret;
         }
 
         public async Task BoatSelected(string boat)
@@ -416,7 +393,8 @@ namespace Causality.Client.ViewModels
                         EventId = EventId,
                         ProcessId = st.ProcessId,
                         UserId = st.UserId,
-                        BoatName = SeachForProperty("boatname", st.Metas).ToString(),
+                        CustomerName = await GetCustomerNameByUserId(st.UserId),
+                        BoatName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatname", st.Metas).ToString().ToLower()),
                         BoatLength = Int32.Parse(SeachForProperty("boatlength", st.Metas).ToString()),
                         BoatWidth = Int32.Parse(SeachForProperty("boatwidth", st.Metas).ToString()),
                         BoatDepth = Int32.Parse(SeachForProperty("boatdepth", st.Metas).ToString()),
@@ -434,6 +412,19 @@ namespace Causality.Client.ViewModels
 
             }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
 
+        }
+
+        private async Task<string> GetCustomerNameByUserId(int userId)
+        {
+            string ret = "";
+            await UserManager.TryGetById(userId, "Metas", async (User u, String s) =>
+            {
+                await Task.Delay(0);
+                ret = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("firstname", u.Metas).ToString().ToLower()) + " " +
+                      CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("lastname", u.Metas).ToString().ToLower());
+
+            }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            return ret;
         }
 
         protected async Task DeleteHandler(GridCommandEventArgs args)

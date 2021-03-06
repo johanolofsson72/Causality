@@ -21,6 +21,30 @@
             <TelerikDropDownList Id="customer" Value="@selectedItem.CustomerName" Data="@BookingCustomerData"
                                  PopupHeight="auto" Width="100%"
                                  ValueChanged="@( (string c) => CustomerSelected(c) )">
+                <ItemTemplate>
+                    @{
+                        var customer = (context as String).ToString();
+                        if (customer.Contains("("))
+                        {
+                            customer = customer.Substring(0, customer.IndexOf("("));
+                        }
+
+                        @customer
+
+                    }
+                </ItemTemplate>
+                <ValueTemplate>
+                    @{
+                            var customer = (context as String).ToString();
+                            if (customer.Contains("("))
+                            {
+                                customer = customer.Substring(0, customer.IndexOf("("));
+                            }
+
+                        @customer
+
+                    }
+                </ValueTemplate>
             </TelerikDropDownList>
         </div>
         <div class="mb-sm">
@@ -31,6 +55,30 @@
                                  PopupHeight="auto" Width="100%"
                                  Enabled="@(!string.IsNullOrWhiteSpace(selectedItem.CustomerName))"
                                  ValueChanged="@( (string c) => BoatSelected(c) )">
+                <ItemTemplate>
+                    @{
+                        var boat = (context as String).ToString();
+                        if (boat.Contains("("))
+                        {
+                            boat = boat.Substring(0, boat.IndexOf("("));
+                        }
+
+                        @boat
+
+                    }
+                </ItemTemplate>
+                <ValueTemplate>
+                    @{
+                        var boat = (context as String).ToString();
+                        if (boat.Contains("("))
+                        {
+                            boat = boat.Substring(0, boat.IndexOf("("));
+                        }
+
+                        @boat
+
+                    }
+                </ValueTemplate>
             </TelerikDropDownList>
         </div>
         <div class="mb-sm">
@@ -60,24 +108,125 @@
         </GridToolBar>
         <GridColumns>
 
-            <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat" Editable="false">
-            </GridColumn>
-            <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false">
-            </GridColumn>
-            <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Editable="false">
-            </GridColumn>
-            <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Editable="false">
-            </GridColumn>
-            <GridColumn Field=@nameof(BookingQueueItem.Comment)>
-            </GridColumn>
+            @if (IsMedium)
+            {
+                <GridColumn Field=@nameof(BookingQueueItem.CustomerName) Title="Customer" Editable="false">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat" Editable="false">
+                    <Template>
+                        @{
+                            var boat = (context as BookingQueueItem).BoatName.ToString();
+                            if (boat.Contains("("))
+                            {
+                                boat = boat.Substring(0, boat.IndexOf("("));
+                            }
 
-           <GridCommandColumn Width="185px">
-                <div style="display: flex; flex-direction: row;">
-                    <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
-                    <div>&nbsp;</div>
-                    <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
-                </div>
-            </GridCommandColumn>
+                            @boat
+
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false" Width="0.01%">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Editable="false" Width="0.01%">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Editable="false" Width="0.01%">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.QueuedDate) Editable="false">
+                    <Template>
+                        @((context as BookingQueueItem).QueuedDate.ToString("yyyy-MM-dd"))
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.Comment)>
+                </GridColumn>
+                <GridCommandColumn>
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit">E</GridCommandButton>
+                        <div>&nbsp;</div>
+                        <GridCommandButton Command="Delete" Icon="delete">D</GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+
+            }
+            else if (IsSmall)
+            {
+                <GridColumn Field=@nameof(BookingQueueItem.CustomerName) Title="Customer" Editable="false" Width="0.01%">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat" Editable="false">
+                    <Template>
+                        @{
+                            var boat = (context as BookingQueueItem).BoatName.ToString();
+                            if (boat.Contains("("))
+                            {
+                                boat = boat.Substring(0, boat.IndexOf("("));
+                            }
+
+                            @boat
+
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false" Width="0.01%">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Editable="false" Width="0.01%">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Editable="false" Width="0.01%">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.QueuedDate) Editable="false">
+                    <Template>
+                        @((context as BookingQueueItem).QueuedDate.ToString("yyyy-MM-dd"))
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.Comment) Width="0.01%">
+                </GridColumn>
+                <GridCommandColumn>
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit"></GridCommandButton>
+                        <div>&nbsp;</div>
+                        <GridCommandButton Command="Delete" Icon="delete"></GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+
+            }
+            else
+            {
+                <GridColumn Field=@nameof(BookingQueueItem.CustomerName) Title="Customer" Editable="false">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat" Editable="false">
+                    <Template>
+                        @{
+                            var boat = (context as BookingQueueItem).BoatName.ToString();
+                            if (boat.Contains("("))
+                            {
+                                boat = boat.Substring(0, boat.IndexOf("("));
+                            }
+
+                            @boat
+
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Editable="false">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Editable="false">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.QueuedDate) Editable="false">
+                    <Template>
+                        @((context as BookingQueueItem).QueuedDate.ToString("yyyy-MM-dd"))
+                    </Template>
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.Comment)>
+                </GridColumn>
+                <GridCommandColumn Width="185px">
+                    <div style="display: flex; flex-direction: row;">
+                        <GridCommandButton Command="Edit" Icon="edit">Edit</GridCommandButton>
+                        <div>&nbsp;</div>
+                        <GridCommandButton Command="Delete" Icon="delete">Delete</GridCommandButton>
+                    </div>
+                </GridCommandColumn>
+            }
 
         </GridColumns>
     </TelerikGrid>

@@ -12,6 +12,9 @@ using Causality.Client.Shared;
 using Serialize.Linq.Serializers;
 using System.Linq.Expressions;
 using Grpc.Core;
+using System.Linq.Dynamic.Core;
+using MapsterMapper;
+using System.Text;
 
 /// <summary>
 /// Can be copied when adding new service
@@ -66,6 +69,11 @@ namespace Causality.Client.Services
             {
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
+        }
+
+        static bool ByteArrayCompare(ReadOnlySpan<byte> a1, ReadOnlySpan<byte> a2)
+        {
+            return a1.SequenceEqual(a2);
         }
 
         /// <summary>
@@ -218,6 +226,79 @@ namespace Causality.Client.Services
                 onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
+
+        /// <summary>
+        /// TryGetByIdIfNotInResult, Includes (Effects, Excludes, Metas)
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="includeProperties"></param>
+        /// <param name="onSuccess"></param>
+        /// <param name="onFail"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        //public async Task TryGetByIdIfNotInResult(int id, string includeProperties, Action<Cause, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        //{
+        //    try
+        //    {
+        //        string key = ("causality_Cause_trygetbyidifnotinresult_" + id).Replace(" ", "").ToLower() + "_" + includeProperties;
+
+        //        Cause data = new();
+        //        bool getFromServer = false;
+        //        string source = "";
+
+        //        if (state.AppState.UseIndexedDB)
+        //        {
+        //            var result = await _indexedDBManager.GetRecordByIndex<string, Blob>(new StoreIndexQuery<string> { Storename = _indexedDBManager.Stores[0].Name, IndexName = "key", QueryValue = key });
+        //            if (result is not null)
+        //            {
+        //                data = JsonConvert.DeserializeObject<Cause>(result.Value);
+        //                source = "indexedDB";
+        //            }
+        //            else if (await _onlineState.IsOnline())
+        //            {
+        //                getFromServer = true;
+        //            }
+        //            else
+        //            {
+        //                throw new Exception("No connection");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            getFromServer = true;
+        //        }
+
+        //        if (getFromServer)
+        //        {
+        //            CauseRequestGetById req = new() { Id = id, IncludeProperties = includeProperties };
+        //            CauseResponseGetById ret = await _causeService.GetByIdAsync(req, deadline: DateTime.UtcNow.AddSeconds(5));
+        //            if (ret.Success)
+        //            {
+        //                data = ret.Cause;
+        //                source = ret.Status;
+        //                if (state.AppState.UseIndexedDB)
+        //                {
+        //                    await _indexedDBManager.AddRecord(new StoreRecord<Blob> { Storename = "Blobs", Data = new Blob() { Key = key, Value = JsonConvert.SerializeObject(data) } });
+        //                }
+        //            }
+        //            else
+        //            {
+        //                throw new Exception("No connection");
+        //            }
+        //        }
+
+        //        onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived 1 record from " + source);
+
+        //    }
+        //    catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
+        //    {
+        //        onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+        //    }
+        //}
 
         public async Task TryInsert(Cause Cause, Action<Cause, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
         {

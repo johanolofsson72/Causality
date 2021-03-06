@@ -31,6 +31,7 @@ namespace Causality.Server.Services
             _cache = cache;
             _config = config;
             _cacheTimeInSeconds = _config.GetValue<int>("AppSettings:DataCacheInSeconds");
+            _cacheTimeInSeconds = _cacheTimeInSeconds > 2 ? 2 : _cacheTimeInSeconds;
         }
 
         public override async Task<ProcessResponseGet> Get(ProcessRequestGet request, ServerCallContext context)
@@ -98,6 +99,7 @@ namespace Causality.Server.Services
             var response = new ProcessResponseInsert();
             try
             {
+                // {{ "userId": 1, "value": "asd", "updatedDate": "2021-03-06 02:36:49" }}
                 Process cacheEntry = await _manager.Insert(request.Process);
                 Cache.Remove(_cache, "Process.");
                 var result = (await _manager.Get(x => x.Id == cacheEntry.Id)).FirstOrDefault();

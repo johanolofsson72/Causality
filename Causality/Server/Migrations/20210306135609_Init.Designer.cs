@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Causality.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210305133807_Init")]
+    [Migration("20210306135609_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -300,7 +300,11 @@ namespace Causality.Server.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EventId");
+
                     b.HasIndex("Id");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("Id", "EventId");
 
@@ -338,7 +342,17 @@ namespace Causality.Server.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CauseId");
+
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("EventId");
+
                     b.HasIndex("Id");
+
+                    b.HasIndex("ProcessId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("Id", "ProcessId", "EventId", "CauseId", "ClassId", "UserId");
 
@@ -370,7 +384,13 @@ namespace Causality.Server.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EventId");
+
                     b.HasIndex("Id");
+
+                    b.HasIndex("ProcessId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("Id", "EventId", "ProcessId");
 
@@ -533,6 +553,75 @@ namespace Causality.Server.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Causality.Shared.Models.Process", b =>
+                {
+                    b.HasOne("Causality.Shared.Models.Event", null)
+                        .WithMany("Processes")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Causality.Shared.Models.User", null)
+                        .WithMany("Processes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Causality.Shared.Models.Result", b =>
+                {
+                    b.HasOne("Causality.Shared.Models.Cause", null)
+                        .WithMany("Results")
+                        .HasForeignKey("CauseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Causality.Shared.Models.Class", null)
+                        .WithMany("Results")
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Causality.Shared.Models.Event", null)
+                        .WithMany("Results")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Causality.Shared.Models.Process", null)
+                        .WithMany("Results")
+                        .HasForeignKey("ProcessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Causality.Shared.Models.User", null)
+                        .WithMany("Results")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Causality.Shared.Models.State", b =>
+                {
+                    b.HasOne("Causality.Shared.Models.Event", null)
+                        .WithMany("States")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Causality.Shared.Models.Process", null)
+                        .WithMany("States")
+                        .HasForeignKey("ProcessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Causality.Shared.Models.User", null)
+                        .WithMany("States")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Causality.Shared.Models.Cause", b =>
                 {
                     b.Navigation("Effects");
@@ -540,6 +629,8 @@ namespace Causality.Server.Migrations
                     b.Navigation("Excludes");
 
                     b.Navigation("Metas");
+
+                    b.Navigation("Results");
                 });
 
             modelBuilder.Entity("Causality.Shared.Models.Class", b =>
@@ -549,6 +640,8 @@ namespace Causality.Server.Migrations
                     b.Navigation("Effects");
 
                     b.Navigation("Metas");
+
+                    b.Navigation("Results");
                 });
 
             modelBuilder.Entity("Causality.Shared.Models.Effect", b =>
@@ -567,6 +660,12 @@ namespace Causality.Server.Migrations
                     b.Navigation("Excludes");
 
                     b.Navigation("Metas");
+
+                    b.Navigation("Processes");
+
+                    b.Navigation("Results");
+
+                    b.Navigation("States");
                 });
 
             modelBuilder.Entity("Causality.Shared.Models.Exclude", b =>
@@ -577,6 +676,10 @@ namespace Causality.Server.Migrations
             modelBuilder.Entity("Causality.Shared.Models.Process", b =>
                 {
                     b.Navigation("Metas");
+
+                    b.Navigation("Results");
+
+                    b.Navigation("States");
                 });
 
             modelBuilder.Entity("Causality.Shared.Models.Result", b =>
@@ -594,6 +697,12 @@ namespace Causality.Server.Migrations
                     b.Navigation("Excludes");
 
                     b.Navigation("Metas");
+
+                    b.Navigation("Processes");
+
+                    b.Navigation("Results");
+
+                    b.Navigation("States");
                 });
 #pragma warning restore 612, 618
         }

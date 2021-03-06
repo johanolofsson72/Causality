@@ -738,6 +738,9 @@ message Event {
   repeated Effect effects = 7;
   repeated Exclude excludes = 8;
   repeated Meta metas = 9;
+  repeated Result results = 10;
+  repeated State states = 11;
+  repeated Process processes = 12;
 }
 
 // Type class
@@ -752,7 +755,8 @@ message Cause {
   string updatedDate = 6;
   repeated Effect effects = 7;
   repeated Exclude excludes = 8;
-  repeated Meta metas = 9;
+  repeated Result results = 9;
+  repeated Meta metas = 10;
 
 }
 
@@ -768,6 +772,7 @@ message Class {
   repeated Cause causes = 6;
   repeated Effect effects = 7;
   repeated Meta metas = 8;
+  repeated Result results = 9;
 
 }
 
@@ -831,6 +836,9 @@ message User {
   string updatedDate = 6;
   repeated Exclude excludes = 7;
   repeated Meta metas = 8;
+  repeated Result results = 9;
+  repeated State states = 10;
+  repeated Process processes = 11;
 
 }
 
@@ -845,6 +853,8 @@ message Process {
   string value = 5;
   string updatedDate = 6;
   repeated Meta metas = 7;
+  repeated Result results = 8;
+  repeated State states = 9;
 
 }
 // Type class

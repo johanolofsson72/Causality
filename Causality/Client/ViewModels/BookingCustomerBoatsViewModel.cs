@@ -64,6 +64,7 @@ namespace Causality.Client.ViewModels
         protected List<BookingBoat> list = new();
         protected BookingBoat selectedItem = new();
         protected BookingCustomer selectedCustomer = new();
+        private int EventId { get; set; } = 1;
 
         private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
         {
@@ -133,7 +134,7 @@ namespace Causality.Client.ViewModels
 
         protected async Task GetAll()
         {
-            await ProcessManager.TryGet(p => p.UserId == BookingCustomerId, "Id", true, "Metas", async (IEnumerable<Process> p, String s) =>
+            await ProcessManager.TryGet(p => p.UserId == BookingCustomerId && p.EventId == EventId, "Value", true, "Metas", async (IEnumerable<Process> p, String s) =>
             {
                 await Task.Delay(0);
                 List<BookingBoat> _list = new();
@@ -256,9 +257,9 @@ namespace Causality.Client.ViewModels
 
             var item = new Process
             {
-                EventId = 0,
+                EventId = EventId,
                 UserId = UserId,
-                Order = 0,
+                Order = 1,
                 Value = selectedItem.Type,
                 UpdatedDate = UpdatedDate
             };

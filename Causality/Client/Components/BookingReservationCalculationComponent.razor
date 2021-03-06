@@ -1,0 +1,63 @@
+﻿@inherits BookingReservationCalculationViewModel
+
+<style>
+    .k-window .k-edit-form-container {
+        max-height: 80vh;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+</style>
+
+<div class="irx-container">
+    <h5>@Title</h5>
+    <br />
+    <div style="display: flex; justify-content: center; width: 100%;">
+        <strong style="display: flex; justify-content: center; width: 100%;">Boats in queue</strong>
+    </div>
+    <br />
+    <TelerikGrid Data=@list
+                 EditMode="@GridEditMode.Popup"
+                 Sortable="true"
+                 OnDelete="@DeleteHandler">
+        <GridToolBar>
+        </GridToolBar>
+        <GridColumns>
+
+            <GridColumn Field=@nameof(BookingReservation.MooringName) Title="Mooring" Editable="false">
+            </GridColumn>
+            <GridColumn Field=@nameof(BookingReservation.BoatName) Title="Boat" Editable="false">
+            </GridColumn>
+            <GridColumn Field=@nameof(BookingReservation.CustomerName) Title="Customer" Editable="false">
+            </GridColumn>
+
+        </GridColumns>
+    </TelerikGrid>
+    <br />
+    <br />
+    <div style="display: flex; justify-content: center; width: 100%;">
+        <strong style="display: flex; justify-content: center; width: 100%;">Free Moorings</strong>
+    </div>
+    <br />
+    <TelerikGrid Data=@list
+                 EditMode="@GridEditMode.Popup"
+                 Sortable="true"
+                 OnDelete="@DeleteHandler">
+        <GridToolBar>
+        </GridToolBar>
+        <GridColumns>
+
+            <GridColumn Field=@nameof(BookingReservation.MooringName) Title="Mooring" Editable="false">
+            </GridColumn>
+            <GridColumn Field=@nameof(BookingReservation.BoatName) Title="Boat" Editable="false">
+            </GridColumn>
+            <GridColumn Field=@nameof(BookingReservation.CustomerName) Title="Customer" Editable="false">
+            </GridColumn>
+
+        </GridColumns>
+    </TelerikGrid>
+    <br />  <br />
+    <TelerikButton>Calculate</TelerikButton>
+    <br />  <br />
+    <MediaQuery Media="@Breakpoints.OnlyMedium" @bind-Matches="IsMedium" />
+    <MediaQuery Media="@Breakpoints.SmallDown" @bind-Matches="IsSmall" />
+</div>

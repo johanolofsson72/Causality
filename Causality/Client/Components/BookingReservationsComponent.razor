@@ -16,21 +16,69 @@
         <hr />
         <div class="mb-sm">
             <label class="k-label" for="customer">
-                Please select a boat<br />
+                Please select a boat from the queue<br />
             </label>
             <TelerikDropDownList Id="boat" Value="@selectedItem.BoatName" Data="@BookingBoatData"
                                  PopupHeight="auto" Width="100%"
                                  ValueChanged="@( (string c) => BoatSelected(c) )">
+                <ItemTemplate>
+                    @{
+                        var boat = (context as String).ToString();
+                        if (boat.Contains("("))
+                        {
+                            boat = boat.Substring(0, boat.IndexOf("("));
+                        }
+
+                        @boat
+
+                    }
+                </ItemTemplate>
+                <ValueTemplate>
+                    @{
+                        var boat = (context as String).ToString();
+                        if (boat.Contains("("))
+                        {
+                            boat = boat.Substring(0, boat.IndexOf("("));
+                        }
+
+                        @boat
+
+                    }
+                </ValueTemplate>
             </TelerikDropDownList>
         </div>
         <div class="mb-sm">
             <label class="k-label" for="boat">
-                Then select a mooring<br />
+                Then select a mooring (best fit will be first)<br />
             </label>
             <TelerikDropDownList Id="mooring" Value="@selectedItem.MooringName" Data="@BookingMooringData"
                                  PopupHeight="auto" Width="100%"
                                  Enabled="@(!string.IsNullOrWhiteSpace(selectedItem.BoatName))"
                                  ValueChanged="@( (string c) => MooringSelected(c) )">
+                <ItemTemplate>
+                    @{
+                        var mooring = (context as String).ToString();
+                        if (mooring.Contains("("))
+                        {
+                            mooring = mooring.Substring(0, mooring.IndexOf("("));
+                        }
+
+                        @mooring
+
+                    }
+                </ItemTemplate>
+                <ValueTemplate>
+                    @{
+                        var mooring = (context as String).ToString();
+                        if (mooring.Contains("("))
+                        {
+                            mooring = mooring.Substring(0, mooring.IndexOf("("));
+                        }
+
+                        @mooring
+
+                    }
+                </ValueTemplate>
             </TelerikDropDownList>
         </div>
         <div class="mb-sm">
