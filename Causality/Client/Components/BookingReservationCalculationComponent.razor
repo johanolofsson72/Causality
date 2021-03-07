@@ -11,8 +11,26 @@
 <div class="irx-container">
     <h5>@Title</h5>
 
+    <TelerikGrid Data=@prelist
+                 Sortable="true">
+        <GridToolBar>
+            <div style="display: flex; justify-content: center; width: 100%;">
+                <TelerikButton OnClick="@CalculateBoats" Enabled="@mooringlist.Any()">Calculate by clicking here</TelerikButton>
+            </div>
+        </GridToolBar>
+        <GridColumns>
+
+            <GridColumn Field=@nameof(BookingReservation.MooringName) Title="Best Mooring">
+            </GridColumn>
+            <GridColumn Field=@nameof(BookingReservation.BoatName) Title="For Boat">
+            </GridColumn>
+            <GridColumn Field=@nameof(BookingReservation.CustomerName) Title="Customer">
+            </GridColumn>
+
+        </GridColumns>
+    </TelerikGrid>
+    <br /><br />
     <TelerikGrid Data=@boatlist
-                 EditMode="@GridEditMode.Popup"
                  Sortable="true">
         <GridToolBar>
             <div style="display: flex; justify-content: center; width: 100%;">
@@ -25,9 +43,9 @@
             {
                 <GridColumn Field=@nameof(BookingQueueItem.CustomerName) Title="Customer" Editable="false"></GridColumn>
                 <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat" Editable="false"></GridColumn>
-                <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false"></GridColumn>
-                <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Editable="false"></GridColumn>
-                <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Editable="false"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Title="Boat Length" Editable="false"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Title="Boat Width" Editable="false"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Title="Boat Depth" Editable="false"></GridColumn>
                 <GridColumn Field=@nameof(BookingQueueItem.QueuedDate) Editable="false">
                     <Template>
                         @((context as BookingQueueItem).QueuedDate.ToString("yyyy-MM-dd"))
@@ -40,9 +58,9 @@
             {
                 <GridColumn Field=@nameof(BookingQueueItem.CustomerName) Title="Customer" Editable="false"></GridColumn>
                 <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat" Editable="false"></GridColumn>
-                <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false" Width="0.01%"></GridColumn>
-                <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Editable="false" Width="0.01%"></GridColumn>
-                <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Editable="false" Width="0.01%"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Title="Boat Length" Editable="false" Width="0.01%"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Title="Boat Width" Editable="false" Width="0.01%"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Title="Boat Depth" Editable="false" Width="0.01%"></GridColumn>
                 <GridColumn Field=@nameof(BookingQueueItem.QueuedDate) Editable="false">
                     <Template>
                         @((context as BookingQueueItem).QueuedDate.ToString("yyyy-MM-dd"))
@@ -55,9 +73,9 @@
             {
                 <GridColumn Field=@nameof(BookingQueueItem.CustomerName) Title="Customer" Editable="false"></GridColumn>
                 <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat" Editable="false"></GridColumn>
-                <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Editable="false"></GridColumn>
-                <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Editable="false"></GridColumn>
-                <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Editable="false"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Title="Boat Length" Editable="false"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Title="Boat Width" Editable="false"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.BoatDepth) Title="Boat Depth" Editable="false"></GridColumn>
                 <GridColumn Field=@nameof(BookingQueueItem.QueuedDate) Editable="false">
                     <Template>
                         @((context as BookingQueueItem).QueuedDate.ToString("yyyy-MM-dd"))
@@ -72,7 +90,6 @@
     <br />
     <br />
     <TelerikGrid Data=@mooringlist
-                 EditMode="@GridEditMode.Popup"
                  Sortable="true">
         <GridToolBar>
             <div style="display: flex; justify-content: center; width: 100%;">
@@ -85,57 +102,32 @@
             {
                 <GridColumn Field=@nameof(BookingMooring.Name) />
                 <GridColumn Field=@nameof(BookingMooring.Type) />
-                <GridColumn Field=@nameof(BookingMooring.Length) />
-                <GridColumn Field=@nameof(BookingMooring.Width) />
-                <GridColumn Field=@nameof(BookingMooring.Depth) />
+                <GridColumn Field=@nameof(BookingMooring.Length) Title="Max Length" />
+                <GridColumn Field=@nameof(BookingMooring.Width) Title="Max Width" />
+                <GridColumn Field=@nameof(BookingMooring.Depth) Title="Max Depth" />
             }
             else if (IsSmall)
             {
                 <GridColumn Field=@nameof(BookingMooring.Name) />
                 <GridColumn Field=@nameof(BookingMooring.Type) />
-                <GridColumn Field=@nameof(BookingMooring.Length) Width="0.01%" />
-                <GridColumn Field=@nameof(BookingMooring.Width) Width="0.01%" />
-                <GridColumn Field=@nameof(BookingMooring.Depth) Width="0.01%" />
+                <GridColumn Field=@nameof(BookingMooring.Length) Title="Max Length" Width="0.01%" />
+                <GridColumn Field=@nameof(BookingMooring.Width) Title="Max Width" Width="0.01%" />
+                <GridColumn Field=@nameof(BookingMooring.Depth) Title="Max Depth" Width="0.01%" />
             }
             else
             {
                 <GridColumn Field=@nameof(BookingMooring.Name) />
                 <GridColumn Field=@nameof(BookingMooring.Type) />
-                <GridColumn Field=@nameof(BookingMooring.Length) />
-                <GridColumn Field=@nameof(BookingMooring.Width) />
-                <GridColumn Field=@nameof(BookingMooring.Depth) />
+                <GridColumn Field=@nameof(BookingMooring.Length) Title="Max Length" />
+                <GridColumn Field=@nameof(BookingMooring.Width) Title="Max Width" />
+                <GridColumn Field=@nameof(BookingMooring.Depth) Title="Max Depth" />
             }
 
         </GridColumns>
     </TelerikGrid>
     <br />
     <br />
-    <TelerikButton OnClick="@Calculate" Enabled="@BoatsAndMooringIsLoaded">Click to Calculate</TelerikButton>
-    <br />
-    <br />
 
-    @if (prelist.Any())
-    {
-        <TelerikGrid Data=@prelist
-                     EditMode="@GridEditMode.Popup"
-                     Sortable="true">
-            <GridToolBar>
-                <div style="display: flex; justify-content: center; width: 100%;">
-                    <strong style="display: flex; justify-content: center; width: 100%;">Pre Calculated result based on the lists above</strong>
-                </div>
-            </GridToolBar>
-            <GridColumns>
-
-                <GridColumn Field=@nameof(BookingReservation.MooringName) Title="Mooring">
-                </GridColumn>
-                <GridColumn Field=@nameof(BookingReservation.BoatName) Title="Boat">
-                </GridColumn>
-                <GridColumn Field=@nameof(BookingReservation.CustomerName) Title="Customer">
-                </GridColumn>
-
-            </GridColumns>
-        </TelerikGrid>
-    }
 
     <MediaQuery Media="@Breakpoints.OnlyMedium" @bind-Matches="IsMedium" />
     <MediaQuery Media="@Breakpoints.SmallDown" @bind-Matches="IsSmall" />

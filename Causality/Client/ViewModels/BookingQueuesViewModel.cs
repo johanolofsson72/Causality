@@ -57,11 +57,8 @@ namespace Causality.Client.ViewModels
 
         [Inject] Services.UserService UserManager { get; set; }
         [Inject] Services.MetaService MetaManager { get; set; }
-        [Inject] Services.CauseService CauseManager { get; set; }
-        [Inject] Services.ClassService ClassManager { get; set; }
         [Inject] Services.StateService StateManager { get; set; }
         [Inject] Services.ProcessService ProcessManager { get; set; }
-        [Inject] Services.ResultService ResultManager { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
 
         protected bool IsMedium = false;
@@ -278,7 +275,7 @@ namespace Causality.Client.ViewModels
         {
             if (customer.Contains("(") && customer.Contains(")"))
             {
-                string Id = customer.Substring(customer.IndexOf("("));
+                string Id = customer[customer.IndexOf("(")..];
                 Id = Id.Replace("(", "").Replace(")", "");
 
                 var userId = Int32.Parse(Id);
@@ -331,7 +328,7 @@ namespace Causality.Client.ViewModels
         {
             if (boat.Contains("(") && boat.Contains(")"))
             {
-                string Id = boat.Substring(boat.IndexOf("("));
+                string Id = boat[boat.IndexOf("(")..];
                 Id = Id.Replace("(", "").Replace(")", "");
 
                 var boatId = Int32.Parse(Id);

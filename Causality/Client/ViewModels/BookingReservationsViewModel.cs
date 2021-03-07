@@ -56,9 +56,7 @@ namespace Causality.Client.ViewModels
         [Parameter] public EventCallback<Dictionary<string, string>> NotifyParent { get; set; }
 
         [Inject] Services.UserService UserManager { get; set; }
-        [Inject] Services.MetaService MetaManager { get; set; }
         [Inject] Services.CauseService CauseManager { get; set; }
-        [Inject] Services.ClassService ClassManager { get; set; }
         [Inject] Services.StateService StateManager { get; set; }
         [Inject] Services.ProcessService ProcessManager { get; set; }
         [Inject] Services.ResultService ResultManager { get; set; }
@@ -294,7 +292,7 @@ namespace Causality.Client.ViewModels
         {
             if (boat.Contains("(") && boat.Contains(")"))
             {
-                string Id = boat.Substring(boat.IndexOf("("));
+                string Id = boat[boat.IndexOf("(")..];
                 Id = Id.Replace("(", "").Replace(")", "");
 
                 var processId = Int32.Parse(Id);
@@ -319,7 +317,7 @@ namespace Causality.Client.ViewModels
         {
             if (mooring.Contains("(") && mooring.Contains(")"))
             {
-                string Id = mooring.Substring(mooring.IndexOf("("));
+                string Id = mooring[mooring.IndexOf("(")..];
                 Id = Id.Replace("(", "").Replace(")", "");
 
                 var causeId = Int32.Parse(Id);

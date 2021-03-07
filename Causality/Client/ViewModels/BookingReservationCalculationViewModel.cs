@@ -56,13 +56,10 @@ namespace Causality.Client.ViewModels
         [Parameter] public EventCallback<Dictionary<string, string>> NotifyParent { get; set; }
 
         [Inject] Services.UserService UserManager { get; set; }
-        [Inject] Services.MetaService MetaManager { get; set; }
         [Inject] Services.CauseService CauseManager { get; set; }
         [Inject] Services.ClassService ClassManager { get; set; }
         [Inject] Services.StateService StateManager { get; set; }
         [Inject] Services.ProcessService ProcessManager { get; set; }
-        [Inject] Services.ResultService ResultManager { get; set; }
-        [Inject] IJSRuntime JSRuntime { get; set; }
 
         protected bool IsMedium = false;
         protected bool IsSmall = false;
@@ -70,15 +67,14 @@ namespace Causality.Client.ViewModels
         protected List<BookingQueueItem> boatlist = new();
         protected List<BookingMooring> mooringlist = new();
         protected List<BookingReservation> prelist = new();
-        protected bool BoatsAndMooringIsLoaded { get; set; } = false;
 
         public int EventId { get; set; } = 1;
 
         protected override async Task OnInitializedAsync()
         {
+            prelist = new();
             boatlist = new();
             mooringlist = new();
-            BoatsAndMooringIsLoaded = false;
 
             // Load data
             await GetAll();
@@ -87,27 +83,118 @@ namespace Causality.Client.ViewModels
             await InvokeAsync(StateHasChanged);
         }
 
-        protected async Task Calculate()
+        protected async Task CalculateBoats()
         {
-            // Deactivate the button
-            BoatsAndMooringIsLoaded = false;
+            SortedDictionary<int, Int64> boats = new();
+            SortedDictionary<int, Int64> moorings = new();
 
-            // Invoke StateHasChange
-            await InvokeAsync(StateHasChanged);
+            foreach (var item in boatlist)
+            {
+                boats.Add(item.Id, ((item.BoatLength / 100) * (item.BoatWidth / 100) * (item.BoatDepth / 100)));
+            }
 
-            // Calculate
-            await CalculateBoats();
+            foreach (var item in mooringlist)
+            {
+                moorings.Add(item.Id, ((item.Length / 100) * (item.Width / 100) * (item.Depth / 100)));
+            }
 
-            // Activate the button
-            BoatsAndMooringIsLoaded = true;
+            foreach (var item in boats.OrderBy(b => b.Value))
+            {
+                Console.WriteLine(item);
+            }
 
-            // Invoke StateHasChange
-            await InvokeAsync(StateHasChanged);
+            foreach (var item in moorings.OrderBy(m => m.Value))
+            {
+                Console.WriteLine(item);
+            }
+
+            int i = 0;
+            prelist = new();
+            if (boats.Count <= moorings.Count)
+            {
+                foreach (var item in boats.OrderBy(b => b.Value))
+                {
+                    BookingReservation pl = new()
+                    {
+                        Id = i,
+                        MooringName = await GetMooringName(moorings.OrderBy(b => b.Value).ElementAt(i).Key),
+                        BoatName = await GetBoatName(item.Key),
+                        CustomerName = await GetCustomerName(item.Key)
+                    };
+                    prelist.Add(pl);
+                    i++;
+                }
+            }
+            else
+            {
+                foreach (var item in moorings.OrderBy(b => b.Value))
+                {
+                    BookingReservation pl = new()
+                    {
+                        Id = i,
+                        MooringName = await GetMooringName(item.Key),
+                        BoatName = await GetBoatName(boats.OrderBy(b => b.Value).ElementAt(i).Key),
+                        CustomerName = await GetCustomerName(boats.OrderBy(b => b.Value).ElementAt(i).Key)
+                    };
+                    prelist.Add(pl);
+                    i++;
+                }
+            }
+
+            prelist = prelist.ToList();
+
+            Notify("info", $"Calculated {prelist.Count} boats");
+
+            //[16, 3186]  Askeladden
+            //[15, 12250] Wellcraft
+            //[13, 15120] Snipa
+            //[14, 26368] Storebro 34
+            //[17, 30294] Storebro 31
+
+            //[35, 30000] 129
+            //[34, 63800] 128
+            //[33, 66000] 127
+            //[32, 70400] 126
+            //[31, 77000] 125
+
         }
 
-        private async Task CalculateBoats()
+        private async Task<string> GetMooringName(int causeId)
         {
-            await Task.Delay(1000);
+            string ret = "";
+            await CauseManager.TryGetById(causeId, "", async (Cause c, String s) =>
+            {
+                ret = c.Value;
+
+            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            return ret;
+        }
+
+        private async Task<string> GetBoatName(int stateId)
+        {
+            string ret = "";
+            await ProcessManager.TryGet(p => p.EventId == EventId && p.States.All(r => r.Id == stateId), "Id",true, "", (IEnumerable<Process> processes, String s) =>
+            {
+                ret = processes.FirstOrDefault().Value;
+
+            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            return ret;
+        }
+
+        private async Task<string> GetCustomerName(int stateId)
+        {
+            string ret = "";
+            await UserManager.TryGet(p => p.States.Any(r => r.Id == stateId), "Id", true, "Metas", (IEnumerable<User> users, String s) =>
+            {
+                if (users.Any())
+                {
+                    ret = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("firstname", users.FirstOrDefault().Metas).ToString().ToLower()) + 
+                          " " +
+                          CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("lastname", users.FirstOrDefault().Metas).ToString().ToLower());
+                }
+
+            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            return ret;
         }
 
         protected async Task RefreshFromChildControl()
@@ -136,7 +223,6 @@ namespace Causality.Client.ViewModels
         {
             await GetAllBoatInQueue();
             await GetAllFreeMoorings();
-            BoatsAndMooringIsLoaded = true;
         }
 
         private async Task GetAllFreeMoorings()
@@ -144,7 +230,6 @@ namespace Causality.Client.ViewModels
             // Get all free moorings
             await CauseManager.TryGet(c => c.EventId == EventId, "Value", true, "Metas", async (IEnumerable<Cause> causes, String s) =>
             {
-                await Task.Delay(0);
                 List<BookingMooring> _list = new();
                 foreach (var u in causes)
                 {
@@ -180,7 +265,6 @@ namespace Causality.Client.ViewModels
             // Get all boats in queue without mooring
             await StateManager.TryGet(s => s.EventId == EventId, "Id", true, "Metas", async (IEnumerable<State> states, String s) =>
             {
-                await Task.Delay(0);
                 List<BookingQueueItem> _list = new();
                 foreach (var st in states)
                 {
