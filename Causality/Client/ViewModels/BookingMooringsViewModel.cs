@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Causality.Client.Services;
 using Causality.Client.Shared;
+using Causality.Shared.Data;
 using Causality.Shared.Models;
 using Ipify;
 using Microsoft.AspNetCore.Components;
@@ -66,26 +67,6 @@ namespace Causality.Client.ViewModels
 
         private int EventId { get; set; } = 1;
         private int ClassId { get; set; } = 0;
-
-        private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
-        {
-            var ret = "missing";
-            try
-            {
-                foreach (var item in list)
-                {
-                    if (item.Key.ToLower().Equals(propertyName.ToLower()))
-                    {
-                        return item.Value;
-                    }
-                }
-                return ret;
-            }
-            catch
-            {
-                return ret;
-            }
-        }
 
         protected override async Task OnInitializedAsync()
         {
@@ -277,9 +258,9 @@ namespace Causality.Client.ViewModels
                         Id = u.Id,
                         Name = u.Value,
                         Type = type,
-                        Length = Int32.Parse(SeachForProperty("length", u.Metas).ToString()),
-                        Width = Int32.Parse(SeachForProperty("width", u.Metas).ToString()),
-                        Depth = Int32.Parse(SeachForProperty("depth", u.Metas).ToString()),
+                        Length = Int32.Parse(Property.Search("length", u.Metas).ToString()),
+                        Width = Int32.Parse(Property.Search("width", u.Metas).ToString()),
+                        Depth = Int32.Parse(Property.Search("depth", u.Metas).ToString()),
                         UpdatedDate = Convert.ToDateTime(u.UpdatedDate)
                     };
                     _list.Add(bookingMooring);

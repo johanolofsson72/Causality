@@ -11,6 +11,7 @@ using Telerik.Blazor.Components;
 using Microsoft.JSInterop;
 using Microsoft.JSInterop.WebAssembly;
 using System.Globalization;
+using Causality.Shared.Data;
 
 namespace Causality.Client.ViewModels
 {
@@ -65,360 +66,147 @@ namespace Causality.Client.ViewModels
 
         protected bool IsMedium = false;
         protected bool IsSmall = false;
-        protected string Title = "Calculate the best mooring for all the boats in queue";
-        protected List<BookingReservation> list = new();
-        protected BookingReservation selectedItem;
-        protected List<string> BookingMooringData = new();
-        protected List<string> BookingBoatData = new();
-        protected bool BoatDropDownLoaded { get; set; } = false;
-        protected bool MooringDropDownLoaded { get; set; } = false;
+        protected string Title = "Pre calculate the best mooring for all the boats in queue";
+        protected List<BookingQueueItem> boatlist = new();
+        protected List<BookingMooring> mooringlist = new();
+        protected List<BookingReservation> prelist = new();
+        protected bool BoatsAndMooringIsLoaded { get; set; } = false;
 
         public int EventId { get; set; } = 1;
 
-        private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
-        {
-            var ret = "missing";
-            try
-            {
-                foreach (var item in list)
-                {
-                    if (item.Key.ToLower().Equals(propertyName.ToLower()))
-                    {
-                        return item.Value;
-                    }
-                }
-                return ret;
-            }
-            catch
-            {
-                return ret;
-            }
-        }
-
         protected override async Task OnInitializedAsync()
         {
-            //list = new();
-            //selectedItem = null;
-            //BoatDropDownLoaded = false;
-            //MooringDropDownLoaded = false;
-            //BookingMooringData = new();
-            //BookingBoatData = new();
+            boatlist = new();
+            mooringlist = new();
+            BoatsAndMooringIsLoaded = false;
 
-            //// Load data
-            //await GetAll();
+            // Load data
+            await GetAll();
 
-            //// Get all Boats in Queue
-            //await LoadBoatDropDown();
-
-            //// Invoke StateHasChange
-            //await InvokeAsync(StateHasChanged);
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
         }
 
         protected async Task Calculate()
-        { 
-        
+        {
+            // Deactivate the button
+            BoatsAndMooringIsLoaded = false;
+
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
+
+            // Calculate
+            await CalculateBoats();
+
+            // Activate the button
+            BoatsAndMooringIsLoaded = true;
+
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
         }
 
-        private async Task LoadBoatDropDown()
+        private async Task CalculateBoats()
         {
-            //// Get all Queue Items
-            //await StateManager.TryGet(s => s.EventId == EventId, "Id", true, "Metas", async (IEnumerable<State> states, String s) =>
-            //{
-            //    await Task.Delay(0);
-            //    List<BookingDropDownItem> bdd = new();
-            //    foreach (var st in states)
-            //    {
-            //        string Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatname", st.Metas).ToString().ToLower()) +
-            //                      " " + CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatlength", st.Metas).ToString().ToLower()) +
-            //                      " * " + CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatwidth", st.Metas).ToString().ToLower()) +
-            //                      " * " + CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatdepth", st.Metas).ToString().ToLower()) + 
-            //                      " in queue since: " + 
-            //                      Convert.ToDateTime(SeachForProperty("queueddate", st.Metas).ToString()).ToString("yyyy-MM-dd") + 
-            //                      " (" + st.ProcessId + ")";
-
-            //        BookingDropDownItem b = new()
-            //        {
-            //            Text = Name,
-            //            Value = SeachForProperty("queueddate", st.Metas).ToString()
-            //        };
-            //        bdd.Add(b);
-            //    }
-            //    bdd = bdd.OrderBy(x => x.Value).ToList();
-            //    foreach (var item in bdd)
-            //    {
-            //        BookingBoatData.Add(item.Text);
-            //    }
-
-            //    await Task.Delay(10);
-
-            //    BoatDropDownLoaded = true;
-
-            //    Notify("info", s);
-
-            //    // Invoke StateHasChange
-            //    await InvokeAsync(StateHasChanged);
-
-            //}, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
-
-        }
-
-        private async Task LoadMooringDropDown(int processId)
-        {
-            //// Get the Boat
-            //await ProcessManager.TryGetById(processId, "Metas", async (Process p, String s) =>
-            //{
-            //    int boatLength = Int32.Parse(SeachForProperty("length", p.Metas).ToString());
-            //    int boatWidth = Int32.Parse(SeachForProperty("width", p.Metas).ToString());
-            //    int boatDepth = Int32.Parse(SeachForProperty("depth", p.Metas).ToString());
-
-            //    selectedItem.UserId = p.UserId;
-
-            //    // Get all Moorings and check if they can hold the boat and if it's free !!!
-            //    await CauseManager.TryGet(c => c.EventId == EventId && c.Results.All(r => r.CauseId != c.Id), "Id", true, "Metas", async (IEnumerable<Cause> causes, String s) =>
-            //    {
-            //        await Task.Delay(0);
-            //        List<BookingMooringDropDownItem> bmdd = new();
-            //        foreach (var cause in causes)
-            //        {
-            //            int mooringLength = Int32.Parse(SeachForProperty("length", cause.Metas).ToString());
-            //            int mooringWidth = Int32.Parse(SeachForProperty("width", cause.Metas).ToString());
-            //            int mooringDepth = Int32.Parse(SeachForProperty("depth", cause.Metas).ToString());
-
-            //            // This should be, fit the boat to best fitted mooring, not to big, not to small
-            //            if (boatLength <= mooringLength && boatWidth <= mooringWidth && boatDepth <= mooringDepth)
-            //            {
-            //                string Name = cause.Value + " " + 
-            //                              mooringLength.ToString() + " * " +
-            //                              mooringWidth.ToString() + " * " +
-            //                              mooringDepth.ToString() +
-            //                              " (" + cause.Id.ToString() + ")";
-
-            //                BookingMooringDropDownItem bm = new()
-            //                {
-            //                    Text = Name,
-            //                    Value1 = mooringLength,
-            //                    Value2 = mooringWidth,
-            //                    Value3 = mooringDepth
-            //                };
-            //                bmdd.Add(bm);
-
-            //            }
-            //        }
-
-            //        bmdd = bmdd.OrderBy(x => x.Value2).ThenBy(x => x.Value3).ThenBy(x => x.Value1).ToList();
-
-            //        foreach (var item in bmdd)
-            //        {
-            //            BookingMooringData.Add(item.Text);
-            //        }
-
-
-
-            //        await Task.Delay(10);
-
-            //        BookingMooringData = BookingMooringData.ToList();
-
-            //        MooringDropDownLoaded = true;
-
-            //        Notify("info", s);
-
-            //        // Invoke StateHasChange
-            //        await InvokeAsync(StateHasChanged);
-
-            //    }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
-
-            //}, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
-
+            await Task.Delay(1000);
         }
 
         protected async Task RefreshFromChildControl()
         {
-            //// Load data
-            //await GetAll();
+            // Load data
+            await GetAll();
 
-            //// Invoke StateHasChange
-            //await InvokeAsync(StateHasChanged);
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
         }
 
-        public async Task Save()
+        private async Task<string> GetCustomerNameByUserId(int userId)
         {
-            //var processId = selectedItem.ProcessId;
-            //var eventId = EventId;
-            //var causeId = selectedItem.CauseId;
-            //var classId = selectedItem.ClassId;
-            //var userId = selectedItem.UserId;
-            //var value = DateTime.Now.ToString("yyyy-MM-dd");
-            //var updatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+            string ret = "";
+            await UserManager.TryGetById(userId, "Metas", async (User u, String s) =>
+            {
+                await Task.Delay(0);
+                ret = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("firstname", u.Metas).ToString().ToLower()) + " " +
+                      CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("lastname", u.Metas).ToString().ToLower());
 
-            //Result result = new()
-            //{
-            //    ProcessId = processId,
-            //    EventId = eventId,
-            //    CauseId = causeId,
-            //    ClassId = classId,
-            //    UserId = userId,
-            //    Value = value,
-            //    UpdatedDate = updatedDate
-            //};
-            //await ResultManager.TryInsert(result, async (Result r, String s) =>
-            //{
-            //    // Delete from Queue
-            //    await StateManager.TryGet(s => s.ProcessId == processId && s.EventId == eventId, "Id", true, "", async (IEnumerable<State> st, String o) =>
-            //    {
-            //        foreach (var item in st)
-            //        {
-            //            await StateManager.TryDelete(item.Id, (string s) => { Notify("success", s); }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
-            //        }
-
-            //    }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
-
-            //    await Task.Delay(100);
-
-            //    selectedItem = null;
-            //    BoatDropDownLoaded = false;
-            //    MooringDropDownLoaded = false;
-            //    BookingMooringData = new();
-            //    BookingBoatData = new();
-
-            //    // Load data
-            //    await GetAll();
-
-            //    // Get all Boats in Queue
-            //    await LoadBoatDropDown();
-
-            //    // Invoke StateHasChange
-            //    await InvokeAsync(StateHasChanged);
-
-            //}, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-
-        }
-
-        public async Task Cancel()
-        {
-            //selectedItem = null;
-
-            //// Invoke StateHasChange
-            //await InvokeAsync(StateHasChanged);
-        }
-
-        protected async Task OnSelectedItem(BookingReservation item)
-        {
-            //if (item is null)
-            //{
-            //    selectedItem = new();
-            //    selectedItem.CustomerName = "";
-            //    selectedItem.BoatName = "";
-            //}
-
-            //// Invoke StateHasChange
-            //await InvokeAsync(StateHasChanged);
-        }
-
-        public async Task BoatSelected(string boat)
-        {
-            //if (boat.Contains("(") && boat.Contains(")"))
-            //{
-            //    string Id = boat.Substring(boat.IndexOf("("));
-            //    Id = Id.Replace("(", "").Replace(")", "");
-
-            //    var processId = Int32.Parse(Id);
-            //    if (processId > 0)
-            //    {
-            //        selectedItem.ProcessId = processId;
-            //        selectedItem.BoatName = boat;
-            //        BookingMooringData = new();
-
-            //        // Get all Moorings
-            //        await LoadMooringDropDown(processId);
-            //    }
-            //}
-
-            //await Task.Delay(100);
-
-            //// Invoke StateHasChange
-            //await InvokeAsync(StateHasChanged);
-        }
-
-        public async Task MooringSelected(string mooring)
-        {
-            //if (mooring.Contains("(") && mooring.Contains(")"))
-            //{
-            //    string Id = mooring.Substring(mooring.IndexOf("("));
-            //    Id = Id.Replace("(", "").Replace(")", "");
-
-            //    var causeId = Int32.Parse(Id);
-            //    if (causeId > 0)
-            //    {
-            //        await CauseManager.TryGetById(causeId, "", async (Cause c, String s) =>
-            //        {
-            //            await Task.Delay(0);
-            //            selectedItem.ClassId = c.ClassId;
-            //            selectedItem.CauseId = causeId;
-            //            selectedItem.MooringName = mooring;
-
-            //        }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
-            //    }
-            //}
-
-            //await Task.Delay(100);
-
-            //// Invoke StateHasChange
-            //await InvokeAsync(StateHasChanged);
+            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            return ret;
         }
 
         protected async Task GetAll()
         {
-            //// Get all Reservations
-            //await ResultManager.TryGet(s => s.EventId == EventId, "Id", true, "Metas", async (IEnumerable<Result> r, String s) =>
-            //{
-            //    await Task.Delay(0);
-            //    List<BookingReservation> _list = new();
-            //    foreach (var result in r)
-            //    {
-            //        var bookingReservation = new BookingReservation()
-            //        {
-            //            Id = result.Id,
-            //            EventId = result.EventId,
-            //            ProcessId = result.ProcessId,
-            //            CauseId = result.CauseId,
-            //            ClassId = result.ClassId,
-            //            UserId = result.UserId,
-            //            CustomerName = await GetCustomerName(result.UserId),
-            //            BoatName = await GetBoatName(result.ProcessId),
-            //            MooringName = await GetMooringName(result.CauseId),
-            //            ReservedDate = Convert.ToDateTime(result.Value),
-            //            UpdatedDate = Convert.ToDateTime(result.UpdatedDate)
-            //        };
-            //        _list.Add(bookingReservation);
-            //    }
-
-            //    list = _list.OrderBy(x => x.MooringName).ToList();
-
-            //    Notify("info", s);
-
-            //}, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
-
+            await GetAllBoatInQueue();
+            await GetAllFreeMoorings();
+            BoatsAndMooringIsLoaded = true;
         }
 
-        protected async Task DeleteHandler(GridCommandEventArgs args)
+        private async Task GetAllFreeMoorings()
         {
-            //// Get the reference
-            //var Item = (BookingReservation)args.Item;
+            // Get all free moorings
+            await CauseManager.TryGet(c => c.EventId == EventId, "Value", true, "Metas", async (IEnumerable<Cause> causes, String s) =>
+            {
+                await Task.Delay(0);
+                List<BookingMooring> _list = new();
+                foreach (var u in causes)
+                {
+                    string type = "missing";
+                    await ClassManager.TryGetById(u.ClassId, "", (Class cc, String s) =>
+                    {
+                        type = cc.Value;
 
-            //// Ask the user
-            //if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this reservation?"))
-            //    return;
+                    }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
 
-            //// Delete all objects
-            //await ResultManager.TryDelete(Item.Id, (string s) => { Notify("success", s); }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
+                    var bookingMooring = new BookingMooring()
+                    {
+                        Id = u.Id,
+                        Name = u.Value,
+                        Type = type,
+                        Length = Int32.Parse(Property.Search("length", u.Metas).ToString()),
+                        Width = Int32.Parse(Property.Search("width", u.Metas).ToString()),
+                        Depth = Int32.Parse(Property.Search("depth", u.Metas).ToString()),
+                        UpdatedDate = Convert.ToDateTime(u.UpdatedDate)
+                    };
+                    _list.Add(bookingMooring);
+                }
 
-            //await Task.Delay(10);
+                mooringlist = _list.OrderBy(x => x.Type).ToList();
 
-            //// Load data
-            //await GetAll();
+                Notify("info", s);
 
-            //// Invoke StateHasChange
-            //await InvokeAsync(StateHasChanged);
+            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+        }
+
+        private async Task GetAllBoatInQueue()
+        {
+            // Get all boats in queue without mooring
+            await StateManager.TryGet(s => s.EventId == EventId, "Id", true, "Metas", async (IEnumerable<State> states, String s) =>
+            {
+                await Task.Delay(0);
+                List<BookingQueueItem> _list = new();
+                foreach (var st in states)
+                {
+                    var bookingQueueItem = new BookingQueueItem()
+                    {
+                        Id = st.Id,
+                        EventId = EventId,
+                        ProcessId = st.ProcessId,
+                        UserId = st.UserId,
+                        CustomerName = await GetCustomerNameByUserId(st.UserId),
+                        BoatName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("boatname", st.Metas).ToString().ToLower()),
+                        BoatLength = Int32.Parse(Property.Search("boatlength", st.Metas).ToString()),
+                        BoatWidth = Int32.Parse(Property.Search("boatwidth", st.Metas).ToString()),
+                        BoatDepth = Int32.Parse(Property.Search("boatdepth", st.Metas).ToString()),
+                        Comment = st.Value,
+                        QueuedDate = Convert.ToDateTime(Property.Search("queueddate", st.Metas).ToString()),
+                        UpdatedDate = Convert.ToDateTime(st.UpdatedDate)
+                    };
+                    _list.Add(bookingQueueItem);
+                }
+
+                boatlist = _list.OrderBy(x => x.QueuedDate).ToList();
+
+                Notify("info", s);
+
+            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected void Notify(string theme, string text)

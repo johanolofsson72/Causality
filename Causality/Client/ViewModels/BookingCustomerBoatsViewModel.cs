@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components;
 using Telerik.Blazor.Components;
 using Microsoft.JSInterop;
 using Microsoft.JSInterop.WebAssembly;
+using Causality.Shared.Data;
 
 namespace Causality.Client.ViewModels
 {
@@ -66,26 +67,6 @@ namespace Causality.Client.ViewModels
         protected BookingCustomer selectedCustomer = new();
         private int EventId { get; set; } = 1;
 
-        private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
-        {
-            var ret = "missing";
-            try
-            {
-                foreach (var item in list)
-                {
-                    if (item.Key.ToLower().Equals(propertyName.ToLower()))
-                    {
-                        return item.Value;
-                    }
-                }
-                return ret;
-            }
-            catch
-            {
-                return ret;
-            }
-        }
-
         protected override async Task OnInitializedAsync()
         {
             // Load current user
@@ -100,14 +81,14 @@ namespace Causality.Client.ViewModels
                     Status = u.Name,
                     EmailAddress = u.Email,
                     UpdatedDate = Convert.ToDateTime(u.UpdatedDate),
-                    FirstName = SeachForProperty("firstname", u.Metas).ToString(),
-                    LastName = SeachForProperty("lastname", u.Metas).ToString(),
-                    Address = SeachForProperty("address", u.Metas).ToString(),
-                    PostalCode = SeachForProperty("postalcode", u.Metas).ToString(),
-                    City = SeachForProperty("city", u.Metas).ToString(),
-                    Country = SeachForProperty("country", u.Metas).ToString(),
-                    PhoneNumber = SeachForProperty("phonenumber", u.Metas).ToString(),
-                    RegNumber = SeachForProperty("regnumber", u.Metas).ToString()
+                    FirstName = Property.Search("firstname", u.Metas).ToString(),
+                    LastName = Property.Search("lastname", u.Metas).ToString(),
+                    Address = Property.Search("address", u.Metas).ToString(),
+                    PostalCode = Property.Search("postalcode", u.Metas).ToString(),
+                    City = Property.Search("city", u.Metas).ToString(),
+                    Country = Property.Search("country", u.Metas).ToString(),
+                    PhoneNumber = Property.Search("phonenumber", u.Metas).ToString(),
+                    RegNumber = Property.Search("regnumber", u.Metas).ToString()
                 };
 
                 selectedCustomer = bookingCustomer;
@@ -144,9 +125,9 @@ namespace Causality.Client.ViewModels
                     {
                         Id = b.Id,
                         Type = b.Value,
-                        Length = Int32.Parse(SeachForProperty("length", b.Metas).ToString()),
-                        Width = Int32.Parse(SeachForProperty("width", b.Metas).ToString()),
-                        Depth = Int32.Parse(SeachForProperty("depth", b.Metas).ToString())
+                        Length = Int32.Parse(Property.Search("length", b.Metas).ToString()),
+                        Width = Int32.Parse(Property.Search("width", b.Metas).ToString()),
+                        Depth = Int32.Parse(Property.Search("depth", b.Metas).ToString())
                     };
                     _list.Add(bookingBoat);
                 }

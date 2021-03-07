@@ -64,26 +64,6 @@ namespace Causality.Client.ViewModels
         protected BookingMooringType BookingMooringType = new();
         private int EventId { get; set; } = 1;
 
-        private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
-        {
-            var ret = "missing";
-            try
-            {
-                foreach (var item in list)
-                {
-                    if (item.Key.ToLower().Equals(propertyName.ToLower()))
-                    {
-                        return item.Value;
-                    }
-                }
-                return ret;
-            }
-            catch
-            {
-                return ret;
-            }
-        }
-
         protected override async Task OnInitializedAsync()
         {
             await Task.Delay(0);

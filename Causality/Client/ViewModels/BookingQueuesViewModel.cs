@@ -11,6 +11,7 @@ using Telerik.Blazor.Components;
 using Microsoft.JSInterop;
 using Microsoft.JSInterop.WebAssembly;
 using System.Globalization;
+using Causality.Shared.Data;
 
 namespace Causality.Client.ViewModels
 {
@@ -74,26 +75,6 @@ namespace Causality.Client.ViewModels
 
         public int EventId { get; set; } = 1;
 
-        private static object SeachForProperty(string propertyName, IEnumerable<Meta> list)
-        {
-            var ret = "missing";
-            try
-            {
-                foreach (var item in list)
-                {
-                    if (item.Key.ToLower().Equals(propertyName.ToLower()))
-                    {
-                        return item.Value;
-                    }
-                }
-                return ret;
-            }
-            catch
-            {
-                return ret;
-            }
-        }
-
         protected override async Task OnInitializedAsync()
         {
             list = new();
@@ -120,9 +101,9 @@ namespace Causality.Client.ViewModels
             {
                 foreach (var u in users)
                 {
-                    string Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("firstname", u.Metas).ToString().ToLower()) +
+                    string Name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("firstname", u.Metas).ToString().ToLower()) +
                                     " " +
-                                    CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("lastname", u.Metas).ToString().ToLower()) +
+                                    CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("lastname", u.Metas).ToString().ToLower()) +
                                     " (" + u.Id + ")";
 
                     BookingCustomerData.Add(Name);
@@ -312,9 +293,9 @@ namespace Causality.Client.ViewModels
                         {
 
                             string boat = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(b.Value.ToLower()) + " " +
-                                SeachForProperty("length", b.Metas).ToString() + " * " +
-                                SeachForProperty("width", b.Metas).ToString() + " * " +
-                                SeachForProperty("depth", b.Metas).ToString() + " (" + b.Id.ToString() + ")";
+                                Property.Search("length", b.Metas).ToString() + " * " +
+                                Property.Search("width", b.Metas).ToString() + " * " +
+                                Property.Search("depth", b.Metas).ToString() + " (" + b.Id.ToString() + ")";
 
                             BookingBoatData.Add(boat);
 
@@ -362,9 +343,9 @@ namespace Causality.Client.ViewModels
 
                         selectedItem.BoatName = p.Value;
                         selectedItem.ProcessId = p.Id;
-                        selectedItem.BoatLength = Int32.Parse(SeachForProperty("length", p.Metas).ToString());
-                        selectedItem.BoatWidth = Int32.Parse(SeachForProperty("width", p.Metas).ToString());
-                        selectedItem.BoatDepth = Int32.Parse(SeachForProperty("depth", p.Metas).ToString());
+                        selectedItem.BoatLength = Int32.Parse(Property.Search("length", p.Metas).ToString());
+                        selectedItem.BoatWidth = Int32.Parse(Property.Search("width", p.Metas).ToString());
+                        selectedItem.BoatDepth = Int32.Parse(Property.Search("depth", p.Metas).ToString());
 
                         Notify("info", "båten uppdaterad");
 
@@ -394,12 +375,12 @@ namespace Causality.Client.ViewModels
                         ProcessId = st.ProcessId,
                         UserId = st.UserId,
                         CustomerName = await GetCustomerNameByUserId(st.UserId),
-                        BoatName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("boatname", st.Metas).ToString().ToLower()),
-                        BoatLength = Int32.Parse(SeachForProperty("boatlength", st.Metas).ToString()),
-                        BoatWidth = Int32.Parse(SeachForProperty("boatwidth", st.Metas).ToString()),
-                        BoatDepth = Int32.Parse(SeachForProperty("boatdepth", st.Metas).ToString()),
+                        BoatName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("boatname", st.Metas).ToString().ToLower()),
+                        BoatLength = Int32.Parse(Property.Search("boatlength", st.Metas).ToString()),
+                        BoatWidth = Int32.Parse(Property.Search("boatwidth", st.Metas).ToString()),
+                        BoatDepth = Int32.Parse(Property.Search("boatdepth", st.Metas).ToString()),
                         Comment = st.Value,
-                        QueuedDate = Convert.ToDateTime(SeachForProperty("queueddate", st.Metas).ToString()),
+                        QueuedDate = Convert.ToDateTime(Property.Search("queueddate", st.Metas).ToString()),
                         UpdatedDate = Convert.ToDateTime(st.UpdatedDate)
                     };
                     _list.Add(bookingQueueItem);
@@ -420,8 +401,8 @@ namespace Causality.Client.ViewModels
             await UserManager.TryGetById(userId, "Metas", async (User u, String s) =>
             {
                 await Task.Delay(0);
-                ret = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("firstname", u.Metas).ToString().ToLower()) + " " +
-                      CultureInfo.CurrentCulture.TextInfo.ToTitleCase(SeachForProperty("lastname", u.Metas).ToString().ToLower());
+                ret = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("firstname", u.Metas).ToString().ToLower()) + " " +
+                      CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Property.Search("lastname", u.Metas).ToString().ToLower());
 
             }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
             return ret;
