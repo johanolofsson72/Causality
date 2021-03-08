@@ -99,7 +99,7 @@
         //}
         //else if (table.ToLower().Equals("meta"))
         //{
-        await metaService.TryGet(m => m.Id > 0, orderby, ascending, (IEnumerable<Meta> m, String s) => { metaList = m.ToList<Meta>(); status = s; StateHasChanged(); }, (Exception e, String r) => { status = r + " " + e.Message.ToString(); }, StateProvider);
+        await metaService.TryGet(m => m.Id > 0, orderby, ascending, async (IEnumerable<Meta> m, String s) => { metaList = m.ToList<Meta>(); status = s; StateHasChanged(); }, async (Exception e, String r) => { status = r + " " + e.Message.ToString(); }, StateProvider);
         //}
         //else if (table.ToLower().Equals("user"))
         //{

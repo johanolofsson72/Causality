@@ -13,20 +13,28 @@
             </NavLink>
         </li>
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="democausality">
-                <span class="oi oi-bolt" aria-hidden="true"></span> Causality
+            <NavLink class="nav-link" @onclick="()=>expandSubNavHome = !expandSubNavHome">
+                <span class="oi oi-beaker" aria-hidden="true"></span> Demo & Test
             </NavLink>
         </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="demoappuser">
-                <span class="oi oi-dashboard" aria-hidden="true"></span> App User
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="formstate">
-                <span class="oi oi-account-login" aria-hidden="true"></span> Form with state
-            </NavLink>
-        </li>
+        @if (expandSubNavHome)
+        {
+            <li class="nav-item px-3" style="margin-left: 10px;">
+                <NavLink class="nav-link" href="democausality">
+                    <span class="oi oi-bolt" aria-hidden="true"></span> Causality
+                </NavLink>
+            </li>
+            <li class="nav-item px-3" style="margin-left: 10px;">
+                <NavLink class="nav-link" href="demoappuser">
+                    <span class="oi oi-dashboard" aria-hidden="true"></span> App User
+                </NavLink>
+            </li>
+            <li class="nav-item px-3" style="margin-left: 10px;">
+                <NavLink class="nav-link" href="formstate">
+                    <span class="oi oi-account-login" aria-hidden="true"></span> Form with state
+                </NavLink>
+            </li>
+        }
         <li class="nav-item px-3">
             <NavLink class="nav-link" @onclick="()=>expandSubNav = !expandSubNav">
                 <span class="oi oi-calendar" aria-hidden="true"></span> Booking
@@ -75,6 +83,7 @@
 
 @code {
     private bool expandSubNav;
+    private bool expandSubNavHome;
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;

@@ -24,6 +24,6 @@
     protected async override Task OnInitializedAsync()
     {
         //await eventService.TryGet(e => e.Id > 0, "Id", true, "Cause,Class,Effect,Exclude", (IEnumerable<Event> e, string s) => { }, (Exception e, string s) => { }, state);
-        await dataService.TryGet(u => u.Id > 0, "Name", true, "", (IEnumerable<User>u, string s) => { users = u.ToList<User>(); }, (Exception e, string s) => { }, state);
+        await dataService.TryGet(u => u.Id > 0, "Name", true, "", async (IEnumerable<User>u, string s) => { users = u.ToList<User>(); }, async (Exception e, string s) => { }, state);
     }
 }

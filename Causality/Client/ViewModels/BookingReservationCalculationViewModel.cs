@@ -166,25 +166,25 @@ namespace Causality.Client.ViewModels
             {
                 ret = c.Value;
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
             return ret;
         }
 
         private async Task<string> GetBoatName(int stateId)
         {
             string ret = "";
-            await ProcessManager.TryGet(p => p.EventId == EventId && p.States.All(r => r.Id == stateId), "Id",true, "", (IEnumerable<Process> processes, String s) =>
+            await ProcessManager.TryGet(p => p.EventId == EventId && p.States.All(r => r.Id == stateId), "Id",true, "", async (IEnumerable<Process> processes, String s) =>
             {
                 ret = processes.FirstOrDefault().Value;
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
             return ret;
         }
 
         private async Task<string> GetCustomerName(int stateId)
         {
             string ret = "";
-            await UserManager.TryGet(p => p.States.Any(r => r.Id == stateId), "Id", true, "Metas", (IEnumerable<User> users, String s) =>
+            await UserManager.TryGet(p => p.States.Any(r => r.Id == stateId), "Id", true, "Metas", async (IEnumerable<User> users, String s) =>
             {
                 if (users.Any())
                 {
@@ -193,7 +193,7 @@ namespace Causality.Client.ViewModels
                           "lastname".GetPropertyValueAsString(users.FirstOrDefault().Metas).ToTitleCase();
                 }
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
             return ret;
         }
 
@@ -209,12 +209,12 @@ namespace Causality.Client.ViewModels
         private async Task<string> GetCustomerNameByUserId(int userId)
         {
             string ret = "";
-            await UserManager.TryGetById(userId, "Metas", (User u, String s) =>
+            await UserManager.TryGetById(userId, "Metas", async (User u, String s) =>
             {
                 ret = "firstname".GetPropertyValueAsString(u.Metas).ToTitleCase() + " " +
                       "lastname".GetPropertyValueAsString(u.Metas).ToTitleCase();
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
             return ret;
         }
 
@@ -222,6 +222,7 @@ namespace Causality.Client.ViewModels
         {
             await GetAllBoatInQueue();
             await GetAllFreeMoorings();
+            await CalculateBoats();
         }
 
         private async Task GetAllFreeMoorings()
@@ -233,11 +234,11 @@ namespace Causality.Client.ViewModels
                 foreach (var u in causes)
                 {
                     string type = "missing";
-                    await ClassManager.TryGetById(u.ClassId, "", (Class cc, String s) =>
+                    await ClassManager.TryGetById(u.ClassId, "", async (Class cc, String s) =>
                     {
                         type = cc.Value;
 
-                    }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+                    }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
 
                     var bookingMooring = new BookingMooring()
                     {
@@ -256,7 +257,7 @@ namespace Causality.Client.ViewModels
 
                 Notify("info", s);
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
         }
 
         private async Task GetAllBoatInQueue()
@@ -289,7 +290,7 @@ namespace Causality.Client.ViewModels
 
                 Notify("info", s);
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected void Notify(string theme, string text)
@@ -304,7 +305,6 @@ namespace Causality.Client.ViewModels
 
         public async void NotifyFromChild(Dictionary<string, string> parameters)
         {
-            await Task.Delay(0);
             await NotifyParent.InvokeAsync(parameters);
         }
     }

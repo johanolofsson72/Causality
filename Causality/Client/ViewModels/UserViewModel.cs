@@ -75,13 +75,13 @@ namespace Causality.Client.ViewModels
 
         protected async Task Delete(Int32 Id)
         {
-            await UserManager.TryDelete(Id, (String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await UserManager.TryDelete(Id, async (String s) => { GetAll(); Notify("success", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
         protected async Task Update()
         {
-            await UserManager.TryUpdate(selectedItem, (User m, String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await UserManager.TryUpdate(selectedItem, async (User m, String s) => { GetAll(); Notify("success", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
@@ -95,20 +95,20 @@ namespace Causality.Client.ViewModels
                 Email = "Epost",
                 UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
             };
-            await UserManager.TryInsert(item, (User m, String s) => { list.Add(m); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await UserManager.TryInsert(item, async (User m, String s) => { list.Add(m); Notify("success", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
         protected async Task Edit(Int32 Id)
         {
-            await UserManager.TryGetById(Id, "", (User m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await UserManager.TryGetById(Id, "", async (User m, String s) => { selectedItem = m; Notify("info", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
         }
 
         protected async Task Search(ChangeEventArgs args)
         {
             if (args.Value?.ToString().Length > 0)
             {
-                await UserManager.TryGet(u => u.Name.ToLower().Contains(args.Value.ToString()), "Id", true, "", (IEnumerable<User> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+                await UserManager.TryGet(u => u.Name.ToLower().Contains(args.Value.ToString()), "Id", true, "", async (IEnumerable<User> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, async (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             }
             else
             {
@@ -118,7 +118,7 @@ namespace Causality.Client.ViewModels
 
         protected async void GetAll()
         {
-            await UserManager.TryGet(u => u.Id > 0, "Id", true, "", (IEnumerable<User> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            await UserManager.TryGet(u => u.Id > 0, "Id", true, "", async (IEnumerable<User> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected async Task Cancel()

@@ -77,13 +77,13 @@ namespace Causality.Client.ViewModels
 
         protected async Task Delete(Int32 Id)
         {
-            await dataService.TryDelete(Id, (String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await dataService.TryDelete(Id, async (String s) => { GetAll(); Notify("success", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
         protected async Task Update()
         {
-            await dataService.TryUpdate(selectedItem, (Exclude m, String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await dataService.TryUpdate(selectedItem, async (Exclude m, String s) => { GetAll(); Notify("success", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
@@ -92,14 +92,14 @@ namespace Causality.Client.ViewModels
             if (selectedCauseId > 0)
             {
                 selectedCause = causes.FirstOrDefault<Cause>(x => x.Id == selectedCauseId);
-                await userService.TryGetById(UserId, "", (User m, String s) => { selectedUser = m; Notify("info", s); }, (Exception e, String s) => { selectedUser = null; Notify("error", e + " " + s); }, StateProvider);
+                await userService.TryGetById(UserId, "", async (User m, String s) => { selectedUser = m; Notify("info", s); }, async (Exception e, String s) => { selectedUser = null; Notify("error", e + " " + s); }, StateProvider);
                 var item = new Exclude();
                 item.EventId = EventId;
                 item.CauseId = selectedCause.Id;
                 item.UserId = UserId;
                 item.Value = selectedUser.Name + " is excluded from \"" + selectedCause.Value + "\"";
                 item.UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-                await dataService.TryInsert(item, (Exclude m, String s) => { list.Add(m); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+                await dataService.TryInsert(item, async (Exclude m, String s) => { list.Add(m); Notify("success", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             }
             else
             {
@@ -110,7 +110,7 @@ namespace Causality.Client.ViewModels
 
         protected async Task Edit(Int32 Id)
         {
-            await dataService.TryGetById(Id, "", (Exclude m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await dataService.TryGetById(Id, "", async (Exclude m, String s) => { selectedItem = m; Notify("info", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
         }
 
         protected async Task CauseSelected(int? Id)
@@ -126,7 +126,7 @@ namespace Causality.Client.ViewModels
         {
             if (args.Value?.ToString().Length > 0)
             {
-                await dataService.TryGet(e => e.Value.ToLower().Contains(args.Value.ToString()), "Id", true, "", (IEnumerable<Exclude> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+                await dataService.TryGet(e => e.Value.ToLower().Contains(args.Value.ToString()), "Id", true, "", async (IEnumerable<Exclude> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, async (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             }
             else
             {
@@ -136,8 +136,8 @@ namespace Causality.Client.ViewModels
 
         protected async void GetAll()
         {
-            await dataService.TryGet(e => e.EventId == EventId && e.UserId == UserId, "Id", true, "", (IEnumerable<Exclude> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
-            await causeService.TryGet(c => c.EventId == EventId, "Id", true, "", (IEnumerable<Cause> m, String s) => { causes = m.ToList(); selectedCause = null; Notify("info", s); }, (Exception e, String s) => { selectedCause = null; Notify("error", e + " " + s); }, StateProvider);
+            await dataService.TryGet(e => e.EventId == EventId && e.UserId == UserId, "Id", true, "", async (IEnumerable<Exclude> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            await causeService.TryGet(c => c.EventId == EventId, "Id", true, "", async (IEnumerable<Cause> m, String s) => { causes = m.ToList(); selectedCause = null; Notify("info", s); }, async (Exception e, String s) => { selectedCause = null; Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected async Task Cancel()

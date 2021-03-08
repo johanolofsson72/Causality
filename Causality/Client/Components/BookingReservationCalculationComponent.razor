@@ -15,17 +15,38 @@
                  Sortable="true">
         <GridToolBar>
             <div style="display: flex; justify-content: center; width: 100%;">
-                <TelerikButton OnClick="@CalculateBoats" Enabled="@mooringlist.Any()">Calculate by clicking here</TelerikButton>
+                <strong style="display: flex; justify-content: center; width: 100%;">This is the best placement for the boats</strong>
             </div>
         </GridToolBar>
         <GridColumns>
 
-            <GridColumn Field=@nameof(BookingReservation.MooringName) Title="Best Mooring">
-            </GridColumn>
-            <GridColumn Field=@nameof(BookingReservation.BoatName) Title="For Boat">
-            </GridColumn>
-            <GridColumn Field=@nameof(BookingReservation.CustomerName) Title="Customer">
-            </GridColumn>
+            @if (IsMedium)
+            {
+                <GridColumn Field=@nameof(BookingReservation.MooringName) Title="Best Mooring">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingReservation.BoatName) Title="For Boat">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingReservation.CustomerName) Title="Customer">
+                </GridColumn>
+            }
+            else if (IsSmall)
+            {
+                <GridColumn Field=@nameof(BookingReservation.MooringName) Title="Best Mooring">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingReservation.BoatName) Title="For Boat">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingReservation.CustomerName) Title="Customer" Width="0.01%">
+                </GridColumn>
+            }
+            else
+            {
+                <GridColumn Field=@nameof(BookingReservation.MooringName) Title="Best Mooring">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingReservation.BoatName) Title="For Boat">
+                </GridColumn>
+                <GridColumn Field=@nameof(BookingReservation.CustomerName) Title="Customer">
+                </GridColumn>
+            }
 
         </GridColumns>
     </TelerikGrid>
@@ -56,7 +77,7 @@
             }
             else if (IsSmall)
             {
-                <GridColumn Field=@nameof(BookingQueueItem.CustomerName) Title="Customer" Editable="false"></GridColumn>
+                <GridColumn Field=@nameof(BookingQueueItem.CustomerName) Title="Customer" Editable="false" Width="0.01%"></GridColumn>
                 <GridColumn Field=@nameof(BookingQueueItem.BoatName) Title="Boat" Editable="false"></GridColumn>
                 <GridColumn Field=@nameof(BookingQueueItem.BoatLength) Title="Boat Length" Editable="false" Width="0.01%"></GridColumn>
                 <GridColumn Field=@nameof(BookingQueueItem.BoatWidth) Title="Boat Width" Editable="false" Width="0.01%"></GridColumn>
@@ -109,7 +130,7 @@
             else if (IsSmall)
             {
                 <GridColumn Field=@nameof(BookingMooring.Name) />
-                <GridColumn Field=@nameof(BookingMooring.Type) />
+                <GridColumn Field=@nameof(BookingMooring.Type)  Width="0.01%"/>
                 <GridColumn Field=@nameof(BookingMooring.Length) Title="Max Length" Width="0.01%" />
                 <GridColumn Field=@nameof(BookingMooring.Width) Title="Max Width" Width="0.01%" />
                 <GridColumn Field=@nameof(BookingMooring.Depth) Title="Max Depth" Width="0.01%" />

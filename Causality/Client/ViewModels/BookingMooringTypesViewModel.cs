@@ -108,7 +108,7 @@ namespace Causality.Client.ViewModels
                 BookingMooringType = null;
                 Notify("info", s);
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected async Task DeleteHandler(GridCommandEventArgs args)
@@ -119,7 +119,7 @@ namespace Causality.Client.ViewModels
             if (!await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete {BookingMooringType.Name}?"))
                 return;
 
-            await ClassManager.TryDelete(BookingMooringType.Id, (String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            await ClassManager.TryDelete(BookingMooringType.Id, async (String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
 
             // Load data
             await GetAll();
@@ -141,7 +141,7 @@ namespace Causality.Client.ViewModels
                 Value = BookingMooringType.Name,
                 UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
             };
-            await ClassManager.TryInsert(c, (Class r, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            await ClassManager.TryInsert(c, async (Class r, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
 
             // Load data
             await GetAll();
@@ -179,9 +179,9 @@ namespace Causality.Client.ViewModels
                     // Invoke StateHasChange
                     await InvokeAsync(StateHasChanged);
 
-                }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
-            }, (Exception e, String r) => { BookingMooringType = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            }, async (Exception e, String r) => { BookingMooringType = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
 
         }
 

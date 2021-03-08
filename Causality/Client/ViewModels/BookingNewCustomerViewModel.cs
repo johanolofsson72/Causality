@@ -100,9 +100,9 @@ namespace Causality.Client.ViewModels
                     // Invoke StateHasChange
                     await InvokeAsync(StateHasChanged);
 
-                }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+                }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
 
-            }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
 
         }
 
@@ -138,7 +138,7 @@ namespace Causality.Client.ViewModels
                 selectedItem = null;
                 Notify("info", s);
 
-            }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected async Task DeleteHandler(GridCommandEventArgs args)
@@ -161,7 +161,7 @@ namespace Causality.Client.ViewModels
                 // Invoke StateHasChange
                 await InvokeAsync(StateHasChanged);
 
-            }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
 
         }
 
@@ -213,7 +213,7 @@ namespace Causality.Client.ViewModels
                     Value = Firstname,
                     UpdatedDate = UpdatedDate
                 };
-                await MetaManager.TryInsert(FirstnameParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(FirstnameParameter, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var LastnameParameter = new Meta
                 {
@@ -230,7 +230,7 @@ namespace Causality.Client.ViewModels
                     Value = Lastname,
                     UpdatedDate = UpdatedDate
                 };
-                await MetaManager.TryInsert(LastnameParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(LastnameParameter, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var AddressParameter = new Meta
                 {
@@ -247,7 +247,7 @@ namespace Causality.Client.ViewModels
                     Value = Address,
                     UpdatedDate = UpdatedDate
                 };
-                await MetaManager.TryInsert(AddressParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(AddressParameter, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var PostalcodeParameter = new Meta
                 {
@@ -264,7 +264,7 @@ namespace Causality.Client.ViewModels
                     Value = Postalcode,
                     UpdatedDate = UpdatedDate
                 };
-                await MetaManager.TryInsert(PostalcodeParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(PostalcodeParameter, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var CityParameter = new Meta
                 {
@@ -281,7 +281,7 @@ namespace Causality.Client.ViewModels
                     Value = City,
                     UpdatedDate = UpdatedDate
                 };
-                await MetaManager.TryInsert(CityParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(CityParameter, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var CountryParameter = new Meta
                 {
@@ -298,7 +298,7 @@ namespace Causality.Client.ViewModels
                     Value = Country,
                     UpdatedDate = UpdatedDate
                 };
-                await MetaManager.TryInsert(CountryParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(CountryParameter, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var RegnumberParameter = new Meta
                 {
@@ -315,7 +315,7 @@ namespace Causality.Client.ViewModels
                     Value = Regnumber,
                     UpdatedDate = UpdatedDate
                 };
-                await MetaManager.TryInsert(RegnumberParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(RegnumberParameter, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var PhoneParameter = new Meta
                 {
@@ -332,7 +332,7 @@ namespace Causality.Client.ViewModels
                     Value = Phone,
                     UpdatedDate = UpdatedDate
                 };
-                await MetaManager.TryInsert(PhoneParameter, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(PhoneParameter, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 // Load data
                 await GetAll();
@@ -343,7 +343,7 @@ namespace Causality.Client.ViewModels
                 // Invoke StateHasChange
                 await InvokeAsync(StateHasChanged);
 
-            }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
 
         }
 
@@ -419,7 +419,7 @@ namespace Causality.Client.ViewModels
 
                     if (update)
                     {
-                        await MetaManager.TryUpdate(item, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                        await MetaManager.TryUpdate(item, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
                     }
                 }
 
@@ -434,9 +434,9 @@ namespace Causality.Client.ViewModels
                     // Invoke StateHasChange
                     await InvokeAsync(StateHasChanged);
 
-                }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
-            }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
         }
 

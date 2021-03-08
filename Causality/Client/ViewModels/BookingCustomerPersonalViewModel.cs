@@ -111,7 +111,7 @@ namespace Causality.Client.ViewModels
 
                 Notify("info", s);
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected async Task DeleteHandler(BookingCustomer bookingCustomer)
@@ -130,7 +130,7 @@ namespace Causality.Client.ViewModels
                 // Goto Customers
                 NavigationManager.NavigateTo("bookingcustomers");
 
-            }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
+            }, async (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
 
         }
 
@@ -193,7 +193,7 @@ namespace Causality.Client.ViewModels
 
                     if (update)
                     {
-                        await MetaManager.TryUpdate(item, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                        await MetaManager.TryUpdate(item, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
                     }
                 }
 
@@ -208,9 +208,9 @@ namespace Causality.Client.ViewModels
                     // Invoke StateHasChange
                     await InvokeAsync(StateHasChanged);
 
-                }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
-            }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
         }
 

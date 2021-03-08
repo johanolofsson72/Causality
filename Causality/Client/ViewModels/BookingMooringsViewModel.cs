@@ -92,116 +92,6 @@ namespace Causality.Client.ViewModels
             if (!await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this moorings and mooring types?"))
                 return;
 
-
-            await Task.Run(() => {
-
-            });
-            await Task.Run(async () => await DeleteCausesAndClasses());
-
-            await Task.Delay(1000);
-
-            // Create a new Mooring type and Summer - Mooring - Water
-            Class c = new()
-            {
-                EventId = EventId,
-                Order = 1,
-                Value = "Summer - Mooring - Water",
-                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
-            };
-            await ClassManager.TryInsert(c, async (Class q, String s) =>
-            {
-                ClassId = q.Id;
-
-                await CreateMooring(q.Id, "125", "11000", "3500", "2000");
-                await CreateMooring(q.Id, "126", "11000", "3200", "2000");
-                await CreateMooring(q.Id, "127", "11000", "3080", "2000");
-                await CreateMooring(q.Id, "128", "11000", "2960", "2000");
-                await CreateMooring(q.Id, "129", "11000", "3030", "2000");
-
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-
-            // Create a new Mooring type and Summer - Mooring - Land - Yard
-            c = new()
-            {
-                EventId = EventId,
-                Order = 2,
-                Value = "Summer - Mooring - Land - Yard",
-                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
-            };
-            await ClassManager.TryInsert(c, (Class q, String s) =>
-            {
-                Notify("info", "1 Mooring Type Created");
-
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-
-            // Create a new Mooring type and Summer - Mooring - Land - Cabin
-            c = new()
-            {
-                EventId = EventId,
-                Order = 3,
-                Value = "Summer - Mooring - Land - Cabin",
-                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
-            };
-            await ClassManager.TryInsert(c, (Class q, String s) =>
-            {
-                Notify("info", "1 Mooring Type Created");
-
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-
-            // Create a new Mooring type and Winter - Mooring - Water - Yboom
-            c = new()
-            {
-                EventId = EventId,
-                Order = 4,
-                Value = "Winter - Mooring - Water - Yboom",
-                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
-            };
-            await ClassManager.TryInsert(c, (Class q, String s) =>
-            {
-                Notify("info", "1 Mooring Type Created");
-
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-
-            // Create a new Mooring type and Winter - Mooring - Land - Yard
-            c = new()
-            {
-                EventId = EventId,
-                Order = 5,
-                Value = "Winter - Mooring - Land - Yard",
-                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
-            };
-            await ClassManager.TryInsert(c, (Class q, String s) =>
-            {
-                Notify("info", "1 Mooring Type Created");
-
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-
-            // Create a new Mooring type and Winter - Mooring - Land - Cabin
-            c = new()
-            {
-                EventId = EventId,
-                Order = 6,
-                Value = "Winter - Mooring - Land - Cabin",
-                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
-            };
-            await ClassManager.TryInsert(c, (Class q, String s) =>
-            {
-                Notify("info", "1 Mooring Type Created");
-
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-
-
-            await Task.Delay(1000);
-
-            // Load data
-            await GetAll();
-
-            // Invoke StateHasChange
-            await InvokeAsync(StateHasChanged);
-        }
-
-        private async Task DeleteCausesAndClasses()
-        {
             // Delete all Causes with Metas
             await CauseManager.TryGet(c => c.EventId == EventId, "Id", true, "", async (IEnumerable<Cause> ca, String s) =>
             {
@@ -222,9 +112,108 @@ namespace Causality.Client.ViewModels
 
                 }, null, StateProvider);
 
-                Notify("info","All Causes and Classes is deleted!");
+                Notify("info", "All Causes and Classes is deleted!");
 
             }, null, StateProvider);
+
+            // Create a new Mooring type and Summer - Mooring - Water
+            Class c = new()
+            {
+                EventId = EventId,
+                Order = 1,
+                Value = "Summer - Mooring - Water",
+                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
+            };
+            await ClassManager.TryInsert(c, async (Class q, String s) =>
+            {
+                ClassId = q.Id;
+
+                await CreateMooring(q.Id, "125", "11000", "3500", "2000");
+                await CreateMooring(q.Id, "126", "11000", "3200", "2000");
+                await CreateMooring(q.Id, "127", "11000", "3080", "2000");
+                await CreateMooring(q.Id, "128", "11000", "2960", "2000");
+                await CreateMooring(q.Id, "129", "11000", "3030", "2000");
+
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+
+            // Create a new Mooring type and Summer - Mooring - Land - Yard
+            c = new()
+            {
+                EventId = EventId,
+                Order = 2,
+                Value = "Summer - Mooring - Land - Yard",
+                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
+            };
+            await ClassManager.TryInsert(c, async (Class q, String s) =>
+            {
+                Notify("info", "1 Mooring Type Created");
+
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+
+            // Create a new Mooring type and Summer - Mooring - Land - Cabin
+            c = new()
+            {
+                EventId = EventId,
+                Order = 3,
+                Value = "Summer - Mooring - Land - Cabin",
+                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
+            };
+            await ClassManager.TryInsert(c, async (Class q, String s) =>
+            {
+                Notify("info", "1 Mooring Type Created");
+
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+
+            // Create a new Mooring type and Winter - Mooring - Water - Yboom
+            c = new()
+            {
+                EventId = EventId,
+                Order = 4,
+                Value = "Winter - Mooring - Water - Yboom",
+                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
+            };
+            await ClassManager.TryInsert(c, async (Class q, String s) =>
+            {
+                Notify("info", "1 Mooring Type Created");
+
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+
+            // Create a new Mooring type and Winter - Mooring - Land - Yard
+            c = new()
+            {
+                EventId = EventId,
+                Order = 5,
+                Value = "Winter - Mooring - Land - Yard",
+                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
+            };
+            await ClassManager.TryInsert(c, async (Class q, String s) =>
+            {
+                Notify("info", "1 Mooring Type Created");
+
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+
+            // Create a new Mooring type and Winter - Mooring - Land - Cabin
+            c = new()
+            {
+                EventId = EventId,
+                Order = 6,
+                Value = "Winter - Mooring - Land - Cabin",
+                UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
+            };
+            await ClassManager.TryInsert(c, async (Class q, String s) =>
+            {
+                Notify("info", "1 Mooring Type Created");
+
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+
+
+            await Task.Delay(1000);
+
+            // Load data
+            await GetAll();
+
+            // Invoke StateHasChange
+            await InvokeAsync(StateHasChanged);
         }
 
         private async Task CreateMooring(int MooringType, string number, string length, string width, string depth)
@@ -260,7 +249,7 @@ namespace Causality.Client.ViewModels
                     Value = length,
                     UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
                 };
-                await MetaManager.TryInsert(LengthParameter, async (Meta m, String s) => { await Task.Delay(0); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(LengthParameter, async (Meta m, String s) => { await Task.Delay(0); Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var WidthParameter = new Meta
                 {
@@ -277,7 +266,7 @@ namespace Causality.Client.ViewModels
                     Value = width,
                     UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
                 };
-                await MetaManager.TryInsert(WidthParameter, async (Meta m, String s) => { await Task.Delay(0); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(WidthParameter, async (Meta m, String s) => { await Task.Delay(0); Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
                 var DepthParameter = new Meta
                 {
@@ -294,54 +283,18 @@ namespace Causality.Client.ViewModels
                     Value = depth,
                     UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")
                 };
-                await MetaManager.TryInsert(DepthParameter, async (Meta m, String s) => { await Task.Delay(0); Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                await MetaManager.TryInsert(DepthParameter, async (Meta m, String s) => { await Task.Delay(0); Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-        }
-
-        private async Task DeleteOldMooringData()
-        {
-            List<Int32> _causes = new();
-            List<Int32> _classes = new();
-
-            // Delete all Causes with Metas
-            await CauseManager.TryGet(c => c.EventId == EventId, "Id", true, "", (IEnumerable<Cause> ca, String s) =>
-            {
-                foreach (var cause in ca)
-                {
-                    _causes.Add(cause.Id);
-                }
-
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-
-            // Delete all Classes
-            await ClassManager.TryGet(c => c.EventId == EventId, "Id", true, "", (IEnumerable<Class> cl, String s) =>
-            {
-                foreach (var item in cl)
-                {
-                    _classes.Add(item.Id);
-                }
-
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-
-            foreach (var item in _causes)
-            {
-                await CauseManager.TryDelete(item, (String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-            }
-
-            foreach (var item in _classes)
-            {
-                await ClassManager.TryDelete(item, (String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
-            }
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected async Task GetAll()
         {
-            await CauseManager.TryGet(c => c.EventId == EventId, "Value", true, "Metas", GetAllSuccess, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            await CauseManager.TryGet(c => c.EventId == EventId, "Value", true, "Metas", GetAllSuccess, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
         }
 
-        private async void GetAllSuccess(IEnumerable<Cause> causes, String s)
+        private async Task GetAllSuccess(IEnumerable<Cause> causes, String s)
         {
             Notify("info", s);
 
@@ -376,11 +329,11 @@ namespace Causality.Client.ViewModels
         private async Task<string> GetMooringTypeById(int classId)
         {
             string ret = "missing";
-            await ClassManager.TryGetById(classId, "", (Class cc, String s) =>
+            await ClassManager.TryGetById(classId, "", async (Class cc, String s) =>
             {
                 ret = cc.Value;
 
-            }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
             return ret;
         }
 
@@ -425,7 +378,7 @@ namespace Causality.Client.ViewModels
 
                     if (update)
                     {
-                        await MetaManager.TryUpdate(item, (Meta m, String s) => { Notify("success", s); }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                        await MetaManager.TryUpdate(item, async (Meta m, String s) => { Notify("success", s); }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
                     }
                 }
 
@@ -440,9 +393,9 @@ namespace Causality.Client.ViewModels
                     // Invoke StateHasChange
                     await InvokeAsync(StateHasChanged);
 
-                }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+                }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
-            }, (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e.ToString() + " " + s); }, StateProvider);
 
         }
 

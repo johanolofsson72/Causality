@@ -33,7 +33,7 @@ namespace Causality.Client.Services
             _onlineState = onlineState;
         }
 
-        public async Task TryDelete(int id, Action<string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryDelete(int id, Func<string, Task> onSuccess, Func<Exception, string, Task> onFail, CascadingAppStateProvider state)
         {
             try
             {
@@ -53,16 +53,16 @@ namespace Causality.Client.Services
                     await _indexedDBManager.ClearStore("Blobs");
                 }
 
-                if(onSuccess is not null) onSuccess(RequestCodes.TWO_ZERO_ZERO);
+                if(onSuccess is not null) await onSuccess(RequestCodes.TWO_ZERO_ZERO);
 
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                if(onFail is not null) if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                if(onFail is not null) if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 
@@ -77,7 +77,7 @@ namespace Causality.Client.Services
         /// <param name="onFail"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public async Task TryGet(Expression<Func<Effect, bool>> filter, string orderby, bool ascending, string includeProperties, Action<IEnumerable<Effect>, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryGet(Expression<Func<Effect, bool>> filter, string orderby, bool ascending, string includeProperties, Func<IEnumerable<Effect>, string, Task> onSuccess, Func<Exception, string, Task> onFail, CascadingAppStateProvider state)
         {
             try
             {
@@ -131,16 +131,16 @@ namespace Causality.Client.Services
                     }
                 }
 
-                if(onSuccess is not null) onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived " + data.Count.ToString() + " record from " + source);
+                if(onSuccess is not null) await onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived " + data.Count.ToString() + " record from " + source);
 
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 
@@ -152,7 +152,7 @@ namespace Causality.Client.Services
         /// <param name="onFail"></param>
         /// <param name="state"></param>
         /// <returns></returns>
-        public async Task TryGetById(int id, string includeProperties, Action<Effect, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryGetById(int id, string includeProperties, Func<Effect, string, Task> onSuccess, Func<Exception, string, Task> onFail, CascadingAppStateProvider state)
         {
             try
             {
@@ -203,20 +203,20 @@ namespace Causality.Client.Services
                     }
                 }
 
-                if(onSuccess is not null) onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived 1 record from " + source);
+                if(onSuccess is not null) await onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived 1 record from " + source);
 
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 
-        public async Task TryInsert(Effect Effect, Action<Effect, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryInsert(Effect Effect, Func<Effect, string, Task> onSuccess, Func<Exception, string, Task> onFail, CascadingAppStateProvider state)
         {
             try
             {
@@ -245,20 +245,20 @@ namespace Causality.Client.Services
                     throw new Exception(RequestCodes.FIVE_ZERO_FOUR);
                 }
 
-                if(onSuccess is not null) onSuccess(Effect, status);
+                if(onSuccess is not null) await onSuccess(Effect, status);
 
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 
-        public async Task TryUpdate(Effect Effect, Action<Effect, string> onSuccess, Action<Exception, string> onFail, CascadingAppStateProvider state)
+        public async Task TryUpdate(Effect Effect, Func<Effect, string, Task> onSuccess, Func<Exception, string, Task> onFail, CascadingAppStateProvider state)
         {
             try
             {
@@ -287,16 +287,16 @@ namespace Causality.Client.Services
                     throw new Exception(RequestCodes.FIVE_ZERO_FOUR);
                 }
 
-                if(onSuccess is not null) onSuccess(Effect, status);
+                if(onSuccess is not null) await onSuccess(Effect, status);
 
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) await onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 

@@ -69,13 +69,13 @@ namespace Causality.Client.ViewModels
 
         protected async Task Delete(Int32 Id)
         {
-            await dataService.TryDelete(Id, (String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await dataService.TryDelete(Id, async (String s) => { GetAll(); Notify("success", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
         protected async Task Update()
         {
-            await dataService.TryUpdate(selectedItem, (Event m, String s) => { GetAll(); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await dataService.TryUpdate(selectedItem, async (Event m, String s) => { GetAll(); Notify("success", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
@@ -85,20 +85,20 @@ namespace Causality.Client.ViewModels
             item.Order = list.LastOrDefault().Order + 1;
             item.Value = "Event ?";
             item.UpdatedDate = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-            await dataService.TryInsert(item, (Event m, String s) => { list.Add(m); Notify("success", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await dataService.TryInsert(item, async(Event m, String s) => { list.Add(m); Notify("success", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             await InvokeAsync(StateHasChanged);
         }
 
         protected async Task Edit(Int32 Id)
         {
-            await dataService.TryGetById(Id, "", (Event m, String s) => { selectedItem = m; Notify("info", s); }, (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await dataService.TryGetById(Id, "", async (Event m, String s) => { selectedItem = m; Notify("info", s); }, async (Exception e, String r) => { selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
         }
 
         protected async Task Search(ChangeEventArgs args)
         {
             if (args.Value?.ToString().Length > 0)
             {
-                await dataService.TryGet(e => e.Value.ToLower().Contains(args.Value.ToString()), "Id", true, "", (IEnumerable<Event> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
+                await dataService.TryGet(e => e.Value.ToLower().Contains(args.Value.ToString()), "Id", true, "", async (IEnumerable<Event> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, async (Exception e, String r) => { list = null; selectedItem = null; Notify("error", e.ToString() + " " + r); }, StateProvider);
             }
             else
             {
@@ -108,7 +108,7 @@ namespace Causality.Client.ViewModels
 
         protected async void GetAll()
         {
-            await dataService.TryGet(e => e.Id > 0, "Id", true, "",  (IEnumerable<Event> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            await dataService.TryGet(e => e.Id > 0, "Id", true, "", async (IEnumerable<Event> m, String s) => { list = m.ToList(); selectedItem = null; Notify("info", s); }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
         }
 
         protected async Task Cancel()

@@ -78,7 +78,7 @@ namespace Causality.Client.ViewModels
                 await Task.Delay(0);
                 _user = u; 
 
-            }, (Exception e, string s) => { }, StateProvider);
+            }, async (Exception e, string s) => { }, StateProvider);
 
             currentUser = new();
             currentUser.Id = _user.Id;
@@ -86,15 +86,15 @@ namespace Causality.Client.ViewModels
             currentUser.Metas = _user.Metas.ToList<Meta>();
 
             List<Effect> _effets = new();
-            await effectService.TryGet(u => u.UserId == UserId, "CauseId", true, "", (IEnumerable<Effect> e, string s) => { _effets = e.ToList(); }, (Exception e, string s) => { }, StateProvider);
+            await effectService.TryGet(u => u.UserId == UserId, "CauseId", true, "", async (IEnumerable<Effect> e, string s) => { _effets = e.ToList(); }, async (Exception e, string s) => { }, StateProvider);
             currentUser.Interactions = new();
 
             foreach (var item in _effets)
             {
                 AppUser.Interaction cce = new();
 
-                await classService.TryGetById(item.ClassId, "", (Class c, string s) => { cce.Class = c.Value; }, (Exception e, string s) => { }, StateProvider);
-                await causeService.TryGetById((Int32)item.CauseId, "", (Cause c, string s) => { cce.Cause = c.Value; }, (Exception e, string s) => { }, StateProvider);
+                await classService.TryGetById(item.ClassId, "", async (Class c, string s) => { cce.Class = c.Value; }, async (Exception e, string s) => { }, StateProvider);
+                await causeService.TryGetById((Int32)item.CauseId, "", async (Cause c, string s) => { cce.Cause = c.Value; }, async (Exception e, string s) => { }, StateProvider);
 
                 cce.Effect = item.Value;
                 currentUser.Interactions.Add(cce);
@@ -106,7 +106,7 @@ namespace Causality.Client.ViewModels
             {
                 AppUser.ExcludedInteraction ei = new();
 
-                await causeService.TryGetById((Int32)item.CauseId, "", (Cause c, string s) => { ei.Cause = c.Value; }, (Exception e, string s) => { }, StateProvider);
+                await causeService.TryGetById((Int32)item.CauseId, "", async (Cause c, string s) => { ei.Cause = c.Value; }, async (Exception e, string s) => { }, StateProvider);
 
                 currentUser.ExcludedInteractions.Add(ei);
             }

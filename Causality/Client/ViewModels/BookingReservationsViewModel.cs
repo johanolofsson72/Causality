@@ -132,7 +132,7 @@ namespace Causality.Client.ViewModels
                 // Invoke StateHasChange
                 await InvokeAsync(StateHasChanged);
 
-            }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
 
         }
 
@@ -199,9 +199,9 @@ namespace Causality.Client.ViewModels
                     // Invoke StateHasChange
                     await InvokeAsync(StateHasChanged);
 
-                }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+                }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
 
-            }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
 
         }
 
@@ -241,10 +241,10 @@ namespace Causality.Client.ViewModels
                 {
                     foreach (var item in st)
                     {
-                        await StateManager.TryDelete(item.Id, (string s) => { Notify("success", s); }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
+                        await StateManager.TryDelete(item.Id, async (string s) => { Notify("success", s); }, async(Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
                     }
 
-                }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
+                }, async (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
 
                 await Task.Delay(100);
 
@@ -263,7 +263,7 @@ namespace Causality.Client.ViewModels
                 // Invoke StateHasChange
                 await InvokeAsync(StateHasChanged);
 
-            }, (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { Notify("error", e + " " + s); }, StateProvider);
 
         }
 
@@ -330,7 +330,7 @@ namespace Causality.Client.ViewModels
                         selectedItem.CauseId = causeId;
                         selectedItem.MooringName = mooring;
 
-                    }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+                    }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
                 }
             }
 
@@ -370,41 +370,41 @@ namespace Causality.Client.ViewModels
 
                 Notify("info", s);
 
-            }, (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
+            }, async (Exception e, String s) => { selectedItem = null; Notify("error", e + " " + s); }, StateProvider);
 
         }
 
         private async Task<string> GetCustomerName(int userId)
         {
             string ret = "";
-            await UserManager.TryGetById(userId, "Metas", (User u, String s) =>
+            await UserManager.TryGetById(userId, "Metas", async (User u, String s) =>
             {
                 ret = Property.Search("firstname", u.Metas).ToString() + " " +
                       Property.Search("lastname", u.Metas).ToString();
             
-            }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
+            }, async (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
             return ret;
         }
 
         private async Task<string> GetBoatName(int processId)
         {
             string ret = "";
-            await ProcessManager.TryGetById(processId, "", (Process p, String s) =>
+            await ProcessManager.TryGetById(processId, "", async (Process p, String s) =>
             {
                 ret = p.Value;
 
-            }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
+            }, async (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
             return ret;
         }
 
         private async Task<string> GetMooringName(int causeId)
         {
             string ret = "";
-            await CauseManager.TryGetById(causeId, "", (Cause c, String s) =>
+            await CauseManager.TryGetById(causeId, "", async (Cause c, String s) =>
             {
                 ret = c.Value;
 
-            }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
+            }, async (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
             return ret;
         }
 
@@ -418,7 +418,7 @@ namespace Causality.Client.ViewModels
                 return;
 
             // Delete all objects
-            await ResultManager.TryDelete(Item.Id, (string s) => { Notify("success", s); }, (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
+            await ResultManager.TryDelete(Item.Id, async (string s) => { Notify("success", s); }, async (Exception e, String r) => { Notify("error", e.ToString() + " " + r); }, StateProvider);
 
             await Task.Delay(10);
 
