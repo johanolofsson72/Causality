@@ -102,15 +102,15 @@ namespace Causality.Client.ViewModels
                         Uid = u.UID,
                         Status = u.Name,
                         EmailAddress = u.Email,
-                        UpdatedDate = Convert.ToDateTime(u.UpdatedDate),
-                        FirstName = Property.Search("firstname", u.Metas).ToString(),
-                        LastName = Property.Search("lastname", u.Metas).ToString(),
-                        Address = Property.Search("address", u.Metas).ToString(),
-                        PostalCode = Property.Search("postalcode", u.Metas).ToString(),
-                        City = Property.Search("city", u.Metas).ToString(),
-                        Country = Property.Search("country", u.Metas).ToString(),
-                        PhoneNumber = Property.Search("phonenumber", u.Metas).ToString(),
-                        RegNumber = Property.Search("regnumber", u.Metas).ToString()
+                        UpdatedDate = u.UpdatedDate.ToDateTime(),
+                        FirstName = "firstname".GetPropertyValueAsString(u.Metas).ToTitleCase(),
+                        LastName = "lastname".GetPropertyValueAsString(u.Metas).ToTitleCase(),
+                        Address = "address".GetPropertyValueAsString(u.Metas).ToTitleCase(),
+                        PostalCode = "postalcode".GetPropertyValueAsString(u.Metas).ToTitleCase(),
+                        City = "city".GetPropertyValueAsString(u.Metas).ToTitleCase(),
+                        Country = "country".GetPropertyValueAsString(u.Metas).ToTitleCase(),
+                        PhoneNumber = "phonenumber".GetPropertyValueAsString(u.Metas),
+                        RegNumber = "regnumber".GetPropertyValueAsString(u.Metas).ToUpper(),
                     };
                     _list.Add(bookingCustomer);
                 }

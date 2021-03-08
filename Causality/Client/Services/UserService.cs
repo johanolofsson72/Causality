@@ -47,19 +47,19 @@ namespace Causality.Client.Services
 
                         if (!ret.Success)
                         {
-                            onFail(new Exception(RequestCodes.FIVE_ZERO_THREE), ret.Status);
+                            if(onFail is not null) onFail(new Exception(RequestCodes.FIVE_ZERO_THREE), ret.Status);
                             return;
                         }
 
                         await _indexedDBManager.OpenDb();
                         await _indexedDBManager.ClearStore("Blobs");
 
-                        onSuccess(ret.Status);
+                        if(onSuccess is not null) onSuccess(ret.Status);
                         return;
                     }
                     else
                     {
-                        onFail(new Exception(RequestCodes.FIVE_ZERO_FOUR), " Could Not Delete, Please Try Again Later");
+                        if(onFail is not null) onFail(new Exception(RequestCodes.FIVE_ZERO_FOUR), " Could Not Delete, Please Try Again Later");
                         return;
                     }
                 }
@@ -70,21 +70,21 @@ namespace Causality.Client.Services
 
                     if (!ret.Success)
                     {
-                        onFail(new Exception(RequestCodes.FIVE_ZERO_THREE), ret.Status);
+                        if(onFail is not null) onFail(new Exception(RequestCodes.FIVE_ZERO_THREE), ret.Status);
                         return;
                     }
 
-                    onSuccess(ret.Status);
+                    if(onSuccess is not null) onSuccess(ret.Status);
                     return;
                 }
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 
@@ -153,16 +153,16 @@ namespace Causality.Client.Services
                     }
                 }
 
-                onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived " + data.Count.ToString() + " record from " + source);
+                if(onSuccess is not null) onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived " + data.Count.ToString() + " record from " + source);
 
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 
@@ -225,16 +225,16 @@ namespace Causality.Client.Services
                     }
                 }
 
-                onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived 1 record from " + source);
+                if(onSuccess is not null) onSuccess(data, RequestCodes.TWO_ZERO_ZERO + ", recived 1 record from " + source);
 
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 
@@ -267,16 +267,16 @@ namespace Causality.Client.Services
                     throw new Exception(RequestCodes.FIVE_ZERO_FOUR);
                 }
 
-                onSuccess(User, status);
+                if(onSuccess is not null) onSuccess(User, status);
 
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 
@@ -309,16 +309,16 @@ namespace Causality.Client.Services
                     throw new Exception(RequestCodes.FIVE_ZERO_FOUR);
                 }
 
-                onSuccess(User, status);
+                if(onSuccess is not null) onSuccess(User, status);
 
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.DeadlineExceeded)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
             catch (Exception e)
             {
-                onFail(e, RequestCodes.FIVE_ZERO_ZERO);
+                if(onFail is not null) onFail(e, RequestCodes.FIVE_ZERO_ZERO);
             }
         }
 
