@@ -2,6 +2,8 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
     <PropertyGroup>
       <TargetFramework>net8.0</TargetFramework>
+      <!-- Temporarily disable nullable warnings while migrating away from Telerik -->
+      <Nullable>disable</Nullable>
     </PropertyGroup>
     <PropertyGroup>
       <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
@@ -29,6 +31,6 @@
       <ProjectReference Include="..\Shared\Causality.Shared.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <!-- <PackageReference Include="Telerik.UI.for.Blazor" /> -->
+      <!-- Telerik.UI.for.Blazor requires license - removed for open source build -->
     </ItemGroup>
 </Project>

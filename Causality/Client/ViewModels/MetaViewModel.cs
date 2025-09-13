@@ -6,7 +6,6 @@ using Causality.Client.Services;
 using Causality.Client.Shared;
 using Causality.Shared.Models;
 using Microsoft.AspNetCore.Components;
-using Telerik.Blazor.Components;
 
 namespace Causality.Client.ViewModels
 {
@@ -51,7 +50,6 @@ namespace Causality.Client.ViewModels
 
         [Parameter] public EventCallback<Dictionary<string, string>> NotifyParent { get; set; }
 
-        protected TelerikNotification NotificationComponent { get; set; }
         protected String Title = "Meta";
         protected List<Meta> list;
         protected Meta selectedItem;

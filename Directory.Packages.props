@@ -48,7 +48,8 @@
     <!-- Development tools -->
     <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     
-    <!-- Telerik UI (keep existing version for now) -->
+    <!-- Telerik UI (requires license - commented out for open source build)
     <PackageVersion Include="Telerik.UI.for.Blazor" Version="2.21.0" />
+    -->
   </ItemGroup>
 </Project>

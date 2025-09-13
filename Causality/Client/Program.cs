@@ -22,8 +22,8 @@ namespace Causality.Client
 
             builder.RootComponents.Add<App>("#app");
 
-            // Add the Telerik components
-            builder.Services.AddTelerikBlazor();
+            // Telerik components removed - requires license
+            // builder.Services.AddTelerikBlazor();
 
             // Add the Grpc channels
             builder.Services.AddSingleton(services =>

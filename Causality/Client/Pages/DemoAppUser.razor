@@ -2,14 +2,13 @@
 @inject Services.UserService dataService
 @*@inject Services.EventService eventService*@
 
-<TelerikDropDownList @bind-Value="selectedUserId" Width="250px" Data="@users" DefaultText="Select a user" ValueField="Id" TextField="Name" Id="satan">
-    <ValueTemplate>
-        @((context as User).Name)
-    </ValueTemplate>
-    <ItemTemplate>
-        @((context as User).Name)
-    </ItemTemplate>
-</TelerikDropDownList>
+<select @bind="selectedUserId" class="form-select" style="width: 250px;">
+    <option value="">Select a user</option>
+    @foreach (var user in users)
+    {
+        <option value="@user.Id">@user.Name</option>
+    }
+</select>
 <br />
 <br />
 <AppUserComponent UserId="@selectedUserId" />

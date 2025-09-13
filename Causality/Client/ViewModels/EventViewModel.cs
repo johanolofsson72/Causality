@@ -6,7 +6,6 @@ using Causality.Client.Services;
 using Causality.Client.Shared;
 using Causality.Shared.Models;
 using Microsoft.AspNetCore.Components;
-using Telerik.Blazor.Components;
 
 namespace Causality.Client.ViewModels
 {

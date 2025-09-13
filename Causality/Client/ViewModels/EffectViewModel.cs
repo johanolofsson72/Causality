@@ -6,7 +6,6 @@ using Causality.Client.Services;
 using Causality.Client.Shared;
 using Causality.Shared.Models;
 using Microsoft.AspNetCore.Components;
-using Telerik.Blazor.Components;
 
 namespace Causality.Client.ViewModels
 {
@@ -58,7 +57,6 @@ namespace Causality.Client.ViewModels
 
         [Inject] Services.EffectService dataService { get; set; }
 
-        protected TelerikNotification NotificationComponent { get; set; }
         protected String Title = "Effect";
         protected List<Effect> list;
         protected Effect selectedItem;
