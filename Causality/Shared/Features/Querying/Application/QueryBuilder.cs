@@ -512,6 +512,510 @@ public class QueryBuilder
     }
 
     /// <summary>
+    /// Add Last operation (returns last element)
+    /// </summary>
+    public QueryBuilder Last()
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Last,
+            Parameters = new Dictionary<string, object?>()
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add LastOrDefault operation
+    /// </summary>
+    public QueryBuilder LastOrDefault()
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.LastOrDefault,
+            Parameters = new Dictionary<string, object?>()
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add ElementAt operation (returns element at specific index)
+    /// </summary>
+    public QueryBuilder ElementAt(int index)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.ElementAt,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["index"] = index
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add ElementAtOrDefault operation
+    /// </summary>
+    public QueryBuilder ElementAtOrDefault(int index)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.ElementAtOrDefault,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["index"] = index
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Union operation (set union)
+    /// </summary>
+    public QueryBuilder Union(AbstractQuery other)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Union,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["other"] = other
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add UnionBy operation (set union by key selector)
+    /// </summary>
+    public QueryBuilder UnionBy(AbstractQuery other, string keyField)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.UnionBy,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["other"] = other,
+                ["keyField"] = keyField
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Intersect operation (set intersection)
+    /// </summary>
+    public QueryBuilder Intersect(AbstractQuery other)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Intersect,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["other"] = other
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add IntersectBy operation (set intersection by key selector)
+    /// </summary>
+    public QueryBuilder IntersectBy(AbstractQuery other, string keyField)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.IntersectBy,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["other"] = other,
+                ["keyField"] = keyField
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Except operation (set difference)
+    /// </summary>
+    public QueryBuilder Except(AbstractQuery other)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Except,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["other"] = other
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add ExceptBy operation (set difference by key selector)
+    /// </summary>
+    public QueryBuilder ExceptBy(AbstractQuery other, string keyField)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.ExceptBy,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["other"] = other,
+                ["keyField"] = keyField
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add DistinctBy operation (distinct by key selector)
+    /// </summary>
+    public QueryBuilder DistinctBy(string keyField)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.DistinctBy,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["keyField"] = keyField
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Concat operation (sequence concatenation)
+    /// </summary>
+    public QueryBuilder Concat(AbstractQuery other)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Concat,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["other"] = other
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Zip operation (pair elements from two sequences)
+    /// </summary>
+    public QueryBuilder Zip(AbstractQuery other, string resultSelector)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Zip,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["other"] = other,
+                ["resultSelector"] = resultSelector
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add SequenceEqual operation (compare sequences for equality)
+    /// </summary>
+    public QueryBuilder SequenceEqual(AbstractQuery other)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.SequenceEqual,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["other"] = other
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add OfType operation (filter by type)
+    /// </summary>
+    public QueryBuilder OfType(string typeName)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.OfType,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["typeName"] = typeName
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add SkipWhile operation (skip elements while condition is true)
+    /// </summary>
+    public QueryBuilder SkipWhile(string field, string op, object? value)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.SkipWhile,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["predicate"] = new FilterCondition
+                {
+                    Field = field,
+                    Operator = op,
+                    Value = value
+                }
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add TakeWhile operation (take elements while condition is true)
+    /// </summary>
+    public QueryBuilder TakeWhile(string field, string op, object? value)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.TakeWhile,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["predicate"] = new FilterCondition
+                {
+                    Field = field,
+                    Operator = op,
+                    Value = value
+                }
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add SkipLast operation (skip last N elements)
+    /// </summary>
+    public QueryBuilder SkipLast(int count)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.SkipLast,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["count"] = count
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add TakeLast operation (take last N elements)
+    /// </summary>
+    public QueryBuilder TakeLast(int count)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.TakeLast,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["count"] = Math.Min(count, 200) // Enforce limit
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add LongCount aggregation
+    /// </summary>
+    public QueryBuilder LongCount(string? alias = null)
+    {
+        return AddAggregation(FilterOperators.LongCount, null, alias);
+    }
+
+    /// <summary>
+    /// Add Aggregate operation (fold/reduce)
+    /// </summary>
+    public QueryBuilder Aggregate(string field, string aggregateFunction, string? alias = null)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Aggregate,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["field"] = field,
+                ["function"] = aggregateFunction,
+                ["alias"] = alias
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Contains operation (check if sequence contains element)
+    /// </summary>
+    public QueryBuilder ContainsElement(object value)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.ContainsElement,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["value"] = value
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add ToLookup operation (create lookup/dictionary)
+    /// </summary>
+    public QueryBuilder ToLookup(string keyField, string? elementField = null)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.ToLookup,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["keyField"] = keyField,
+                ["elementField"] = elementField
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add DefaultIfEmpty operation (returns default elements if sequence is empty)
+    /// </summary>
+    public QueryBuilder DefaultIfEmpty(object? defaultValue = null)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.DefaultIfEmpty,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["defaultValue"] = defaultValue
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Chunk operation (split sequence into chunks)
+    /// </summary>
+    public QueryBuilder Chunk(int size)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Chunk,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["size"] = Math.Min(size, 200) // Enforce limit
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add SelectWithIndex operation (select with element index)
+    /// </summary>
+    public QueryBuilder SelectWithIndex(params string[] fields)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.SelectWithIndex,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["fields"] = fields,
+                ["includeIndex"] = true
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Create Range operation (generate sequence of numbers)
+    /// </summary>
+    public static QueryBuilder Range(int start, int count)
+    {
+        var builder = new QueryBuilder();
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Range,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["start"] = start,
+                ["count"] = Math.Min(count, 200) // Enforce limit
+            }
+        };
+        builder._query.Operations.Add(operation);
+        builder._query.Entity = "Range"; // Special entity for generation
+        return builder;
+    }
+
+    /// <summary>
+    /// Create Repeat operation (repeat element N times)
+    /// </summary>
+    public static QueryBuilder Repeat(object element, int count)
+    {
+        var builder = new QueryBuilder();
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Repeat,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["element"] = element,
+                ["count"] = Math.Min(count, 200) // Enforce limit
+            }
+        };
+        builder._query.Operations.Add(operation);
+        builder._query.Entity = "Repeat"; // Special entity for generation
+        return builder;
+    }
+
+    /// <summary>
+    /// Create Empty operation (empty sequence)
+    /// </summary>
+    public static QueryBuilder Empty(string entityType)
+    {
+        var builder = new QueryBuilder();
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Empty,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["entityType"] = entityType
+            }
+        };
+        builder._query.Operations.Add(operation);
+        builder._query.Entity = "Empty"; // Special entity for generation
+        return builder;
+    }
+
+    /// <summary>
     /// Build the final AbstractQuery
     /// </summary>
     public AbstractQuery Build()
