@@ -44,6 +44,30 @@ public class AbstractQuery
     /// </summary>
     [JsonPropertyName("hints")]
     public QueryHints? Hints { get; set; }
+
+    /// <summary>
+    /// Advanced LINQ operations
+    /// </summary>
+    [JsonPropertyName("operations")]
+    public List<QueryOperation> Operations { get; set; } = new();
+
+    /// <summary>
+    /// Grouping configuration
+    /// </summary>
+    [JsonPropertyName("groupBy")]
+    public GroupBySpecification? GroupBy { get; set; }
+
+    /// <summary>
+    /// Aggregation operations
+    /// </summary>
+    [JsonPropertyName("aggregations")]
+    public List<AggregationSpecification> Aggregations { get; set; } = new();
+
+    /// <summary>
+    /// Join operations
+    /// </summary>
+    [JsonPropertyName("joins")]
+    public List<JoinSpecification> Joins { get; set; } = new();
 }
 
 /// <summary>
@@ -134,4 +158,100 @@ public class QueryHints
     /// </summary>
     [JsonPropertyName("cacheTtlSeconds")]
     public int? CacheTtlSeconds { get; set; }
+}
+
+/// <summary>
+/// Represents a generic query operation (SelectMany, Distinct, etc.)
+/// </summary>
+public class QueryOperation
+{
+    /// <summary>
+    /// Operation type (selectMany, distinct, skip, take, etc.)
+    /// </summary>
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Parameters for the operation
+    /// </summary>
+    [JsonPropertyName("parameters")]
+    public Dictionary<string, object?> Parameters { get; set; } = new();
+}
+
+/// <summary>
+/// GroupBy specification for analytics queries
+/// </summary>
+public class GroupBySpecification
+{
+    /// <summary>
+    /// Fields to group by
+    /// </summary>
+    [JsonPropertyName("fields")]
+    public List<string> Fields { get; set; } = new();
+
+    /// <summary>
+    /// Having conditions (filters applied after grouping)
+    /// </summary>
+    [JsonPropertyName("having")]
+    public List<FilterCondition> Having { get; set; } = new();
+}
+
+/// <summary>
+/// Aggregation specification (Count, Sum, Average, Min, Max)
+/// </summary>
+public class AggregationSpecification
+{
+    /// <summary>
+    /// Aggregation function (count, sum, avg, min, max)
+    /// </summary>
+    [JsonPropertyName("function")]
+    public string Function { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Field to aggregate (null for Count)
+    /// </summary>
+    [JsonPropertyName("field")]
+    public string? Field { get; set; }
+
+    /// <summary>
+    /// Alias for the result
+    /// </summary>
+    [JsonPropertyName("alias")]
+    public string? Alias { get; set; }
+}
+
+/// <summary>
+/// Join specification for relational queries
+/// </summary>
+public class JoinSpecification
+{
+    /// <summary>
+    /// Join type (join, groupJoin, leftJoin)
+    /// </summary>
+    [JsonPropertyName("type")]
+    public string Type { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Target entity to join with
+    /// </summary>
+    [JsonPropertyName("entity")]
+    public string Entity { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Join condition (field mappings)
+    /// </summary>
+    [JsonPropertyName("on")]
+    public Dictionary<string, string> On { get; set; } = new();
+
+    /// <summary>
+    /// Fields to select from joined entity
+    /// </summary>
+    [JsonPropertyName("select")]
+    public List<string> Select { get; set; } = new();
+
+    /// <summary>
+    /// Alias for joined data
+    /// </summary>
+    [JsonPropertyName("alias")]
+    public string? Alias { get; set; }
 }

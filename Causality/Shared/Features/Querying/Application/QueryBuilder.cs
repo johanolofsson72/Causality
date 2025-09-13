@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using Causality.Shared.Features.Querying.Domain;
 
 namespace Causality.Shared.Features.Querying.Application;
@@ -235,6 +237,280 @@ public class QueryBuilder
         return this;
     }
 
+    // =============== Advanced LINQ Operators ===============
+
+    /// <summary>
+    /// Add SelectMany operation for flattening collections
+    /// </summary>
+    public QueryBuilder SelectMany(string collectionField, string? alias = null)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.SelectMany,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["field"] = collectionField,
+                ["alias"] = alias
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Distinct operation to remove duplicates
+    /// </summary>
+    public QueryBuilder Distinct(params string[] fields)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Distinct,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["fields"] = fields.Length > 0 ? fields : null
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Skip operation for pagination
+    /// </summary>
+    public QueryBuilder Skip(int count)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Skip,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["count"] = count
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Take operation for limiting results
+    /// </summary>
+    public QueryBuilder Take(int count)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Take,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["count"] = Math.Min(count, 200) // Enforce max limit
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add GroupBy operation for analytics
+    /// </summary>
+    public QueryBuilder GroupBy(params string[] fields)
+    {
+        if (fields == null || fields.Length == 0)
+            throw new ArgumentException("At least one field must be specified for GroupBy", nameof(fields));
+
+        _query.GroupBy = new GroupBySpecification
+        {
+            Fields = fields.ToList()
+        };
+        return this;
+    }
+
+    /// <summary>
+    /// Add Having condition (filters applied after GroupBy)
+    /// </summary>
+    public QueryBuilder Having(string field, string op, object? value)
+    {
+        _query.GroupBy ??= new GroupBySpecification();
+        
+        _query.GroupBy.Having.Add(new FilterCondition
+        {
+            Field = field,
+            Operator = op,
+            Value = value
+        });
+        return this;
+    }
+
+    /// <summary>
+    /// Add Count aggregation
+    /// </summary>
+    public QueryBuilder Count(string? alias = null)
+    {
+        return AddAggregation(FilterOperators.Count, null, alias);
+    }
+
+    /// <summary>
+    /// Add Sum aggregation
+    /// </summary>
+    public QueryBuilder Sum(string field, string? alias = null)
+    {
+        return AddAggregation(FilterOperators.Sum, field, alias);
+    }
+
+    /// <summary>
+    /// Add Average aggregation
+    /// </summary>
+    public QueryBuilder Average(string field, string? alias = null)
+    {
+        return AddAggregation(FilterOperators.Average, field, alias);
+    }
+
+    /// <summary>
+    /// Add Min aggregation
+    /// </summary>
+    public QueryBuilder Min(string field, string? alias = null)
+    {
+        return AddAggregation(FilterOperators.Min, field, alias);
+    }
+
+    /// <summary>
+    /// Add Max aggregation
+    /// </summary>
+    public QueryBuilder Max(string field, string? alias = null)
+    {
+        return AddAggregation(FilterOperators.Max, field, alias);
+    }
+
+    /// <summary>
+    /// Add Join operation
+    /// </summary>
+    public QueryBuilder Join(string entity, string sourceKey, string targetKey, params string[] selectFields)
+    {
+        return AddJoin(FilterOperators.Join, entity, sourceKey, targetKey, selectFields);
+    }
+
+    /// <summary>
+    /// Add GroupJoin operation (LEFT JOIN)
+    /// </summary>
+    public QueryBuilder GroupJoin(string entity, string sourceKey, string targetKey, params string[] selectFields)
+    {
+        return AddJoin(FilterOperators.GroupJoin, entity, sourceKey, targetKey, selectFields);
+    }
+
+    /// <summary>
+    /// Add First operation (returns first element)
+    /// </summary>
+    public QueryBuilder First()
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.First,
+            Parameters = new Dictionary<string, object?>()
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add FirstOrDefault operation
+    /// </summary>
+    public QueryBuilder FirstOrDefault()
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.FirstOrDefault,
+            Parameters = new Dictionary<string, object?>()
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Single operation (expects exactly one element)
+    /// </summary>
+    public QueryBuilder Single()
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Single,
+            Parameters = new Dictionary<string, object?>()
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add SingleOrDefault operation
+    /// </summary>
+    public QueryBuilder SingleOrDefault()
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.SingleOrDefault,
+            Parameters = new Dictionary<string, object?>()
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Reverse operation to reverse the order
+    /// </summary>
+    public QueryBuilder Reverse()
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Reverse,
+            Parameters = new Dictionary<string, object?>()
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add Any operation for collection predicate evaluation
+    /// </summary>
+    public QueryBuilder Any(string collectionField, string predicateField, string op, object? value)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.Any,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["collection"] = collectionField,
+                ["predicate"] = new FilterCondition
+                {
+                    Field = predicateField,
+                    Operator = op,
+                    Value = value
+                }
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
+    /// <summary>
+    /// Add All operation for collection predicate evaluation
+    /// </summary>
+    public QueryBuilder All(string collectionField, string predicateField, string op, object? value)
+    {
+        var operation = new QueryOperation
+        {
+            Type = FilterOperators.All,
+            Parameters = new Dictionary<string, object?>
+            {
+                ["collection"] = collectionField,
+                ["predicate"] = new FilterCondition
+                {
+                    Field = predicateField,
+                    Operator = op,
+                    Value = value
+                }
+            }
+        };
+        _query.Operations.Add(operation);
+        return this;
+    }
+
     /// <summary>
     /// Build the final AbstractQuery
     /// </summary>
@@ -271,6 +547,30 @@ public class QueryBuilder
             Value = value
         });
 
+        return this;
+    }
+
+    private QueryBuilder AddAggregation(string function, string? field, string? alias)
+    {
+        _query.Aggregations.Add(new AggregationSpecification
+        {
+            Function = function,
+            Field = field,
+            Alias = alias
+        });
+        return this;
+    }
+
+    private QueryBuilder AddJoin(string joinType, string entity, string sourceKey, string targetKey, string[] selectFields)
+    {
+        var join = new JoinSpecification
+        {
+            Type = joinType,
+            Entity = entity,
+            On = new Dictionary<string, string> { [sourceKey] = targetKey },
+            Select = selectFields.ToList()
+        };
+        _query.Joins.Add(join);
         return this;
     }
 }

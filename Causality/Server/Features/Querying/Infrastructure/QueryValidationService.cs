@@ -51,6 +51,18 @@ public class QueryValidationService : IQueryValidationService
         // Validate pagination
         ValidatePagination(query.Page, result);
 
+        // Validate advanced operations
+        ValidateOperations(query.Operations, entityConfig, result);
+
+        // Validate GroupBy
+        ValidateGroupBy(query.GroupBy, entityConfig, result);
+
+        // Validate aggregations
+        ValidateAggregations(query.Aggregations, entityConfig, result);
+
+        // Validate joins
+        ValidateJoins(query.Joins, result);
+
         // Log validation outcome
         if (result.IsValid)
         {
@@ -186,6 +198,138 @@ public class QueryValidationService : IQueryValidationService
             }
         }
         return count;
+    }
+
+    private void ValidateOperations(List<QueryOperation> operations, EntityConfiguration entityConfig, QueryValidationResult result)
+    {
+        foreach (var operation in operations)
+        {
+            // Validate operation type is supported
+            if (!FilterOperators.SupportedOperators.Contains(operation.Type))
+            {
+                result.Errors.Add($"Operation '{operation.Type}' is not supported");
+                result.IsValid = false;
+                continue;
+            }
+
+            // Validate specific operation requirements
+            ValidateSpecificOperation(operation, entityConfig, result);
+        }
+    }
+
+    private void ValidateSpecificOperation(QueryOperation operation, EntityConfiguration entityConfig, QueryValidationResult result)
+    {
+        switch (operation.Type)
+        {
+            case FilterOperators.SelectMany:
+                if (!operation.Parameters.TryGetValue("field", out var field) || field == null)
+                {
+                    result.Errors.Add("SelectMany operation requires a 'field' parameter");
+                    result.IsValid = false;
+                }
+                else if (!entityConfig.SelectableFields.Contains(field.ToString()!))
+                {
+                    result.Errors.Add($"Field '{field}' is not allowed for SelectMany operation");
+                    result.IsValid = false;
+                }
+                break;
+
+            case FilterOperators.Skip:
+            case FilterOperators.Take:
+                if (!operation.Parameters.TryGetValue("count", out var countObj) || 
+                    countObj is not int count || count < 0)
+                {
+                    result.Errors.Add($"{operation.Type} operation requires a valid positive 'count' parameter");
+                    result.IsValid = false;
+                }
+                else if (operation.Type == FilterOperators.Take && count > _config.MaxPageSize)
+                {
+                    result.Errors.Add($"Take count cannot exceed {_config.MaxPageSize}");
+                    result.IsValid = false;
+                }
+                break;
+
+            case FilterOperators.Any:
+            case FilterOperators.All:
+                if (!operation.Parameters.TryGetValue("collection", out var collection) || collection == null)
+                {
+                    result.Errors.Add($"{operation.Type} operation requires a 'collection' parameter");
+                    result.IsValid = false;
+                }
+                break;
+        }
+    }
+
+    private void ValidateGroupBy(GroupBySpecification? groupBy, EntityConfiguration entityConfig, QueryValidationResult result)
+    {
+        if (groupBy == null) return;
+
+        foreach (var field in groupBy.Fields)
+        {
+            if (!entityConfig.SelectableFields.Contains(field))
+            {
+                result.Errors.Add($"Field '{field}' is not allowed for GroupBy on entity '{entityConfig.Name}'");
+                result.IsValid = false;
+            }
+        }
+
+        // Validate Having conditions
+        ValidateFilters(groupBy.Having, entityConfig, result, 0);
+    }
+
+    private void ValidateAggregations(List<AggregationSpecification> aggregations, EntityConfiguration entityConfig, QueryValidationResult result)
+    {
+        var allowedFunctions = new[] { FilterOperators.Count, FilterOperators.Sum, FilterOperators.Average, FilterOperators.Min, FilterOperators.Max };
+
+        foreach (var agg in aggregations)
+        {
+            if (!allowedFunctions.Contains(agg.Function))
+            {
+                result.Errors.Add($"Aggregation function '{agg.Function}' is not supported");
+                result.IsValid = false;
+                continue;
+            }
+
+            // Count doesn't require a field, others do
+            if (agg.Function != FilterOperators.Count)
+            {
+                if (string.IsNullOrEmpty(agg.Field))
+                {
+                    result.Errors.Add($"Aggregation function '{agg.Function}' requires a field");
+                    result.IsValid = false;
+                }
+                else if (!entityConfig.SelectableFields.Contains(agg.Field))
+                {
+                    result.Errors.Add($"Field '{agg.Field}' is not allowed for aggregation on entity '{entityConfig.Name}'");
+                    result.IsValid = false;
+                }
+            }
+        }
+    }
+
+    private void ValidateJoins(List<JoinSpecification> joins, QueryValidationResult result)
+    {
+        foreach (var join in joins)
+        {
+            if (string.IsNullOrEmpty(join.Entity))
+            {
+                result.Errors.Add("Join operation requires an entity name");
+                result.IsValid = false;
+            }
+
+            if (!join.On.Any())
+            {
+                result.Errors.Add("Join operation requires at least one join condition");
+                result.IsValid = false;
+            }
+
+            var allowedJoinTypes = new[] { FilterOperators.Join, FilterOperators.GroupJoin };
+            if (!allowedJoinTypes.Contains(join.Type))
+            {
+                result.Errors.Add($"Join type '{join.Type}' is not supported");
+                result.IsValid = false;
+            }
+        }
     }
 }
 
