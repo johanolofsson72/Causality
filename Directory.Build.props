@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(MSBuildProjectName)' EndsWith('.Tests') Or $(IsTestProject) == 'true'">
+    <IsTestProject>true</IsTestProject>
+    <NoWarn>$(NoWarn);CS8618</NoWarn>
+  </ItemGroup>
+</Project>

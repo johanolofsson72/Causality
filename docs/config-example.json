@@ -1,0 +1,121 @@
+{
+  "Ollama": {
+    "BaseUrl": "https://ollama.live4.se",
+    "EmbeddingModel": "mxbai-embed-large",
+    "BackupModel": "mxbai-embed-large",
+    "TimeoutMinutes": 15,
+    "DelayBetweenRequestsMs": 100
+  },
+  "EmbeddingService": {
+    "Provider": "Ollama",
+    "OnlyLargeDimension": true,
+    "TargetDimension": 1024
+  },
+  "VectorConfig": {
+    "SupportedModels": {
+      "mxbai-embed-large": {
+        "dimensions": 1024,
+        "column": "large"
+      }
+    }
+  },
+  "DmsApi": {
+    "BaseUrl": "https://dms.drev.se",
+    "SecretKey": "tt.8ce4gAgXUKxVNG8qitsjLvkX-X-E",
+    "TimeoutSeconds": 300
+  },
+  "DrevApi": {
+    "BaseUrl": "https://www.drev.se/PageModulesSummaryHandler.ashx",
+    "SecretKey": "marge-chaps-half-milkman-bombay",
+    "TimeoutSeconds": 30
+  },
+  "Seo": {
+    "SiteUrl": "https://www.drev.se",
+    "OutputDirectory": "seo/out",
+    "MaxUrlsPerSitemap": 10000,
+    "MaxRssItems": 100,
+    "MaxAtomItems": 50,
+    "EnableAutoGeneration": true,
+    "GenerateAfterProductIndexing": true,
+    "GenerateAfterCategoryUpdates": true,
+    "OrganizationName": "Drev.se - Sveriges ledande marinbutik",
+    "LegalName": "Lidingö Marinagenturer AB",
+    "DefaultCurrency": "SEK",
+    "DefaultLanguage": "sv",
+    "CrawlDelay": 1,
+    "EnableAdvancedRobots": true,
+    "EnableImageSitemaps": true,
+    "EnableStructuredData": true,
+    "EnableCoreWebVitals": true,
+    "DisallowedPaths": [
+      "/admin/",
+      "/umbraco/",
+      "/modules/",
+      "/api/",
+      "/PageModulesSummaryHandler.ashx",
+      "/login",
+      "/logout",
+      "/checkout/",
+      "/cart/",
+      "/order/",
+      "/payment/"
+    ],
+    "AllowedPaths": [
+      "/produkter/",
+      "/propellrar",
+      "/impellrar",
+      "/anoder",
+      "/mercury",
+      "/yamaha",
+      "/volvo",
+      "/mercruiser",
+      "/honda",
+      "/suzuki",
+      "/search",
+      "/propellerskolan",
+      "/anodskolan",
+      "/pdf-kataloger",
+      "/servicekit",
+      "/filter",
+      "/olja",
+      "/balgsatser"
+    ],
+    "BlockedBots": [
+      "AhrefsBot",
+      "SemrushBot",
+      "MJ12bot",
+      "DotBot",
+      "BLEXBot",
+      "PetalBot",
+      "MegaIndex",
+      "GPTBot",
+      "ChatGPT-User",
+      "ClaudeBot",
+      "Google-Extended",
+      "Meta-ExternalAgent",
+      "PerplexityBot",
+      "CCBot"
+    ],
+    "BotDelays": {
+      "Googlebot": 1,
+      "Bingbot": 2,
+      "YandexBot": 3,
+      "facebookexternalhit": 5,
+      "Twitterbot": 2
+    },
+    "Organization": {
+      "Name": "Drev.se",
+      "LegalName": "Lidingö Marinagenturer AB",
+      "Description": "Sveriges ledande marinbutik med allt till drev och utombordare. Propellrar, anoder, impellrar och marindelar från ledande märken.",
+      "Address": "Linjalvägen 10d, 187 66 Täby, Sverige",
+      "Phone": "+46-8-7651090",
+      "Email": "order@drev.se",
+      "VatId": "SE556664033901",
+      "Founded": "1995"
+    },
+    "SocialMedia": {
+      "Facebook": "https://www.facebook.com/drev.se",
+      "Instagram": "https://www.instagram.com/drev.se"
+    }
+  }
+}
