@@ -9,7 +9,7 @@ namespace Causality.Shared.Data
 {
     public static class ExpressionBuilder
     {
-        public static Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> BuildOrderBy<TEntity>(string field, bool ascending)
+        public static Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? BuildOrderBy<TEntity>(string field, bool ascending)
         {
             if (!field.Equals(String.Empty))
             {
@@ -35,7 +35,7 @@ namespace Causality.Shared.Data
         }
 
         // Kanske en bugg när man använder x
-        public static Expression<Func<TEntity, bool>> BuildFilter<TEntity>(string filter)
+        public static Expression<Func<TEntity, bool>>? BuildFilter<TEntity>(string filter)
         {
             if (!filter.Equals(String.Empty))
             {
@@ -54,7 +54,7 @@ namespace Causality.Shared.Data
         {
             var searcher = new ParameterlessExpressionSearcher();
             searcher.Visit(expression);
-            return new ParameterlessExpressionEvaluator(searcher.ParameterlessExpressions).Visit(expression);
+            return new ParameterlessExpressionEvaluator(searcher.ParameterlessExpressions).Visit(expression) ?? expression;
         }
 
         public static Expression<T> Simplify<T>(this Expression<T> expression)
@@ -68,7 +68,7 @@ namespace Causality.Shared.Data
             public HashSet<Expression> ParameterlessExpressions { get; } = new HashSet<Expression>();
             private bool containsParameter = false;
 
-            public override Expression Visit(Expression node)
+            public override Expression? Visit(Expression? node)
             {
                 bool originalContainsParameter = containsParameter;
                 containsParameter = false;
@@ -77,7 +77,7 @@ namespace Causality.Shared.Data
                 {
                     if (node?.NodeType == ExpressionType.Parameter)
                         containsParameter = true;
-                    else
+                    else if (node != null)
                         ParameterlessExpressions.Add(node);
                 }
                 containsParameter |= originalContainsParameter;
@@ -93,9 +93,9 @@ namespace Causality.Shared.Data
             {
                 this.parameterlessExpressions = parameterlessExpressions;
             }
-            public override Expression Visit(Expression node)
+            public override Expression? Visit(Expression? node)
             {
-                if (parameterlessExpressions.Contains(node))
+                if (node != null && parameterlessExpressions.Contains(node))
                     return Evaluate(node);
                 else
                     return base.Visit(node);
@@ -107,7 +107,7 @@ namespace Causality.Shared.Data
                 {
                     return node;
                 }
-                object value = Expression.Lambda(node).Compile().DynamicInvoke();
+                object? value = Expression.Lambda(node).Compile().DynamicInvoke();
                 return Expression.Constant(value, node.Type);
             }
         }
