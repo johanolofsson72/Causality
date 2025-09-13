@@ -4,7 +4,51 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
+    <!-- Test packages -->
+    <PackageVersion Include="FluentAssertions" Version="6.12.1" />
     <PackageVersion Include="FakeItEasy" Version="8.3.0" />
+    
+    <!-- .NET 8 Core packages -->
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
+    
+    <!-- Entity Framework Core .NET 8 -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8" />
+    
+    <!-- gRPC packages -->
+    <PackageVersion Include="Grpc.AspNetCore" Version="2.70.0" />
+    <PackageVersion Include="Grpc.AspNetCore.Web" Version="2.70.0" />
+    <PackageVersion Include="Grpc.Net.Client" Version="2.70.0" />
+    <PackageVersion Include="Grpc.Net.Client.Web" Version="2.70.0" />
+    <PackageVersion Include="Grpc.Tools" Version="2.70.0" />
+    <PackageVersion Include="Google.Protobuf" Version="3.28.2" />
+    
+    <!-- Serialization and LINQ -->
+    <PackageVersion Include="Serialize.Linq" Version="4.0.167" />
+    <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.4.8" />
+    <PackageVersion Include="System.Net.Http.Json" Version="8.0.0" />
+    
+    <!-- JSON -->
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
+    
+    <!-- Blazor additional packages -->
+    <PackageVersion Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageVersion Include="BlazorOnlineState" Version="0.0.5" />
+    <PackageVersion Include="TG.Blazor.IndexedDB" Version="1.5.0-preview" />
+    
+    <!-- Metrics and Monitoring -->
+    <PackageVersion Include="prometheus-net" Version="8.2.1" />
+    <PackageVersion Include="prometheus-net.AspNetCore" Version="8.2.1" />
+    
+    <!-- Development tools -->
+    <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    
+    <!-- Telerik UI (keep existing version for now) -->
+    <PackageVersion Include="Telerik.UI.for.Blazor" Version="2.21.0" />
   </ItemGroup>
 </Project>
