@@ -14,14 +14,13 @@
         {
             <input @oninput="Search" class="form-control" placeholder="Search..." />
             <button class="btn btn-primary" @onclick="GetAll">Get</button>
-            <TelerikDropDownList @bind-Value="selectedCauseId" Width="100%" Data="@causes" DefaultText="Select Cause before you press Add" ValueField="Id" TextField="Key" Id="satan">
-                <ValueTemplate>
-                    @((context as Cause).Value)
-                </ValueTemplate>
-                <ItemTemplate>
-                    @((context as Cause).Value)
-                </ItemTemplate>
-            </TelerikDropDownList>
+            <select @bind="selectedCauseId" class="form-select" style="width: 100%;">
+                <option value="">Select Cause before you press Add</option>
+                @foreach (var cause in causes)
+                {
+                    <option value="@cause.Id">@cause.Value</option>
+                }
+            </select>
             <button class="btn btn-secondary" @onclick="Add">Add</button>
             <table class="table" cellpadding="0" cellspacing="0">
                 <Virtualize Items="@list" Context="item">

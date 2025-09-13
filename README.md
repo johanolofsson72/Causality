@@ -1,5 +1,7 @@
 # Project Rules for GitHub Copilot
 
+Updated: 2025-09-09
+
 This repository uses a **feature-based structure**.  
 The following files in the project root define how Copilot must generate code:
 

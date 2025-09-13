@@ -9,10 +9,10 @@ namespace Causality.Shared.Models
     public class AppUser
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public List<Interaction> Interactions { get; set; }
-        public List<ExcludedInteraction> ExcludedInteractions { get; set; }
-        public string ExecutionTime { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public List<Interaction> Interactions { get; set; } = new();
+        public List<ExcludedInteraction> ExcludedInteractions { get; set; } = new();
+        public string ExecutionTime { get; set; } = string.Empty;
 
         public class Interaction
         {
@@ -23,7 +23,7 @@ namespace Causality.Shared.Models
 
         public class ExcludedInteraction
         {
-            public string Cause { get; set; }
+            public string Cause { get; set; } = string.Empty;
         }        
     }
 

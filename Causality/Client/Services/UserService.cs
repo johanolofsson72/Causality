@@ -101,7 +101,7 @@ namespace Causality.Client.Services
         {
             try
             {
-                var serializer = new ExpressionSerializer(new BinarySerializer());
+                var serializer = new ExpressionSerializer(new Serialize.Linq.Serializers.JsonSerializer());
                 var bytes = serializer.SerializeBinary(filter);
                 var predicateDeserialized = serializer.DeserializeBinary(bytes);
                 string filterString = predicateDeserialized.ToString();

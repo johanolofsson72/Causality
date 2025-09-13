@@ -5,9 +5,11 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
+    <!-- Temporarily suppress vulnerability warning for System.Linq.Dynamic.Core while we migrate -->
+    <NoWarn>$(NoWarn);NU1903</NoWarn>
   </PropertyGroup>
-  <ItemGroup Condition="'$(MSBuildProjectName)' EndsWith('.Tests') Or $(IsTestProject) == 'true'">
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('.Tests')) OR '$(IsTestProject)' == 'true'">
     <IsTestProject>true</IsTestProject>
     <NoWarn>$(NoWarn);CS8618</NoWarn>
-  </ItemGroup>
+  </PropertyGroup>
 </Project>

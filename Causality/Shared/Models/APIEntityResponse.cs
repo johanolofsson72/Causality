@@ -9,6 +9,6 @@ namespace Causality.Shared.Models
         public bool Success { get; set; }
         public List<string> ErrorMessages { get; set; } = new List<string>();
         public string Source { get; set; } = "";
-        public TEntity Data { get; set; }
+        public TEntity? Data { get; set; }
     }
 }
